@@ -1,0 +1,18 @@
+<package>
+  <description brief="genpy">
+
+     Python ROS message and service generators.
+
+  </description>
+  <author>Ken Conley/kwc@willowgarage.com</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/genpy</url>
+
+  <export>
+    <rosdoc config="rosdoc.yaml"/>    
+  </export>
+
+</package>
+
+
