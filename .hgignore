@@ -1,0 +1,12 @@
+syntax: glob
+*.orig
+*.swp
+*.pyc
+*.DS_Store
+*~
+*.log
+.coverage
+nosetests.xml
+syntax: regexp
+(target|build|dist)/.*
+

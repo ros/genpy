@@ -29,8 +29,6 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-#
-# Revision $Id: genpy.py 14673 2011-08-16 18:47:14Z kwc $
 
 """
 Library for Python message generation.
@@ -45,6 +43,8 @@ The structure of the serialization descends several levels of serializers:
       - field-type-specific serializers
 """
 
+from __future__ import print_function
+
 import os
 import errno  # for smart handling of exceptions for os.makedirs()
 import keyword
@@ -58,7 +58,6 @@ import struct
 
 import genmsg
 import genmsg.gentools
-import genmsg.packages
 
 try:
     from cStringIO import StringIO # Python 2.x
@@ -112,24 +111,21 @@ SIMPLE_TYPES = list(SIMPLE_TYPES_DICT.keys()) #py3k
 
 def is_simple(type_):
     """
-    @return bool: True if type is a 'simple' type, i.e. is of
-    fixed/known serialization length. This is effectively all primitive
-    types except for string
-    @rtype: bool
+    :returns: ``True`` if type is a 'simple' type, i.e. is of
+      fixed/known serialization length. This is effectively all primitive
+      types except for string, ``bool``
     """
     return type_ in SIMPLE_TYPES
 
 def is_special(type_):
     """
-    @return True if type_ is a special type (i.e. builtin represented as a class instead of a primitive)
-    @rtype: bool
+    :returns: ``True` if *type_* is a special type (i.e. builtin represented as a class instead of a primitive), ``bool``
     """
     return type_ in _SPECIAL_TYPES
 
 def get_special(type_):
     """
-    @return: special type handler for type_ or None
-    @rtype: L{Special}
+    :returns: special type handler for *type_* or ``None``, ``Special``
     """
     return _SPECIAL_TYPES.get(type_, None)
                      
@@ -940,7 +936,7 @@ def msg_generator(package, name, spec):
     # for older versions of msg files
     try:
         gendeps_dict = genmsg.gentools.get_dependencies(spec, package, compute_files=False)
-    except msgs.MsgSpecException as e:
+    except msgs.InvalidMsgSpec as e:
         raise MsgGenerationException("Cannot generate .msg for %s/%s: %s"%(package, name, str(e)))
     md5sum = genmsg.gentools.compute_md5(gendeps_dict)
     
@@ -1287,27 +1283,6 @@ class Generator(object):
     def generate(self, package, f, outdir, incdir):
         raise Exception('subclass must override')
 
-    ## reindex files as a dictionary keyed by package
-    def generate_package_files(self, package_files, files, ext):
-        files = filter(lambda f: f.endswith(ext), files)
-        retcode = 0
-        assert isinstance(files, list)
-        for f in files:
-
-            try:
-                package_dir, package = rosidl.packages.get_dir_pkg(f)
-                outdir = self.outdir(package_dir)
-                if not package:
-                    raise MsgGenerationException("Cannot locate package for %s. Is ROS_ROOT set?"%f)
-                outfile_name = self.outfile_name(outdir, f)
-                if not package in package_files:
-                    package_files[package] = []
-                package_files[package].append(f)
-            except Exception, e:
-                print "\nERROR[%s]: Unable to load %s file '%s': %s\n"%(self.name, self.ext, f, e)
-                raise
-        return retcode
-
     def write_modules(self, package_files, options):
         for package, pfiles in package_files.iteritems():
             mfiles = map(lambda s: os.path.basename(os.path.splitext(s)[0]),
@@ -1357,15 +1332,15 @@ class Generator(object):
         if not os.path.exists(p):
             #touch __init__.py in the parent package
             f = open(p, 'w')
-            print >>f, "import pkgutil, os.path"
-            print >>f, "__path__ = pkgutil.extend_path(__path__, __name__)"
+            print("import pkgutil, os.path", file=f)
+            print("__path__ = pkgutil.extend_path(__path__, __name__)", file=f)
             staticinit = '%s/%s/__init__.py' % (srcdir, package)
-            print >>f, "if os.path.isfile('%s'): execfile('%s')" % (staticinit, staticinit)
+            print("if os.path.isfile('%s'): execfile('%s')" % (staticinit, staticinit), file=f)
             f.close()
 
     def generate_package(self, package, pfiles, options):
-        if not rosidl.names.is_legal_resource_base_name(package):
-            print "\nERROR[%s]: package name '%s' is illegal and cannot be used in message generation.\nPlease see http://ros.org/wiki/Names"%(self.name, package)
+        if not genmsg.is_legal_resource_base_name(package):
+            print("\nERROR[%s]: package name '%s' is illegal and cannot be used in message generation.\nPlease see http://ros.org/wiki/Names"%(self.name, package), file=sys.stderr)
             return 1 # flag error
         
         # package/src/package/msg for messages, packages/src/package/srv for services
@@ -1374,10 +1349,10 @@ class Generator(object):
         for f in pfiles:
             try:
                 outfile = self.generate(package, f, outdir, options.includepath) #actual generation
-            except Exception, e:
-                if not isinstance(e, MsgGenerationException) and not isinstance(e, genmsg.msgs.MsgSpecException):
+            except Exception as e:
+                if not isinstance(e, MsgGenerationException) and not isinstance(e, genmsg.msgs.InvalidMsgSpec):
                     traceback.print_exc()
-                print "\nERROR[%s]: Unable to generate %s for package '%s': while processing '%s': %s\n"%(self.name, self.what, package, f, e)
+                print("\nERROR[%s]: Unable to generate %s for package '%s': while processing '%s': %s\n"%(self.name, self.what, package, f, e), file=sys.stderr)
                 retcode = 1 #flag error
         return retcode
         
@@ -1409,15 +1384,9 @@ class Generator(object):
         
     def generate_messages(self, files, options):
         """
-        @param no_gen_initpy: if True, don't generate the __init__.py
-        file. This option is for backwards API compatibility.
-        @type  no_gen_initpy: bool
-        @return: return code
-        @rtype: int
+        :returns: return code, ``int``
         """
         package_files = { options.package : [files[0]] }
-        # pass 1: collect list of files for each package
-        # retcode = self.generate_package_files(package_files, files, self.ext)
 
         # pass 2: generate messages
         retcode = self.generate_all_by_package(package_files, options)
@@ -1437,7 +1406,7 @@ class Generator(object):
             f.close()
 
 def usage(progname):
-    print "%(progname)s file(s)"%vars()
+    print("%(progname)s file(s)"%vars())
 
 def genmain(argv, gen, usage_fn=usage):
 
@@ -1449,20 +1418,22 @@ def genmain(argv, gen, usage_fn=usage):
     parser.add_option('-s', dest='srcdir')
     parser.add_option('-o', dest='outdir')
     parser.add_option('-I', dest='includepath', action='append')
-    (options, args) = parser.parse_args(argv)
+    options, args = parser.parse_args(argv)
     try:
         if options.initpy:
             retcode = gen.generate_initpy(args, options)
         else:
+            if len(args) < 2:
+                parser.error("please specify args")
             retcode = gen.generate_messages(args[1:], options)
-    except genmsg.msgs.MsgSpecException as e:
-        print >> sys.stderr, "ERROR: ", e
+    except genmsg.InvalidMsgSpec as e:
+        print("ERROR: ", e, file=sys.stderr)
         retcode = 1
     except MsgGenerationException as e:
-        print sys.stderr, "ERROR: ",e
+        print("ERROR: ", e, file=sys.stderr)
         retcode = 2
     except Exception as e:
         traceback.print_exc()
-        print "ERROR: ",e
+        print("ERROR: ",e)
         retcode = 3
     sys.exit(retcode or 0)

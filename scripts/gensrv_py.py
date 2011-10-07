@@ -45,6 +45,7 @@ import genmsg.gentools
 import genmsg.srvs
 
 import genpy
+import genpy.generator
 
 REQUEST ='Request'
 RESPONSE='Response'
@@ -63,7 +64,7 @@ def srv_generator(package, name, spec, includepath):
     yield "  _request_class  = %s"%req
     yield "  _response_class = %s"%resp
 
-class SrvGenerator(genpy.Generator):
+class SrvGenerator(genpy.generator.Generator):
     def __init__(self):
         super(SrvGenerator, self) \
             .__init__('gensrv_py', 'services', genmsg.EXT_SRV, 
@@ -89,7 +90,7 @@ class SrvGenerator(genpy.Generator):
         f = open(outfile, 'w')
         try:
             for mspec, suffix in ((spec.request, REQUEST), (spec.response, RESPONSE)):
-                for l in genpy.msg_generator(package, base_name+suffix, mspec, incpath):
+                for l in genpy.generator.msg_generator(package, base_name+suffix, mspec, incpath):
                     f.write(l+'\n')
 
             # generate service file
@@ -104,4 +105,4 @@ if __name__ == "__main__":
     tracer = trace.Trace(
         ignoredirs=[sys.prefix, sys.exec_prefix],
         trace=0)
-    tracer.run("genpy.genmain(sys.argv, SrvGenerator())")
+    tracer.run("genpy.generator.genmain(sys.argv, SrvGenerator())")

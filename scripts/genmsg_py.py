@@ -44,9 +44,10 @@ import sys
 import genmsg
 import genmsg.msgs 
 
-import genpy 
+import genpy
+import genpy.generator
 
-class GenmsgPackage(genpy.Generator):
+class GenmsgPackage(genpy.generator.Generator):
     """
     GenmsgPackage generates Python message code for all messages in a
     package. See genutil.Generator. In order to generator code for a
@@ -55,8 +56,7 @@ class GenmsgPackage(genpy.Generator):
     def __init__(self):
         super(GenmsgPackage, self).__init__(
             'genmsg_py', 'messages', 
-            genmsg.EXT_MSG, 'msg', 
-            genpy.MsgGenerationException)
+            genmsg.EXT_MSG, 'msg')
 
     def generate(self, package, f, outdir, includepath):
         """
@@ -77,7 +77,7 @@ class GenmsgPackage(genpy.Generator):
         base_name = genmsg.resource_name_base(name)
         
         self.write_gen(outfile_name, 
-                       genpy.msg_generator(package, base_name, spec, includepath), 
+                       genpy.generator.msg_generator(package, base_name, spec, includepath), 
                        verbose)
 
         genmsg.msgs.register(name, spec)
@@ -88,5 +88,5 @@ if __name__ == "__main__":
     tracer = trace.Trace(
         ignoredirs=[sys.prefix, sys.exec_prefix],
         trace=0)
-    tracer.run("genpy.genmain(sys.argv, GenmsgPackage())")
+    tracer.run("genpy.generator.genmain(sys.argv, GenmsgPackage())")
     
