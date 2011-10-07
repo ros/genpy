@@ -308,6 +308,7 @@ class RostimeTest(unittest.TestCase):
   
     def test_Duration(self):
         from genpy.rostime import Time, Duration
+
         self.test_TVal(TVal=Duration, test_neg=True)
   
         # test from_sec
@@ -330,12 +331,8 @@ class RostimeTest(unittest.TestCase):
         self.assertEquals(999999999, v.nsecs)
         
         # test addition
+        self.assertEquals(Duration(1,0) + Time(1, 0), Time(2, 0))
         failed = False
-        try:
-            v = Duration(1,0) + Time(1, 0)
-            failed = True
-        except: pass
-        self.failIf(failed, "Duration + Time must fail")
         try:
             v = Duration(1,0) + 1
             failed = True
