@@ -1,9 +1,17 @@
-from distutils.core import setup
+#!/usr/bin/env python
+
+from setuptools import setup
+
+import sys
+sys.path.insert(0, 'src')
+
+from genpy import __version__
 
 setup(name='genpy',
-      version= '0.1.0',
+      version= __version__,
       packages=['genpy'],
       package_dir = {'':'src'},
+      install_requires=['genmsg'],
       scripts = ['scripts/genmsg_py.py', 'scripts/gensrv_py.py'],
       author = "Ken Conley", 
       author_email = "kwc@willowgarage.com",

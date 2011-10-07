@@ -1,6 +1,6 @@
 .PHONY: all setup clean_dist distro clean install dsc source_deb upload
 
-NAME='genpy'
+NAME=genpy
 VERSION=`./setup.py --version`
 
 all:
@@ -18,6 +18,7 @@ distro: setup clean_dist
 	python setup.py sdist
 
 push: distro
+	echo "pushing version ${VERSION}"
 	python setup.py sdist register upload
 	scp dist/${NAME}-${VERSION}.tar.gz ipr:/var/www/pr.willowgarage.com/html/downloads/${NAME}
 
