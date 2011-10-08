@@ -30,7 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
-from . rostime import Time, Duration
+from . rostime import Time, Duration, TVal
 

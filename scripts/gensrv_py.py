@@ -41,8 +41,8 @@ import os
 import sys
 import traceback
 
+import genmsg.msg_loader
 import genmsg.gentools
-import genmsg.srvs
 
 import genpy
 import genpy.generator
@@ -50,13 +50,13 @@ import genpy.generator
 REQUEST ='Request'
 RESPONSE='Response'
 
-def srv_generator(package, name, spec, includepath):
+def srv_generator(msg_context, package, name, spec, includepath):
     req, resp = ["%s%s"%(name, suff) for suff in [REQUEST, RESPONSE]]
 
     fulltype = '%s/%s'%(package, name)
 
-    gendeps_dict = genmsg.gentools.get_dependencies(spec, package, includepath)
-    md5 = genmsg.gentools.compute_md5(gendeps_dict, includepath)
+    gendeps_dict = genmsg.msg_loader.load_dependencies(msg_context, spec, package, includepath)
+    md5 = genmsg.gentools.compute_md5(msg_context, gendeps_dict, includepath)
 
     yield "class %s(object):"%name
     yield "  _type          = '%s'"%fulltype
@@ -70,7 +70,7 @@ class SrvGenerator(genpy.generator.Generator):
             .__init__('gensrv_py', 'services', genmsg.EXT_SRV, 
                       'srv')
 
-    def generate(self, package, f, outdir, incpath):
+    def generate(self, msg_context, package, f, outdir, incpath):
         verbose = True
         f = os.path.abspath(f)
         infile_name = os.path.basename(f)
@@ -81,20 +81,20 @@ class SrvGenerator(genpy.generator.Generator):
             if e.errno != 17: # file exists
                 raise
 
-        prefix = infile_name[:-len(genmsg.srvs.EXT)]
+        prefix = infile_name[:-len(genmsg.EXT_SRV)]
         # generate message files for request/response        
-        name, spec = genmsg.srvs.load_from_file(f, package)
+        name, spec = genmsg.msg_loader.load_srv_from_file(msg_context, f, package)
         base_name = genmsg.resource_name_base(name)
         
         outfile = self.outfile_name(outdir, f)
         f = open(outfile, 'w')
         try:
             for mspec, suffix in ((spec.request, REQUEST), (spec.response, RESPONSE)):
-                for l in genpy.generator.msg_generator(package, base_name+suffix, mspec, incpath):
+                for l in genpy.generator.msg_generator(msg_context, package, base_name+suffix, mspec, incpath):
                     f.write(l+'\n')
 
             # generate service file
-            for l in srv_generator(package, base_name, spec, incpath):
+            for l in srv_generator(msg_context, package, base_name, spec, incpath):
                 f.write(l+'\n')
         finally:
             f.close()

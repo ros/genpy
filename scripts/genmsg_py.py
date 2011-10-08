@@ -42,7 +42,7 @@ import os
 import sys
 
 import genmsg
-import genmsg.msgs 
+import genmsg.msg_loader
 
 import genpy
 import genpy.generator
@@ -58,7 +58,7 @@ class GenmsgPackage(genpy.generator.Generator):
             'genmsg_py', 'messages', 
             genmsg.EXT_MSG, 'msg')
 
-    def generate(self, package, f, outdir, includepath):
+    def generate(self, msg_context, package, f, outdir, includepath):
         """
         Generate python message code for a single .msg file
         @param f: path to .msg file
@@ -73,14 +73,15 @@ class GenmsgPackage(genpy.generator.Generator):
         infile_name = os.path.basename(f)
         outfile_name = self.outfile_name(outdir, infile_name)
 
-        (name, spec) = genmsg.msgs.load_from_file(f, package)
+        full_name = 'TODO'
+        raise Exception("TODO")
+        name, spec = genmsg.msg_loader.load_msg_from_file(msg_context, f, full_name, package)
         base_name = genmsg.resource_name_base(name)
         
         self.write_gen(outfile_name, 
-                       genpy.generator.msg_generator(package, base_name, spec, includepath), 
+                       genpy.generator.msg_generator(msg_context, package, base_name, spec, includepath), 
                        verbose)
-
-        genmsg.msgs.register(name, spec)
+        msg_context.register(name, spec)
         return outfile_name
 
 if __name__ == "__main__":
