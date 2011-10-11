@@ -59,7 +59,8 @@ import struct
 import genmsg
 import genmsg.msgs
 import genmsg.msg_loader
-import genmsg.gentools
+
+from genmsg import InvalidMsgSpec, MsgContext, MsgSpec
 
 try:
     from cStringIO import StringIO # Python 2.x
@@ -166,7 +167,7 @@ _SPECIAL_TYPES = {
 # utilities
 
 # #671
-def default_value(field_type, default_package):
+def default_value(msg_context, field_type, default_package):
     """
     Compute default value for field_type
 
@@ -195,10 +196,10 @@ def default_value(field_type, default_package):
         elif array_len is None: #var-length
             return '[]'
         else: # fixed-length, fill values
-            def_val = default_value(base_type, default_package)
+            def_val = default_value(msg_context, base_type, default_package)
             return '[' + ','.join(itertools.repeat(def_val, array_len)) + ']'
     else:
-        return compute_constructor(default_package, field_type)
+        return compute_constructor(msg_context, default_package, field_type)
 
 def flatten(msg_context, msg):
     """
@@ -213,7 +214,7 @@ def flatten(msg_context, msg):
     for t, n in zip(msg.types, msg.names):
         #flatten embedded types - note: bug #59
         if msg_context.is_registered(t):
-            msg_spec = flatten(msg_context.get_registered(t))
+            msg_spec = flatten(msg_context, msg_context.get_registered(t))
             new_types.extend(msg_spec.types)
             for n2 in msg_spec.names:
                 new_names.append(n+'.'+n2)
@@ -222,7 +223,7 @@ def flatten(msg_context, msg):
             #as you get n __getitems__ method calls vs. a single *array call
             new_types.append(t)
             new_names.append(n)
-    return genmsg.MsgSpec(new_types, new_names, msg.constants, msg.text, msg.full_name)
+    return MsgSpec(new_types, new_names, msg.constants, msg.text, msg.full_name)
 
 def make_python_safe(spec):
     """
@@ -232,7 +233,7 @@ def make_python_safe(spec):
     :returns: python-safe message specification, ``MsgSpec``
     """
     new_c = [genmsg.Constant(c.type, _remap_reserved(c.name), c.val, c.val_text) for c in spec.constants]
-    return genmsg.MsgSpec(spec.types, [_remap_reserved(n) for n in spec.names], new_c, spec.text)
+    return MsgSpec(spec.types, [_remap_reserved(n) for n in spec.names], new_c, spec.text, spec.full_name)
 
 def _remap_reserved(field_name):
     """
@@ -278,11 +279,16 @@ def compute_constructor(msg_context, package, type_):
     """
     if is_special(type_):
         return get_special(type_).constructor
+    elif genmsg.msgs.bare_msg_type(type_) != type_:
+        # array or other weird type
+        return None
     else:
         base_pkg, base_type_ = compute_pkg_type(package, type_)
         if not msg_context.is_registered("%s/%s"%(base_pkg,base_type_)):
             return None
         else:
+            #TODOXXX:REMOVE
+            assert '[' not in base_type_
             return '%s.msg.%s()'%(base_pkg, base_type_)
 
 def compute_pkg_type(package, type_):
@@ -312,7 +318,7 @@ def compute_import(msg_context, package, type_):
     # base_type is the resolved type stripped of any package name.
     # pkg is the actual package of type_.
     pkg, base_type = compute_pkg_type(package, orig_base_type)
-    type_str = "%s/%s"%(pkg, base_type) # compute fully-qualified type
+    full_msg_type = "%s/%s"%(pkg, base_type) # compute fully-qualified type
     # important: have to do is_builtin check first. We do this check
     # against the unresolved type builtins/specials are never
     # relative. This requires some special handling for Header, which has
@@ -326,25 +332,30 @@ def compute_import(msg_context, package, type_):
             retval = [get_special(base_type).import_str]
         else:
             retval = []
-    elif not msg_context.is_registered(type_str):
+    elif not msg_context.is_registered(full_msg_type):
         retval = []
     else:
         retval = ['import %s.msg'%pkg]
-        for t in get_registered_ex(msg_context, type_str).types:
+        iter_types = get_registered_ex(msg_context, full_msg_type).types
+        for t in iter_types:
+            assert t != full_msg_type, "msg [%s] has circular self-dependencies"%(full_msg_type)
+            full_sub_type = "%s/%s"%(package, t)
+            from genmsg.base import log
+            log("compute_import", full_msg_type, package, t)
             sub = compute_import(msg_context, package, t)
             retval.extend([x for x in sub if not x in retval])
     return retval
 
-def compute_full_text_escaped(msg_context, get_deps_dict):
+def compute_full_text_escaped(msg_context, spec):
     """
-    Same as genmsg.gentools.compute_full_text, except that the
+    Same as genmsg.compute_full_text, except that the
     resulting text is escaped to be safe for Python's triple-quote string
     quoting
 
     :param get_deps_dict: dictionary returned by load_dependencies call, ``dict``
     :returns: concatenated text for msg/srv file and embedded msg/srv types. Text will be escaped for triple-quote, ``str``
     """
-    msg_definition = genmsg.gentools.compute_full_text(msg_context, get_deps_dict)
+    msg_definition = genmsg.compute_full_text(msg_context, spec)
     msg_definition.replace('"""', r'\"\"\"')
     return msg_definition
 
@@ -718,7 +729,7 @@ def complex_serializer_generator(msg_context, package, type_, name, serialize, i
     # brackets, then we check for the 'complex' builtin types (string,
     # time, duration, Header), then we canonicalize it to an embedded
     # message type.
-    _, is_array, _ = msgs.parse_type(type_)
+    _, is_array, _ = genmsg.msgs.parse_type(type_)
 
     #Array
     if is_array:
@@ -846,7 +857,7 @@ def deserialize_fn_generator(msg_context, spec, is_numpy=False):
     for type_, name in spec.fields():
         if msg_context.is_registered(type_):
             yield "  if self.%s is None:"%name
-            yield "    self.%s = %s"%(name, compute_constructor(package, type_))
+            yield "    self.%s = %s"%(name, compute_constructor(msg_context, package, type_))
     yield "  end = 0" #initialize var
 
     # method-var context #########
@@ -882,10 +893,10 @@ def msg_generator(msg_context, spec, search_path):
     # rely on in-memory MsgSpecs instead so that we can generate code
     # for older versions of msg files
     try:
-        gendeps_dict = genmsg.msg_loader.load_dependencies(msg_context, spec, search_path)
-    except msgs.InvalidMsgSpec as e:
+        genmsg.msg_loader.load_depends(msg_context, spec, search_path)
+    except InvalidMsgSpec as e:
         raise MsgGenerationException("Cannot generate .msg for %s/%s: %s"%(package, name, str(e)))
-    md5sum = genmsg.gentools.compute_md5(msg_context, gendeps_dict)
+    md5sum = genmsg.compute_md5(msg_context, spec)
     
     # remap spec names to be Python-safe
     spec = make_python_safe(spec) 
@@ -895,11 +906,11 @@ def msg_generator(msg_context, spec, search_path):
     # rewritten to not use globals
     clear_patterns()
 
-    yield '"""autogenerated by genmsg_py from %s.msg. Do not edit."""'%name
+    yield '"""autogenerated by genmsg_py from %s.msg. Do not edit."""'%spec.full_name
     yield 'import roslib.message\nimport struct\n'
     import_strs = []
     for t in spec.types:
-        import_strs.extend(compute_import(msg_context, package, t))
+        import_strs.extend(compute_import(msg_context, spec.package, t))
     import_strs = set(import_strs)
     for i in import_strs:
         if i:
@@ -907,15 +918,16 @@ def msg_generator(msg_context, spec, search_path):
 
     yield ''
     
-    fulltype = '%s%s%s'%(package, genmsg.SEP, name)
+    fulltype = spec.full_name
+    name = spec.short_name
 
     #Yield data class first, e.g. Point2D
-    yield 'class %s(roslib.message.Message):'%name
+    yield 'class %s(roslib.message.Message):'%spec.short_name
     yield '  _md5sum = "%s"'%(md5sum)
     yield '  _type = "%s"'%(fulltype)
     yield '  _has_header = %s #flag to mark the presence of a Header object'%spec.has_header()
     # note: we introduce an extra newline to protect the escaping from quotes in the message
-    yield '  _full_text = """%s\n"""'%compute_full_text_escaped(msg_context, gendeps_dict)
+    yield '  _full_text = """%s\n"""'%compute_full_text_escaped(msg_context, spec)
 
     if spec.constants:
         yield '  # Pseudo-constants'
@@ -966,11 +978,11 @@ def msg_generator(msg_context, spec, search_path):
         yield "      #message fields cannot be None, assign default values for those that are"
         for (t, s) in zip(spec.types, spec_names):
             yield "      if self.%s is None:"%s
-            yield "        self.%s = %s"%(s, default_value(t, package))
+            yield "        self.%s = %s"%(s, default_value(msg_context, t, spec.package))
     if len(spec_names) > 0:
       yield "    else:"
       for (t, s) in zip(spec.types, spec_names):
-          yield "      self.%s = %s"%(s, default_value(t, package))
+          yield "      self.%s = %s"%(s, default_value(msg_context, t, spec.package))
 
     yield """
   def _get_types(self):
@@ -1050,7 +1062,7 @@ def _generate_dynamic_specs(msg_context, specs, dep_msg):
         raise MsgGenerationException("invalid input to generate_dynamic: dependent type is missing 'MSG:' type declaration header")
     dep_type = msg_line[5:].strip()
     dep_pkg, dep_base_type = genmsg.package_resource_name(dep_type)
-    dep_spec = genmsg.msg_loader.load_msg_from_string(msg_context, dep_msg[line1+1:], dep_pkg)
+    dep_spec = genmsg.msg_loader.load_msg_from_string(msg_context, dep_msg[line1+1:], dep_type)
     return dep_type, dep_spec
     
 def _gen_dyn_name(pkg, base_type):
@@ -1097,7 +1109,7 @@ def generate_dynamic(core_type, msg_cat):
     :param msg_cat str: concatenation of full message text (output of gendeps --cat)
     :raises: MsgGenerationException If dep_msg is improperly formatted
     """
-    msg_context = genmsg.msg_loader.MsgContext.create_default()
+    msg_context = MsgContext.create_default()
     core_pkg, core_base_type = genmsg.package_resource_name(core_type)
     
     # REP 100: pretty gross hack to deal with the fact that we moved
@@ -1112,7 +1124,7 @@ def generate_dynamic(core_type, msg_cat):
     deps_msgs = splits[1:]
 
     # create MsgSpec representations of .msg text
-    specs = { core_type: genmsg.msg_loader.load_msg_from_string(msg_context, core_msg, core_pkg) }
+    specs = { core_type: genmsg.msg_loader.load_msg_from_string(msg_context, core_msg, core_type) }
     # - dependencies
     for dep_msg in deps_msgs:
         # dependencies require more handling to determine type name
@@ -1123,6 +1135,7 @@ def generate_dynamic(core_type, msg_cat):
     # types. The types have to be registered globally in order for
     # message generation of dependents to work correctly.
     msg_context = genmsg.msg_loader.MsgContext.create_default()
+    search_path = {} # no ability to dynamically load
     for t, spec in specs.items():
         msg_context.register(t, spec)
 
@@ -1132,7 +1145,7 @@ def generate_dynamic(core_type, msg_cat):
     for t, spec in specs.items():
         pkg, s_type = genmsg.package_resource_name(t)
         # dynamically generate python message code
-        for l in msg_generator(msg_context, pkg, s_type, spec):
+        for l in msg_generator(msg_context, spec, search_path):
             l = _gen_dyn_modify_references(l, list(specs.keys()))
             buff.write(l + '\n')
     full_text = buff.getvalue()
@@ -1152,7 +1165,15 @@ def generate_dynamic(core_type, msg_cat):
     sys.path.append(os.path.dirname(tmp_file.name))
 
     # - strip the prefix to turn it into the python module name
-    mod = __import__(os.path.basename(tmp_file.name)[:-3])
+    try:
+        mod = __import__(os.path.basename(tmp_file.name)[:-3])
+    except:
+        #TODOXXX:REMOVE
+        with open(tmp_file.name) as f:
+            text = f.read()
+            with open('/tmp/foo', 'w') as f2:
+                f2.write(text)
+        raise
 
     # finally, retrieve the message classes from the dynamic module
     messages = {}
@@ -1161,7 +1182,7 @@ def generate_dynamic(core_type, msg_cat):
         try:
             messages[t] = getattr(mod, _gen_dyn_name(pkg, s_type))
         except AttributeError:
-            raise MsgGenerationException("cannot retrieve message class for %s/%s"%(pkg, s_type))
+            raise MsgGenerationException("cannot retrieve message class for %s/%s: %s"%(pkg, s_type, _gen_dyn_name(pkg, s_type)))
 
     return messages
 

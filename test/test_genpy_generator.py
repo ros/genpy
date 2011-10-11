@@ -144,28 +144,29 @@ def test_compute_struct_pattern():
 
 def test_flatten():
     import genpy.generator
+    from genpy.generator import flatten
     msg_context = MsgContext.create_default()
 
     simple = MsgSpec(['string'], ['data'], [], 'string data\n', 'simple/String')
     simple2 = MsgSpec(['string', 'int32'], ['data', 'data2'], [], 'string data\nint32 data2\n', 'simpe/Data2')
-    assert simple == genpy.generator.flatten(msg_context, simple)
-    assert simple2 == genpy.generator.flatten(msg_context, simple2)
+    assert simple == flatten(msg_context, simple)
+    assert simple2 == flatten(msg_context, simple2)
 
-    b1 = MsgSpec(['int8'], ['data'], [], 'X')
-    b2 = MsgSpec(['f_msgs/Base'], ['data'], [], 'X')
-    b3 = MsgSpec(['f_msgs/Base2', 'f_msgs/Base2'], ['data3', 'data4'], [], 'X')
-    b4 = MsgSpec(['f_msgs/Base3', 'f_msgs/Base3'], ['dataA', 'dataB'], [], 'X')
+    b1 = MsgSpec(['int8'], ['data'], [], 'X', 'f_msgs/Base')
+    b2 = MsgSpec(['f_msgs/Base'], ['data'], [], 'X', 'f_msgs/Base2')
+    b3 = MsgSpec(['f_msgs/Base2', 'f_msgs/Base2'], ['data3', 'data4'], [], 'X', 'f_msgs/Base3')
+    b4 = MsgSpec(['f_msgs/Base3', 'f_msgs/Base3'], ['dataA', 'dataB'], [], 'X', 'f_msgs/Base4')
 
     msg_context.register('f_msgs/Base', b1)
     msg_context.register('f_msgs/Base2', b2)
     msg_context.register('f_msgs/Base3', b3)
     msg_context.register('f_msgs/Base4', b4)
 
-    assert MsgSpec(['int8'], ['data.data'], [], 'X') == genpy.generator.flatten(msg_context, b2)
-    assert MsgSpec(['int8', 'int8'], ['data3.data.data', 'data4.data.data'], [], 'X') == genpy.generator.flatten(b3)
+    assert MsgSpec(['int8'], ['data.data'], [], 'X', 'f_msgs/Base2') == flatten(msg_context, b2)
+    assert MsgSpec(['int8', 'int8'], ['data3.data.data', 'data4.data.data'], [], 'X', 'f_msgs/Base3') == flatten(msg_context, b3)
     assert MsgSpec(['int8', 'int8', 'int8', 'int8'],
                               ['dataA.data3.data.data', 'dataA.data4.data.data', 'dataB.data3.data.data', 'dataB.data4.data.data'],
-                              [], 'X') == genpy.generator.flatten(b4)
+                              [], 'X', 'f_msgs/Base4') == flatten(msg_context, b4)
         
 def test_numpy_dtype():
     import genpy.generator
@@ -174,78 +175,79 @@ def test_numpy_dtype():
 
 def test_default_value():
     import genpy.generator
+    from genpy.generator import default_value
     msg_context = MsgContext.create_default()
 
-    msg_context.register('fake_msgs/String', MsgSpec(['string'], ['data'], [], 'string data\n'))
-    msg_context.register('fake_msgs/ThreeNums', MsgSpec(['int32', 'int32', 'int32'], ['x', 'y', 'z'], [], 'int32 x\nint32 y\nint32 z\n'))
+    msg_context.register('fake_msgs/String', MsgSpec(['string'], ['data'], [], 'string data\n', 'fake_msgs/String'))
+    msg_context.register('fake_msgs/ThreeNums', MsgSpec(['int32', 'int32', 'int32'], ['x', 'y', 'z'], [], 'int32 x\nint32 y\nint32 z\n', 'fake_msgs/ThreeNums'))
 
     # trip-wire: make sure all builtins have a default value
     for t in genmsg.msgs.BUILTIN_TYPES:
-        assert type(genpy.generator.default_value(t, 'roslib')) == str
+        assert type(default_value(msg_context, t, 'roslib')) == str
 
     # simple types first
     for t in ['uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32', 'uint64', 'int64', 'byte', 'char']:
-        assert '0' == genpy.generator.default_value(t, 'std_msgs')
-        assert '0' == genpy.generator.default_value(t, 'roslib')
+        assert '0' == default_value(msg_context, t, 'std_msgs')
+        assert '0' == default_value(msg_context, t, 'roslib')
     for t in ['float32', 'float64']:
-        assert '0.' == genpy.generator.default_value(t, 'std_msgs')
-        assert '0.' == genpy.generator.default_value(t, 'roslib')
-    assert "''" == genpy.generator.default_value('string', 'roslib')
+        assert '0.' == default_value(msg_context, t, 'std_msgs')
+        assert '0.' == default_value(msg_context, t, 'roslib')
+    assert "''" == default_value(msg_context, 'string', 'roslib')
 
     # builtin specials
-    assert 'genpy.Time()' == genpy.generator.default_value('time', 'roslib')
-    assert 'genpy.Duration()' == genpy.generator.default_value('duration', 'roslib')
-    assert 'std_msgs.msg._Header.Header()' == genpy.generator.default_value('Header', 'roslib')
+    assert 'genpy.Time()' == default_value(msg_context, 'time', 'roslib')
+    assert 'genpy.Duration()' == default_value(msg_context, 'duration', 'roslib')
+    assert 'std_msgs.msg._Header.Header()' == default_value(msg_context, 'Header', 'roslib')
 
-    assert 'genpy.Time()' == genpy.generator.default_value('time', 'std_msgs')
-    assert 'genpy.Duration()' == genpy.generator.default_value('duration', 'std_msgs')
-    assert 'std_msgs.msg._Header.Header()' == genpy.generator.default_value('Header', 'std_msgs')
+    assert 'genpy.Time()' == default_value(msg_context, 'time', 'std_msgs')
+    assert 'genpy.Duration()' == default_value(msg_context, 'duration', 'std_msgs')
+    assert 'std_msgs.msg._Header.Header()' == default_value(msg_context, 'Header', 'std_msgs')
 
     # generic instances
     # - unregistered type
-    assert None == genpy.generator.default_value("unknown_msgs/Foo", "unknown_msgs")
+    assert None == default_value(msg_context, "unknown_msgs/Foo", "unknown_msgs")
     # - wrong context
-    assert None == genpy.generator.default_value('ThreeNums', 'std_msgs')
+    assert None == default_value(msg_context, 'ThreeNums', 'std_msgs')
 
     # - registered types
-    assert 'fake_msgs.msg.String()' == genpy.generator.default_value('fake_msgs/String', 'std_msgs')
-    assert 'fake_msgs.msg.String()' == genpy.generator.default_value('fake_msgs/String', 'fake_msgs')
-    assert 'fake_msgs.msg.String()' == genpy.generator.default_value('String', 'fake_msgs')
-    assert 'fake_msgs.msg.ThreeNums()' == genpy.generator.default_value('fake_msgs/ThreeNums', 'roslib')
-    assert 'fake_msgs.msg.ThreeNums()' == genpy.generator.default_value('fake_msgs/ThreeNums', 'fake_msgs')
-    assert 'fake_msgs.msg.ThreeNums()' == genpy.generator.default_value('ThreeNums', 'fake_msgs')
+    assert 'fake_msgs.msg.String()' == default_value(msg_context, 'fake_msgs/String', 'std_msgs')
+    assert 'fake_msgs.msg.String()' == default_value(msg_context, 'fake_msgs/String', 'fake_msgs')
+    assert 'fake_msgs.msg.String()' == default_value(msg_context, 'String', 'fake_msgs')
+    assert 'fake_msgs.msg.ThreeNums()' == default_value(msg_context, 'fake_msgs/ThreeNums', 'roslib')
+    assert 'fake_msgs.msg.ThreeNums()' == default_value(msg_context, 'fake_msgs/ThreeNums', 'fake_msgs')
+    assert 'fake_msgs.msg.ThreeNums()' == default_value(msg_context, 'ThreeNums', 'fake_msgs')
 
     # var-length arrays always default to empty arrays... except for byte and uint8 which are strings
     for t in ['int8', 'uint16', 'int16', 'uint32', 'int32', 'uint64', 'int64', 'float32', 'float64', 'char']:
-        assert '[]' == genpy.generator.default_value(t+'[]', 'std_msgs')
-        assert '[]' == genpy.generator.default_value(t+'[]', 'roslib')
+        assert '[]' == default_value(msg_context, t+'[]', 'std_msgs')
+        assert '[]' == default_value(msg_context, t+'[]', 'roslib')
 
-    assert "''" == genpy.generator.default_value('uint8[]', 'roslib')
-    assert "''" == genpy.generator.default_value('byte[]', 'roslib')
+    assert "''" == default_value(msg_context, 'uint8[]', 'roslib')
+    assert "''" == default_value(msg_context, 'byte[]', 'roslib')
 
     # fixed-length arrays should be zero-filled... except for byte and uint8 which are strings
     for t in ['float32', 'float64']:
-        assert '[0.,0.,0.]' == genpy.generator.default_value(t+'[3]', 'std_msgs')
-        assert '[0.]' == genpy.generator.default_value(t+'[1]', 'std_msgs')
+        assert '[0.,0.,0.]' == default_value(msg_context, t+'[3]', 'std_msgs')
+        assert '[0.]' == default_value(msg_context, t+'[1]', 'std_msgs')
     for t in ['int8', 'uint16', 'int16', 'uint32', 'int32', 'uint64', 'int64', 'char']:
-        assert '[0,0,0,0]' == genpy.generator.default_value(t+'[4]', 'std_msgs')
-        assert '[0]' == genpy.generator.default_value(t+'[1]', 'roslib')
+        assert '[0,0,0,0]' == default_value(msg_context, t+'[4]', 'std_msgs')
+        assert '[0]' == default_value(msg_context, t+'[1]', 'roslib')
 
-    assert "chr(0)*1" == genpy.generator.default_value('uint8[1]', 'roslib')
-    assert "chr(0)*4" == genpy.generator.default_value('uint8[4]', 'roslib')
-    assert "chr(0)*1" == genpy.generator.default_value('byte[1]', 'roslib')
-    assert "chr(0)*4" == genpy.generator.default_value('byte[4]', 'roslib')
+    assert "chr(0)*1" == default_value(msg_context, 'uint8[1]', 'roslib')
+    assert "chr(0)*4" == default_value(msg_context, 'uint8[4]', 'roslib')
+    assert "chr(0)*1" == default_value(msg_context, 'byte[1]', 'roslib')
+    assert "chr(0)*4" == default_value(msg_context, 'byte[4]', 'roslib')
 
-    assert '[]' == genpy.generator.default_value('fake_msgs/String[]', 'std_msgs')
-    assert '[fake_msgs.msg.String(),fake_msgs.msg.String()]' == genpy.generator.default_value('fake_msgs/String[2]', 'std_msgs')
+    assert '[]' == default_value(msg_context, 'fake_msgs/String[]', 'std_msgs')
+    assert '[fake_msgs.msg.String(),fake_msgs.msg.String()]' == default_value(msg_context, 'fake_msgs/String[2]', 'std_msgs')
 
 def test_make_python_safe():
-    import genpy.generator
+    from genpy.generator import make_python_safe
     from genmsg.msgs import Constant
     s = MsgSpec(['int32', 'int32', 'int32', 'int32'], ['ok', 'if', 'self', 'fine'],
                 [Constant('int32', 'if', '1', '1'), Constant('int32', 'okgo', '1', '1')],
-                'x')
-    s2 = genpy.generator.make_python_safe(s)
+                'x', 'test_msgs/Foo')
+    s2 = make_python_safe(s)
     assert s != s2
     assert ['ok', 'if_', 'self_', 'fine'] == s2.names
     assert s2.types == s.types
@@ -254,12 +256,13 @@ def test_make_python_safe():
     
 def test_compute_pkg_type():
     import genpy.generator
+    from genpy.generator import compute_pkg_type, MsgGenerationException
     try:
-        genpy.generator.compute_pkg_type('std_msgs', 'really/bad/std_msgs/String')
-    except genpy.generator.MsgGenerationException: pass
-    assert ('std_msgs', 'String') == genpy.generator.compute_pkg_type('std_msgs', 'std_msgs/String')
-    assert ('std_msgs', 'String') == genpy.generator.compute_pkg_type('foo', 'std_msgs/String')    
-    assert ('std_msgs', 'String') == genpy.generator.compute_pkg_type('std_msgs', 'String')
+        compute_pkg_type('std_msgs', 'really/bad/std_msgs/String')
+    except MsgGenerationException: pass
+    assert ('std_msgs', 'String') == compute_pkg_type('std_msgs', 'std_msgs/String')
+    assert ('std_msgs', 'String') == compute_pkg_type('foo', 'std_msgs/String')    
+    assert ('std_msgs', 'String') == compute_pkg_type('std_msgs', 'String')
         
 def test_compute_import():
     import genpy.generator
@@ -272,9 +275,9 @@ def test_compute_import():
     msg_context.register('ci2_msgs/Base2', MsgSpec(['ci_msgs/Base'], ['data2'], [], 'ci_msgs/Base data2\n', 'ci2_msgs/Base2'))
     msg_context.register('ci3_msgs/Base3', MsgSpec(['ci2_msgs/Base2'], ['data3'], [], 'ci2_msgs/Base2 data3\n', 'ci3_msgs/Base3'))
     msg_context.register('ci4_msgs/Base', MsgSpec(['int8'], ['data'], [], 'int8 data\n', 'ci4_msgs/Base'))
-    msg_context.register('ci4_msgs/Base4', MsgSpec(['ci2_msgs/Base2', 'ci3_msgs/Base3', 'ci4_msgs/Base4'],
-                                       ['data4a', 'data4b', 'data4c'],
-                                       [], 'ci2_msgs/Base2 data4a\nci3_msgs/Base3 data4b\nci4_msgs/Base data4c\n'))
+    msg_context.register('ci4_msgs/Base4', MsgSpec(['ci2_msgs/Base2', 'ci3_msgs/Base3'],
+                                       ['data4a', 'data4b'],
+                                       [], 'ci2_msgs/Base2 data4a\nci3_msgs/Base3 data4b\n', 'ci4_msgs/Base4'))
 
     msg_context.register('ci5_msgs/Base', MsgSpec(['time'], ['data'], [], 'time data\n', 'ci5_msgs/Base'))
 
@@ -305,32 +308,33 @@ def test_get_registered_ex():
             
 def test_compute_constructor():
     import genpy.generator
+    from genpy.generator import compute_constructor
     msg_context = MsgContext.create_default()
     msg_context.register('fake_msgs/String', MsgSpec(['string'], ['data'], [], 'string data\n', 'fake_msgs/String'))
     msg_context.register('fake_msgs/ThreeNums', MsgSpec(['int32', 'int32', 'int32'], ['x', 'y', 'z'], [], 'int32 x\nint32 y\nint32 z\n', 'fake_msgs/ThreeNums'))
 
     # builtin specials
-    assert 'genpy.Time()' == genpy.generator.compute_constructor(msg_context, 'roslib', 'time')
-    assert 'genpy.Duration()' == genpy.generator.compute_constructor(msg_context, 'roslib', 'duration')
-    assert 'std_msgs.msg._Header.Header()' == genpy.generator.compute_constructor(msg_context, 'std_msgs', 'Header')
+    assert 'genpy.Time()' == compute_constructor(msg_context, 'roslib', 'time')
+    assert 'genpy.Duration()' == compute_constructor(msg_context, 'roslib', 'duration')
+    assert 'std_msgs.msg._Header.Header()' == compute_constructor(msg_context, 'std_msgs', 'Header')
 
-    assert 'genpy.Time()' == genpy.generator.compute_constructor(msg_context, 'std_msgs', 'time')
-    assert 'genpy.Duration()' == genpy.generator.compute_constructor(msg_context, 'std_msgs', 'duration')
+    assert 'genpy.Time()' == compute_constructor(msg_context, 'std_msgs', 'time')
+    assert 'genpy.Duration()' == compute_constructor(msg_context, 'std_msgs', 'duration')
 
     # generic instances
     # - unregistered type
-    assert None == genpy.generator.compute_constructor(msg_context, "unknown_msgs", "unknown_msgs/Foo")
-    assert None == genpy.generator.compute_constructor(msg_context, "unknown_msgs", "Foo")
+    assert None == compute_constructor(msg_context, "unknown_msgs", "unknown_msgs/Foo")
+    assert None == compute_constructor(msg_context, "unknown_msgs", "Foo")
     # - wrong context
-    assert None == genpy.generator.compute_constructor(msg_context, 'std_msgs', 'ThreeNums')
+    assert None == compute_constructor(msg_context, 'std_msgs', 'ThreeNums')
 
     # - registered types
-    assert 'fake_msgs.msg.String()' == genpy.generator.compute_constructor(msg_context, 'std_msgs', 'fake_msgs/String')
-    assert 'fake_msgs.msg.String()' == genpy.generator.compute_constructor(msg_context, 'fake_msgs', 'fake_msgs/String')
-    assert 'fake_msgs.msg.String()' == genpy.generator.compute_constructor(msg_context, 'fake_msgs', 'String')
-    assert 'fake_msgs.msg.ThreeNums()' == genpy.generator.compute_constructor(msg_context, 'fake_msgs', 'fake_msgs/ThreeNums')
-    assert 'fake_msgs.msg.ThreeNums()' == genpy.generator.compute_constructor(msg_context, 'fake_msgs', 'fake_msgs/ThreeNums')
-    assert 'fake_msgs.msg.ThreeNums()' == genpy.generator.compute_constructor(msg_context, 'fake_msgs', 'ThreeNums')
+    assert 'fake_msgs.msg.String()' == compute_constructor(msg_context, 'std_msgs', 'fake_msgs/String')
+    assert 'fake_msgs.msg.String()' == compute_constructor(msg_context, 'fake_msgs', 'fake_msgs/String')
+    assert 'fake_msgs.msg.String()' == compute_constructor(msg_context, 'fake_msgs', 'String')
+    assert 'fake_msgs.msg.ThreeNums()' == compute_constructor(msg_context, 'fake_msgs', 'fake_msgs/ThreeNums')
+    assert 'fake_msgs.msg.ThreeNums()' == compute_constructor(msg_context, 'fake_msgs', 'fake_msgs/ThreeNums')
+    assert 'fake_msgs.msg.ThreeNums()' == compute_constructor(msg_context, 'fake_msgs', 'ThreeNums')
 
 def test_pack():
     import genpy.generator
