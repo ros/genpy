@@ -76,8 +76,7 @@ class MsgGenerationException(Exception):
 def get_registered_ex(type_):
     """
     wrapper for get_registered that wraps unknown types with a MsgGenerationException
-    @param type_: ROS message type
-    @type  type_: str
+    :param type_: ROS message type, ``str``
     """
     try:
         return genmsg.msgs.get_registered(type_)
@@ -136,13 +135,10 @@ class Special:
 
     def __init__(self, constructor, post_deserialize, import_str):
         """
-        @param constructor: expression to instantiate new type instance for deserialization
-        @type  constructor: str
-        @param post_Deserialize: format string for expression to evaluate on type instance after deserialization is complete.
-        @type  post_Deserialize: str
+        :param constructor: expression to instantiate new type instance for deserialization, ``str``
+        :param post_Deserialize: format string for expression to evaluate on type instance after deserialization is complete., ``str``
           variable name will be passed in as the single argument to format string.
-        @param import_str: import to include if type is present
-        @type  import_str: str
+        :param import_str: import to include if type is present, ``str``
         """
         self.constructor = constructor
         self.post_deserialize = post_deserialize
@@ -150,9 +146,8 @@ class Special:
         
     def get_post_deserialize(self, varname):
         """
-        @return: Post-deserialization code to executed (unindented) or
-        None if no post-deserialization is required
-        @rtype: str
+        :returns: Post-deserialization code to executed (unindented) or
+          ``None`` if no post-deserialization is required, ``str``
         """
         if self.post_deserialize:
             return self.post_deserialize%varname
@@ -172,12 +167,10 @@ _SPECIAL_TYPES = {
 def default_value(field_type, default_package):
     """
     Compute default value for field_type
-    @param default_package: default package
-    @type  default_package: str
-    @param field_type str: ROS .msg field type
-    @type  field_type: ROS .msg field type
-    @return: default value encoded in Python string representation
-    @rtype: str
+
+    :param default_package: default package, ``str``
+    :param field_type: ROS .msg field type, ``str``
+    :returns: default value encoded in Python string representation, ``str``
     """
     if field_type in ['byte', 'int8', 'int16', 'int32', 'int64',\
                           'char', 'uint8', 'uint16', 'uint32', 'uint64']:
@@ -210,10 +203,8 @@ def flatten(msg_context, msg):
     Flattens the msg spec so that embedded message fields become
     direct references. The resulting MsgSpec isn't a true/legal
     L{MsgSpec} and should only be used for serializer generation
-    @param msg: msg to flatten
-    @type  msg: L{MsgSpec}
-    @return: flatten message
-    @rtype: L{MsgSpec}
+    :param msg: MsgSpec to flatten
+    :returns: flattened MsgSpec message
     """
     new_types = []
     new_names = []
@@ -234,10 +225,9 @@ def flatten(msg_context, msg):
 def make_python_safe(spec):
     """
     Remap field/constant names in spec to avoid collision with Python reserved words. 
-    @param spec: msg spec to map to new, python-safe field names
-    @type  spec: L{MsgSpec}
-    @return: python-safe message specification
-    @rtype: L{MsgSpec}
+
+    :param spec: msg spec to map to new, python-safe field names, ``MsgSpec``
+    :returns: python-safe message specification, ``MsgSpec``
     """
     new_c = [genmsg.Constant(c.type, _remap_reserved(c.name), c.val, c.val_text) for c in spec.constants]
     return genmsg.MsgSpec(spec.types, [_remap_reserved(n) for n in spec.names], new_c, spec.text)
@@ -245,10 +235,8 @@ def make_python_safe(spec):
 def _remap_reserved(field_name):
     """
     Map field_name to a python-safe representation, if necessary
-    @param field_name: msg field name
-    @type  field_name: str
-    @return: remapped name
-    @rtype: str
+    :param field_name: msg field name, ``str``
+    :returns: remapped name, ``str``
     """
     # include 'self' as well because we are within a class instance
     if field_name in keyword.kwlist + ['self']:
@@ -260,10 +248,8 @@ def _remap_reserved(field_name):
 
 def compute_struct_pattern(types):
     """
-    @param types: type names
-    @type  types: [str]
-    @return: format string for struct if types are all simple. Otherwise, return None
-    @rtype: str
+    :param types: type names, ``[str]``
+    :returns: format string for struct if types are all simple. Otherwise, return None, ``str``
     """
     if not types: #important to filter None and empty first
         return None
@@ -275,8 +261,7 @@ def compute_struct_pattern(types):
 def compute_post_deserialize(type_, varname):
     """
     Compute post-deserialization code for type_, if necessary
-    @return: code to execute post-deserialization (unindented), or None if not necessary.
-    @rtype: str
+    :returns: code to execute post-deserialization (unindented), or None if not necessary. ``str``
     """
     s = get_special(type_)
     if s is not None:
@@ -285,11 +270,9 @@ def compute_post_deserialize(type_, varname):
 def compute_constructor(msg_context, package, type_):
     """
     Compute python constructor expression for specified message type implementation
-    @param package str: package that type is being imported into. Used
-        to resolve type_ if package is not specified.
-    @type  package: str
-    @param type_: message type
-    @type  type_: str
+    :param package str: package that type is being imported into. Used
+        to resolve type_ if package is not specified. ``str``
+    :param type_: message type, ``str``
     """
     if is_special(type_):
         return get_special(type_).constructor
@@ -302,11 +285,9 @@ def compute_constructor(msg_context, package, type_):
 
 def compute_pkg_type(package, type_):
     """
-    @param package: package that type is being imported into
-    @type  package: str
-    @param type: message type (package resource name)
-    @type  type: str
-    @return (str, str): python package and type name
+    :param package: package that type is being imported into, ``str``
+    :param type: message type (package resource name), ``str``
+    :returns: python package and type name, ``(str, str)``
     """
     splits = type_.split(genmsg.SEP)
     if len(splits) == 1:
@@ -319,12 +300,9 @@ def compute_pkg_type(package, type_):
 def compute_import(package, type_):
     """
     Compute python import statement for specified message type implementation
-    @param package: package that type is being imported into
-    @type  package: str
-    @param type_: message type (package resource name)
-    @type  type_: str
-    @return: list of import statements (no newline) required to use type_ from package
-    @rtype: [str]
+    :param package: package that type is being imported into, ``str``
+    :param type_: message type (package resource name), ``str``
+    :returns: list of import statements (no newline) required to use type_ from package, ``[str]``
     """
     # orig_base_type is the unresolved type
     orig_base_type = msgs.base_msg_type(type_) # strip array-suffix
@@ -361,10 +339,8 @@ def compute_full_text_escaped(msg_context, get_deps_dict):
     resulting text is escaped to be safe for Python's triple-quote string
     quoting
 
-    @param get_deps_dict: dictionary returned by load_dependencies call
-    @type  get_deps_dict: dict
-    @return: concatenated text for msg/srv file and embedded msg/srv types. Text will be escaped for triple-quote
-    @rtype: str
+    :param get_deps_dict: dictionary returned by load_dependencies call, ``dict``
+    :returns: concatenated text for msg/srv file and embedded msg/srv types. Text will be escaped for triple-quote, ``str``
     """
     msg_definition = genmsg.gentools.compute_full_text(msg_context, get_deps_dict)
     msg_definition.replace('"""', r'\"\"\"')
@@ -373,10 +349,8 @@ def compute_full_text_escaped(msg_context, get_deps_dict):
 def reduce_pattern(pattern):
     """
     Optimize the struct format pattern. 
-    @param pattern: struct pattern
-    @type  pattern: str
-    @return: optimized struct pattern
-    @rtype: str
+    :param pattern: struct pattern, ``str``
+    :returns: optimized struct pattern, ``str``
     """
     if not pattern or len(pattern) == 1 or '%' in pattern:
         return pattern
@@ -400,26 +374,24 @@ def reduce_pattern(pattern):
         new_pattern = new_pattern + prev
     return new_pattern
 
-## @param expr str: string python expression that is evaluated for serialization
-## @return str: python call to write value returned by expr to serialization buffer
+## :param expr str: string python expression that is evaluated for serialization
+## :returns str: python call to write value returned by expr to serialization buffer
 def serialize(expr):
     return "buff.write(%s)"%expr
     
 # int32 is very common due to length serialization, so it is special cased
 def int32_pack(var):
     """
-    @param var: variable name
-    @type  var: str
-    @return: struct packing code for an int32
+    :param var: variable name, ``str``
+    :returns: struct packing code for an int32
     """
     return serialize('_struct_I.pack(%s)'%var)
 
 # int32 is very common due to length serialization, so it is special cased
 def int32_unpack(var, buff):
     """
-    @param var: variable name
-    @type  var: str
-    @return: struct unpacking code for an int32
+    :param var: variable name, ``str``
+    :returns: struct unpacking code for an int32
     """
     return '(%s,) = _struct_I.unpack(%s)'%(var, buff)
 
@@ -427,10 +399,8 @@ def int32_unpack(var, buff):
 def pack(pattern, vars):
     """
     create struct.pack call for when pattern is a string pattern
-    @param pattern: pattern for pack
-    @type  pattern: str
-    @param vars: name of variables to pack
-    @type  vars: str
+    :param pattern: pattern for pack, ``str``
+    :param vars: name of variables to pack, ``str``
     """
     # - store pattern in context
     pattern = reduce_pattern(pattern)
@@ -439,21 +409,16 @@ def pack(pattern, vars):
 def pack2(pattern, vars):
     """
     create struct.pack call for when pattern is the name of a variable
-    @param pattern: name of variable storing string pattern
-    @type  pattern: struct
-    @param vars: name of variables to pack
-    @type  vars: str
+    :param pattern: name of variable storing string pattern, ``struct``
+    :param vars: name of variables to pack, ``str``
     """
     return serialize("struct.pack(%s, %s)"%(pattern, vars))
 def unpack(var, pattern, buff):
     """
     create struct.unpack call for when pattern is a string pattern
-    @param var: name of variable to unpack
-    @type  var: str
-    @param pattern: pattern for pack
-    @type  pattern: str
-    @param buff: buffer to unpack from
-    @type  buff: str
+    :param var: name of variable to unpack, ``str``
+    :param pattern: pattern for pack, ``str``
+    :param buff: buffer to unpack from, ``str``
     """
     # - store pattern in context
     pattern = reduce_pattern(pattern)
@@ -462,12 +427,9 @@ def unpack(var, pattern, buff):
 def unpack2(var, pattern, buff):
     """
     Create struct.unpack call for when pattern refers to variable
-    @param var: variable the stores the result of unpack call
-    @type  var: str
-    @param pattern: name of variable that unpack will read from
-    @type  pattern: str
-    @param buff: buffer that the unpack reads from
-    @type  buff: StringIO
+    :param var: variable the stores the result of unpack call, ``str``
+    :param pattern: name of variable that unpack will read from, ``str``
+    :param buff: buffer that the unpack reads from, ``StringIO``
     """
     return "%s = struct.unpack(%s, %s)"%(var, pattern, buff)
 
@@ -503,7 +465,7 @@ def unpack_numpy(var, count, dtype, buff):
 def pack_numpy(var):
     """
     create numpy serialization code
-    @param vars: name of variables to pack
+    :param vars: name of variables to pack
     """
     return serialize("%s.tostring()"%var)
 
@@ -552,7 +514,7 @@ def clear_patterns():
     del _context_patterns[:]
 def get_patterns():
     """
-    @return: record of struct pattern that have been used for (de)serialization
+    :returns: record of struct pattern that have been used for (de)serialization
     """
     return _context_patterns[:]
 
@@ -565,13 +527,10 @@ def get_patterns():
 def len_serializer_generator(msg_context, var, is_string, serialize):
     """
     Generator for array-length serialization (32-bit, little-endian unsigned integer)
-    @param var: variable name
-    @type  var: str
-    @param is_string: if True, variable is a string type
-    @type  is_string: bool
-    @param serialize bool: if True, generate code for
-    serialization. Other, generate code for deserialization
-    @type  serialize: bool
+    :param var: variable name, ``str``
+    :param is_string: if True, variable is a string type, ``bool``
+    :param serialize bool: if True, generate code for
+      serialization. Other, generate code for deserialization, ``bool``
     """
     if serialize:
         yield "length = len(%s)"%var
@@ -591,11 +550,10 @@ def string_serializer_generator(msg_context, package, type_, name, serialize):
     """
     Generator for string types. similar to arrays, but with more
     efficient call to struct.pack.
-    @param name: spec field name
-    @type  name: str
-    @param serialize: if True, generate code for
-    serialization. Other, generate code for deserialization
-    @type  serialize: bool
+
+    :param name: spec field name, ``str``
+    :param serialize: if ``True``, generate code for
+      serialization. Other, generate code for deserialization, ``bool``
     """
     # don't optimize in deserialization case as assignment doesn't
     # work
@@ -746,13 +704,12 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
 def complex_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
     """
     Generator for serializing complex type
-    @param serialize: if True, generate serialization
-    code. Otherwise, deserialization code.
-    @type  serialize: bool
-    @param is_numpy: if True, generate serializer code for numpy
-    datatypes instead of Python lists
-    @type  is_numpy: bool
-    @raise MsgGenerationException: if type is not a valid
+
+    :param serialize: if True, generate serialization
+      code. Otherwise, deserialization code. ``bool``
+    :param is_numpy: if True, generate serializer code for numpy
+      datatypes instead of Python lists, ``bool``
+    :raises: MsgGenerationException If type is not a valid
     """
     # ordering of these statements is important as we mutate the type
     # string we are checking throughout. parse_type strips array
@@ -791,12 +748,10 @@ def complex_serializer_generator(msg_context, package, type_, name, serialize, i
 def simple_serializer_generator(msg_context, spec, start, end, serialize): #primitives that can be handled with struct
     """
     Generator (de)serialization code for multiple fields from spec
-    @param spec: MsgSpec
-    @type  spec: MsgSpec
-    @param start: first field to serialize
-    @type  start: int
-    @param end: last field to serialize
-    @type  end: int
+
+    :param spec: :class:`genmsg.MsgSpec`
+    :param start: first field to serialize, ``int``
+    :param end: last field to serialize, ``int``
     """
     # optimize member var access
     if end - start > 1 and _serial_context.endswith('.'):
@@ -822,20 +777,17 @@ def simple_serializer_generator(msg_context, spec, start, end, serialize): #prim
             var = _serial_context+f
             yield "%s = bool(%s)"%(var, var)
 
-def serializer_generator(msg_context, package, spec, serialize, is_numpy):
+def serializer_generator(msg_context, spec, serialize, is_numpy):
     """
     Python generator that yields un-indented python code for
     (de)serializing MsgSpec. The code this yields is meant to be
     included in a class method and cannot be used
     standalone. serialize_fn_generator and deserialize_fn_generator
     wrap method to provide appropriate class field initializations.
-    @param package: name of package the spec is being used in
-    @type  package: str
-    @param serialize: if True, yield serialization
-    code. Otherwise, yield deserialization code.
-    @type  serialize: bool
-    @param is_numpy: if True, generate serializer code for numpy datatypes instead of Python lists
-    @type  is_numpy: bool
+
+    :param serialize: if True, yield serialization
+      code. Otherwise, yield deserialization code. ``bool``
+    :param is_numpy: if True, generate serializer code for numpy datatypes instead of Python lists. ``bool``
     """
     # Break spec into chunks of simple (primitives) vs. complex (arrays, etc...)
     # Simple types are batch serialized using the python struct module.
@@ -857,39 +809,37 @@ def serializer_generator(msg_context, package, spec, serialize, is_numpy):
                 for y in simple_serializer_generator(msg_context, spec, curr, i, serialize):
                     yield y
             curr = i+1
-            for y in complex_serializer_generator(msg_context, package, type_, names[i], serialize, is_numpy): 
+            for y in complex_serializer_generator(msg_context, spec.package, type_, names[i], serialize, is_numpy): 
                 yield y 
     if curr < len(types): #yield rest of simples
         for y in simple_serializer_generator(msg_context, spec, curr, len(types), serialize):
             yield y
 
-def serialize_fn_generator(msg_context, package, spec, is_numpy=False):
+def serialize_fn_generator(msg_context, spec, is_numpy=False):
     """
     generator for body of serialize() function
-    @param is_numpy: if True, generate serializer code for numpy
-    datatypes instead of Python lists
-    @type  is_numpy: bool
+    :param is_numpy: if True, generate serializer code for numpy
+      datatypes instead of Python lists, ``bool``
     """
     # method-var context #########
     yield "try:"
     push_context('self.')
     #NOTE: we flatten the spec for optimal serialization
-    for y in serializer_generator(msg_context, package, flatten(msg_context, spec), True, is_numpy):
+    for y in serializer_generator(msg_context, flatten(msg_context, spec), True, is_numpy):
         yield "  "+y 
     pop_context()
     yield "except struct.error as se: self._check_types(se)"
     yield "except TypeError as te: self._check_types(te)" 
     # done w/ method-var context #
     
-def deserialize_fn_generator(msg_context, package, spec, is_numpy=False):
+def deserialize_fn_generator(msg_context, spec, is_numpy=False):
     """
     generator for body of deserialize() function
-    @param is_numpy: if True, generate serializer code for numpy
-    datatypes instead of Python lists
-    @type  is_numpy: bool
+    :param is_numpy: if True, generate serializer code for numpy
+      datatypes instead of Python lists, ``bool``
     """
     yield "try:"
-    
+    package = spec.package
     #Instantiate embedded type classes
     for type_, name in spec.fields():
         if msg_context.is_registered(type_):
@@ -900,7 +850,7 @@ def deserialize_fn_generator(msg_context, package, spec, is_numpy=False):
     # method-var context #########
     push_context('self.')
     #NOTE: we flatten the spec for optimal serialization    
-    for y in serializer_generator(msg_context, package, flatten(msg_context, spec), False, is_numpy):
+    for y in serializer_generator(msg_context, flatten(msg_context, spec), False, is_numpy):
         yield "  "+y
     pop_context()
     # done w/ method-var context #
@@ -915,18 +865,13 @@ def deserialize_fn_generator(msg_context, package, spec, is_numpy=False):
     yield "except struct.error as e:"
     yield "  raise roslib.message.DeserializationError(e) #most likely buffer underfill"
 
-def msg_generator(msg_context, package, name, spec):
+def msg_generator(msg_context, spec, search_path):
     """
-    Python code generator for .msg files. Takes in a package name,
-    message name, and message specification and generates a Python
-    message class.
+    Python code generator for .msg files. Generates a Python from a
+     :class:`genmsg.MsgSpec`.
     
-    @param package: name of package for message
-    @type  package: str
-    @param name: base type name of message, e.g. 'Empty', 'String'
-    @type  name: str
-    @param spec: parsed .msg specification
-    @type  spec: L{MsgSpec}
+    :param spec: parsed .msg :class:`genmsg.MsgSpec` instance
+    :param search_path: dictionary mapping message namespaces to a directory locations
     """
     
     # #2990: have to compute md5sum before any calls to make_python_safe
@@ -935,7 +880,7 @@ def msg_generator(msg_context, package, name, spec):
     # rely on in-memory MsgSpecs instead so that we can generate code
     # for older versions of msg files
     try:
-        gendeps_dict = genmsg.gentools.load_dependencies(msg_context, spec, package, compute_files=False)
+        gendeps_dict = genmsg.msg_loader.load_dependencies(msg_context, spec, search_path)
     except msgs.InvalidMsgSpec as e:
         raise MsgGenerationException("Cannot generate .msg for %s/%s: %s"%(package, name, str(e)))
     md5sum = genmsg.gentools.compute_md5(msg_context, gendeps_dict)
@@ -1008,8 +953,8 @@ def msg_generator(msg_context, package, name, spec):
     The available fields are:
        %s
     
-    @param args: complete set of field values, in .msg order
-    @param kwds: use keyword arguments corresponding to message field names
+    :param args: complete set of field values, in .msg order
+    :param kwds: use keyword arguments corresponding to message field names
     to set specific fields. 
     \"\"\"
     if args or kwds:
@@ -1035,19 +980,19 @@ def msg_generator(msg_context, package, name, spec):
   def serialize(self, buff):
     \"\"\"
     serialize message into buffer
-    @param buff: buffer
+    :param buff: buffer
     @type  buff: StringIO
     \"\"\""""
-    for y in serialize_fn_generator(msg_context, package, spec):
+    for y in serialize_fn_generator(msg_context, spec):
         yield "    "+ y
     yield """
   def deserialize(self, str):
     \"\"\"
     unpack serialized message in str into this message instance
-    @param str: byte array of serialized message
+    :param str: byte array of serialized message
     @type  str: str
     \"\"\""""
-    for y in deserialize_fn_generator(msg_context, package, spec):
+    for y in deserialize_fn_generator(msg_context, spec):
         yield "    " + y
     yield ""
 
@@ -1055,23 +1000,23 @@ def msg_generator(msg_context, package, name, spec):
   def serialize_numpy(self, buff, numpy):
     \"\"\"
     serialize message with numpy array types into buffer
-    @param buff: buffer
+    :param buff: buffer
     @type  buff: StringIO
-    @param numpy: numpy python module
+    :param numpy: numpy python module
     @type  numpy module
     \"\"\""""
-    for y in serialize_fn_generator(msg_context, package, spec, is_numpy=True):
+    for y in serialize_fn_generator(msg_context, spec, is_numpy=True):
         yield "    "+ y
     yield """
   def deserialize_numpy(self, str, numpy):
     \"\"\"
     unpack serialized message in str into this message instance using numpy for array types
-    @param str: byte array of serialized message
+    :param str: byte array of serialized message
     @type  str: str
-    @param numpy: numpy python module
+    :param numpy: numpy python module
     @type  numpy: module
     \"\"\""""
-    for y in deserialize_fn_generator(msg_context, package, spec, is_numpy=True):
+    for y in deserialize_fn_generator(msg_context, spec, is_numpy=True):
         yield "    " + y
     yield ""
 
@@ -1093,11 +1038,9 @@ def msg_generator(msg_context, package, name, spec):
 
 def _generate_dynamic_specs(specs, dep_msg):
     """
-    @param dep_msg: text of dependent .msg definition
-    @type  dep_msg: str
-    @return: type name, message spec
-    @rtype: str, MsgSpec
-    @raise MsgGenerationException: if dep_msg is improperly formatted
+    :param dep_msg: text of dependent .msg definition, ``str``
+    :returns: type name, message spec, ``str, MsgSpec``
+    :raises: MsgGenerationException If dep_msg is improperly formatted
     """
     line1 = dep_msg.find('\n')
     msg_line = dep_msg[:line1]
@@ -1113,7 +1056,7 @@ def _gen_dyn_name(pkg, base_type):
     Modify pkg/base_type name so that it can safely co-exist with
     statically generated files.
     
-    @return: name to use for pkg/base_type for dynamically generated message class. 
+    :returns: name to use for pkg/base_type for dynamically generated message class. 
     @rtype: str
     """
     return "_%s__%s"%(pkg, base_type)
@@ -1123,10 +1066,8 @@ def _gen_dyn_modify_references(py_text, types):
     Modify the generated code to rewrite names such that the code can
     safely co-exist with messages of the same name.
     
-    @param py_text: genmsg_py-generated Python source code
-    @type  py_text: str
-    @return: updated text
-    @rtype: str
+    :param py_text: genmsg_py-generated Python source code, ``str``
+    :returns: updated text, ``str``
     """
     for t in types:
         pkg, base_type = genmsg.package_resource_name(t)
@@ -1150,9 +1091,9 @@ def generate_dynamic(core_type, msg_cat):
     Dymamically generate message classes from msg_cat .msg text
     gendeps dump. This method modifies sys.path to include a temp file
     directory.
-    @param core_type str: top-level ROS message type of concatenanted .msg text
-    @param msg_cat str: concatenation of full message text (output of gendeps --cat)
-    @raise MsgGenerationException: if dep_msg is improperly formatted
+    :param core_type str: top-level ROS message type of concatenanted .msg text
+    :param msg_cat str: concatenation of full message text (output of gendeps --cat)
+    :raises: MsgGenerationException If dep_msg is improperly formatted
     """
     core_pkg, core_base_type = genmsg.package_resource_name(core_type)
     
@@ -1178,9 +1119,9 @@ def generate_dynamic(core_type, msg_cat):
     # clear the message registration table and register loaded
     # types. The types have to be registered globally in order for
     # message generation of dependents to work correctly.
-    genmsg.msgs.reinit()
+    msg_context = MsgContext.create_default()
     for t, spec in specs.items():
-        genmsg.msgs.register(t, spec)
+        msg_context.register(t, spec)
 
     # process actual MsgSpecs: we accumulate them into a single file,
     # rewriting the generated text as needed
@@ -1218,68 +1159,42 @@ def generate_dynamic(core_type, msg_cat):
             messages[t] = getattr(mod, _gen_dyn_name(pkg, s_type))
         except AttributeError:
             raise MsgGenerationException("cannot retrieve message class for %s/%s"%(pkg, s_type))
-        
-    # erase the dirty work we've done
-    msgs.reinit()
 
     return messages
 
 
+## :param type_name str: Name of message type sans package,
+## e.g. 'String'
+## :returns str: name of python module for auto-generated code
+def _module_name(type_name):
+    return "_"+type_name
+    
+## Convert resource filename to ROS resource name
+## :param filename str: path to .msg/.srv file
+## :returns str: name of ROS resource
+def compute_resource_name(filename):
+    return os.path.basename(filename)[:-len(self.ext)]
+
+## :param outdir str: path to directory that files are generated to
+## :returns str: output file path based on input file name and output directory
+def compute_outfile_name(outdir, infile_name):
+    # Use leading _ so that module name does not collide with message name. It also
+    # makes it more clear that the .py file should not be imported directly
+    return os.path.join(outdir, _module_name(compute_resource_name(infile_name))+".py")
+
 class Generator(object):
     
-    ## @param name str: name of resource types
-    ## @param ext str: file extension of resources (e.g. '.msg')
-    ## @param subdir str: directory sub-path of resources (e.g. 'msg')
     def __init__(self, name, what, ext, subdir):
+        """
+        :param name: name of resource types, ``str``
+        :param ext: file extension of resources (e.g. '.msg'), ``str``
+        :param subdir: directory sub-path of resources (e.g. 'msg'), ``str``
+        """
         self.name = name
         self.what = what
         self.subdir = subdir
         self.ext = ext
     
-    ## Convert resource filename to ROS resource name
-    ## @param filename str: path to .msg/.srv file
-    ## @return str: name of ROS resource
-    def resource_name(self, filename):
-        assert isinstance(filename, str)
-        return os.path.basename(filename)[:-len(self.ext)]
-        
-    ## @param type_name str: Name of message type sans package,
-    ## e.g. 'String'
-    ## @return str: name of python module for auto-generated code
-    def _module_name(self, type_name):
-        return "_"+type_name
-    
-    ## @param outdir str: path to directory that files are generated to
-    ## @return str: output file path based on input file name and output directory
-    def outfile_name(self, outdir, infile_name):
-        assert isinstance(outdir, str)
-        assert isinstance(infile_name, str)
-        # Use leading _ so that module name does not collide with message name. It also
-        # makes it more clear that the .py file should not be imported directly
-        return os.path.join(outdir, self._module_name(self.resource_name(infile_name))+".py")
-
-    ## @param base_dir str: base directory of package
-    ## @return str: out directory for generated files. For messages, this is
-    ## package 'mypackage.msg', stored in the src directory (.srv for services).
-    # - this is different from C++ and Ruby, mainly because Python cannot unify packages
-    #   across multiple directories. The msg subpackage is because we want to cleanly
-    #   denote auto-generated files.
-    def outdir(self, basedir):
-        "compute the directory that the .py files are output to"
-        outdir = os.path.join(basedir, 'src', os.path.basename(basedir), self.subdir)
-        if not os.path.exists(outdir):
-            try:
-                os.makedirs(outdir)
-            except Exception, e:
-                # It's not a problem if the directory already exists,
-                # because this can happen during a parallel build
-                if e.errno != errno.EEXIST:
-                    raise e
-                
-        elif not os.path.isdir(outdir): 
-            raise MsgGenerationException("Cannot write to %s: file in the way"%outdir)
-        return outdir
-
     def generate(self, package, f, outdir, incdir):
         raise Exception('subclass must override')
 
@@ -1304,13 +1219,16 @@ class Generator(object):
             self.write_module(options.outdir, package, generated_modules, options.srcdir)
         return 0
 
-    ## @param base_dir str: path to package
-    ## @param package str: name of package to write module for
-    ## @param generated_modules [str]: list of generated message modules,
-    ##   i.e. the names of the .py files that were generated for each
-    ##   .msg file.
     def write_module(self, basedir, package, generated_modules, srcdir):
-        """create a module file to mark directory for python"""
+        """
+        Create a module file to mark directory for python
+
+        :param base_dir: path to package, ``str``
+        :param package: name of package to write module for, ``str``
+        :param generated_modules: list of generated message modules,
+          i.e. the names of the .py files that were generated for each
+          .msg file. ``[str]``
+        """
         if not os.path.exists(basedir):
             os.makedirs(basedir)
         elif not os.path.isdir(basedir):
@@ -1327,26 +1245,25 @@ class Generator(object):
         finally:
             f.close()
 
-        parentInit = os.path.dirname(basedir)
-        p = os.path.join(parentInit, '__init__.py')
+        parent_init = os.path.dirname(basedir)
+        p = os.path.join(parent_init, '__init__.py')
         if not os.path.exists(p):
             #touch __init__.py in the parent package
-            f = open(p, 'w')
-            print("import pkgutil, os.path", file=f)
-            print("__path__ = pkgutil.extend_path(__path__, __name__)", file=f)
-            staticinit = '%s/%s/__init__.py' % (srcdir, package)
-            print("if os.path.isfile('%s'): execfile('%s')" % (staticinit, staticinit), file=f)
-            f.close()
+            with open(p, 'w') as f:
+                print("import pkgutil, os.path", file=f)
+                print("__path__ = pkgutil.extend_path(__path__, __name__)", file=f)
+                staticinit = '%s/%s/__init__.py' % (srcdir, package)
+                print("if os.path.isfile('%s'): execfile('%s')" % (staticinit, staticinit), file=f)
 
-    def generate_package(self, msg_context, package, pfiles, options):
+    def generate_package(self, msg_context, package, package_filess, options):
         if not genmsg.is_legal_resource_base_name(package):
             print("\nERROR[%s]: package name '%s' is illegal and cannot be used in message generation.\nPlease see http://ros.org/wiki/Names"%(self.name, package), file=sys.stderr)
             return 1 # flag error
         
         # package/src/package/msg for messages, packages/src/package/srv for services
-        outdir = options.outdir #self.outdir(package_dir)
+        outdir = options.outdir
         retcode = 0
-        for f in pfiles:
+        for f in package_filess:
             try:
                 #TODO: need to generate the full_name symbol of the message we are loading
                 outfile = self.generate(msg_context, package, f, outdir, options.includepath) #actual generation
@@ -1357,28 +1274,14 @@ class Generator(object):
                 retcode = 1 #flag error
         return retcode
         
-    def generate_all_by_package(self, package_files, options):
-        """
-        @return: return code
-        @rtype: int
-        """
-        retcode = 0
-        msg_context = MsgContext.create_default()
-        for package, pfiles in package_files.iteritems():
-            retcode = self.generate_package(msg_context, package, pfiles, options) or retcode
-        return retcode
-
     def generate_initpy(self, files, options):
         """
         Generate __init__.py file for each package in in the msg/srv file list
         and have the __init__.py file import the required symbols from
         the generated version of the files.
-        @param files: list of msg/srv files
-        @type  files: [str]
-        @return: return code
-        @rtype: int
+        :param files: list of msg/srv files, ``[str]``
+        :returns: return code, ``int``
         """
-        
         package_files = { options.package : files }
 
         # pass 2: write the __init__.py file for the module
@@ -1388,24 +1291,14 @@ class Generator(object):
         """
         :returns: return code, ``int``
         """
-        package_files = { options.package : [files[0]] }
-
-        # pass 2: generate messages
-        retcode = self.generate_all_by_package(package_files, options)
-
-        # backwards compat
-        if options.initpy:
-            retcode = retcode or self.write_modules(package_files)
-            
-        return retcode
+        msg_context = MsgContext.create_default()
+        #TODO: why only files[0]
+        return self.generate_package(msg_context, options.package, [files[0]], options)
 
     def write_gen(self, outfile, gen, verbose):
-        f = open(outfile, 'w')
-        try:
+        with open(outfile, 'w') as f:
             for l in gen:
                 f.write(l+'\n')
-        finally:
-            f.close()
 
 def usage(progname):
     print("%(progname)s file(s)"%vars())

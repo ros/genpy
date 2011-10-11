@@ -58,20 +58,17 @@ class GenmsgPackage(genpy.generator.Generator):
             'genmsg_py', 'messages', 
             genmsg.EXT_MSG, 'msg')
 
-    def generate(self, msg_context, package, f, outdir, includepath):
+    def generate(self, msg_context, package, f, outdir, search_path):
         """
         Generate python message code for a single .msg file
-        @param f: path to .msg file
-        @type  f: str
-        @param outdir: output directory for generated code
-        @type  outdir: str
-        @return: filename of generated Python code 
-        @rtype: str
+        :param f: path to .msg file, ``str``
+        :param outdir: output directory for generated code, ``str``
+        :returns: filename of generated Python code, ``str``
         """
         verbose = True
         f = os.path.abspath(f)
         infile_name = os.path.basename(f)
-        outfile_name = self.outfile_name(outdir, infile_name)
+        outfile_name = genpy.generator.compute_outfile_name(outdir, infile_name)
 
         full_name = 'TODO'
         raise Exception("TODO")
@@ -79,15 +76,11 @@ class GenmsgPackage(genpy.generator.Generator):
         base_name = genmsg.resource_name_base(name)
         
         self.write_gen(outfile_name, 
-                       genpy.generator.msg_generator(msg_context, package, base_name, spec, includepath), 
+                       genpy.generator.msg_generator(msg_context, package, base_name, spec, search_path), 
                        verbose)
         msg_context.register(name, spec)
         return outfile_name
 
 if __name__ == "__main__":
-    import trace
-    tracer = trace.Trace(
-        ignoredirs=[sys.prefix, sys.exec_prefix],
-        trace=0)
-    tracer.run("genpy.generator.genmain(sys.argv, GenmsgPackage())")
+    genpy.generator.genmain(sys.argv, GenmsgPackage())
     
