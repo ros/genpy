@@ -57,6 +57,8 @@ import traceback
 import struct
 
 import genmsg
+import genmsg.msgs
+import genmsg.msg_loader
 import genmsg.gentools
 
 try:
@@ -73,14 +75,14 @@ class MsgGenerationException(Exception):
     """
     pass
 
-def get_registered_ex(type_):
+def get_registered_ex(msg_context, type_):
     """
     wrapper for get_registered that wraps unknown types with a MsgGenerationException
     :param type_: ROS message type, ``str``
     """
     try:
-        return genmsg.msgs.get_registered(type_)
-    except KeyError:
+        return msg_context.get_registered(type_)
+    except:
         raise MsgGenerationException("Unknown type [%s]. Please check that the manifest.xml correctly declares dependencies."%type_)
 
 ################################################################################
@@ -220,7 +222,7 @@ def flatten(msg_context, msg):
             #as you get n __getitems__ method calls vs. a single *array call
             new_types.append(t)
             new_names.append(n)
-    return genmsg.MsgSpec(new_types, new_names, msg.constants, msg.text)
+    return genmsg.MsgSpec(new_types, new_names, msg.constants, msg.text, msg.full_name)
 
 def make_python_safe(spec):
     """
@@ -297,7 +299,7 @@ def compute_pkg_type(package, type_):
     else:
         raise MsgGenerationException("illegal message type: %s"%type_)
     
-def compute_import(package, type_):
+def compute_import(msg_context, package, type_):
     """
     Compute python import statement for specified message type implementation
     :param package: package that type is being imported into, ``str``
@@ -305,7 +307,7 @@ def compute_import(package, type_):
     :returns: list of import statements (no newline) required to use type_ from package, ``[str]``
     """
     # orig_base_type is the unresolved type
-    orig_base_type = msgs.base_msg_type(type_) # strip array-suffix
+    orig_base_type = genmsg.msgs.bare_msg_type(type_) # strip array-suffix
     # resolve orig_base_type based on the current package context.
     # base_type is the resolved type stripped of any package name.
     # pkg is the actual package of type_.
@@ -315,8 +317,8 @@ def compute_import(package, type_):
     # against the unresolved type builtins/specials are never
     # relative. This requires some special handling for Header, which has
     # two names (Header and std_msgs/Header).
-    if msgs.is_builtin(orig_base_type) or \
-           msgs.is_header_type(orig_base_type):
+    if genmsg.msgs.is_builtin(orig_base_type) or \
+           genmsg.msgs.is_header_type(orig_base_type):
         # of the builtin types, only special types require import
         # handling. we switch to base_type as special types do not
         # include package names.
@@ -328,8 +330,8 @@ def compute_import(package, type_):
         retval = []
     else:
         retval = ['import %s.msg'%pkg]
-        for t in get_registered_ex(type_str).types:
-            sub = compute_import(package, t)
+        for t in get_registered_ex(msg_context, type_str).types:
+            sub = compute_import(msg_context, package, t)
             retval.extend([x for x in sub if not x in retval])
     return retval
 
@@ -524,7 +526,7 @@ def get_patterns():
 # using the context stack to manage any changes in variable-naming, so
 # that code can be reused as much as possible.
     
-def len_serializer_generator(msg_context, var, is_string, serialize):
+def len_serializer_generator(var, is_string, serialize):
     """
     Generator for array-length serialization (32-bit, little-endian unsigned integer)
     :param var: variable name, ``str``
@@ -546,7 +548,7 @@ def len_serializer_generator(msg_context, var, is_string, serialize):
         yield "end += 4"
         yield int32_unpack('length', 'str[start:end]') #4 = struct.calcsize('<i') 
     
-def string_serializer_generator(msg_context, package, type_, name, serialize):
+def string_serializer_generator(package, type_, name, serialize):
     """
     Generator for string types. similar to arrays, but with more
     efficient call to struct.pack.
@@ -566,17 +568,17 @@ def string_serializer_generator(msg_context, package, type_, name, serialize):
 
     # the length generator is a noop if serialize is True as we
     # optimize the serialization call.
-    base_type, is_array, array_len = msgs.parse_type(type_)
+    base_type, is_array, array_len = genmsg.msgs.parse_type(type_)
     # - don't serialize length for fixed-length arrays of bytes
     if base_type not in ['uint8', 'byte'] or array_len is None:
-        for y in len_serializer_generator(msg_context, var, True, serialize):
+        for y in len_serializer_generator(var, True, serialize):
             yield y #serialize string length
 
     if serialize:
         #serialize length and string together
 
         #check to see if its a uint8/byte type, in which case we need to convert to string before serializing
-        base_type, is_array, array_len = msgs.parse_type(type_)
+        base_type, is_array, array_len = genmsg.msgs.parse_type(type_)
         if base_type in ['uint8', 'byte']:
             yield "# - if encoded as a list instead, serialize as bytes instead of string"
             if array_len is None:
@@ -613,7 +615,7 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
     # handle fixed-size byte arrays could be slightly more efficient
     # as we recalculated the length in the generated code.
     if base_type in ['byte', 'uint8']: #treat unsigned int8 arrays as string type
-        for y in string_serializer_generator(msg_context, package, type_, name, serialize):
+        for y in string_serializer_generator(package, type_, name, serialize):
             yield y
         return
     
@@ -675,10 +677,10 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
             # compute the variable context and factory to use
             if base_type == 'string':
                 push_context('') 
-                factory = string_serializer_generator(msg_context, package, base_type, loop_var, serialize)
+                factory = string_serializer_generator(package, base_type, loop_var, serialize)
             else:
                 push_context('%s.'%loop_var)
-                factory = serializer_generator(msg_context, package, get_registered_ex(base_type), serialize, is_numpy)
+                factory = serializer_generator(msg_context, package, get_registered_ex(msg_context, base_type), serialize, is_numpy)
 
             if serialize:
                 yield 'for %s in %s:'%(loop_var, var)
@@ -724,7 +726,7 @@ def complex_serializer_generator(msg_context, package, type_, name, serialize, i
             yield y
     #Embedded Message
     elif type_ == 'string':
-        for y in string_serializer_generator(msg_context, package, type_, name, serialize):
+        for y in string_serializer_generator(package, type_, name, serialize):
             yield y
     else:
         if not is_special(type_):
@@ -738,7 +740,7 @@ def complex_serializer_generator(msg_context, package, type_, name, serialize, i
             push_context(ctx_var+'.')
             # unoptimized code
             #push_context(_serial_context+name+'.')             
-            for y in serializer_generator(msg_context, package, get_registered_ex(type_), serialize, is_numpy):
+            for y in serializer_generator(msg_context, package, get_registered_ex(msg_context, type_), serialize, is_numpy):
                 yield y #recurs on subtype
             pop_context()
         else:
@@ -897,7 +899,7 @@ def msg_generator(msg_context, spec, search_path):
     yield 'import roslib.message\nimport struct\n'
     import_strs = []
     for t in spec.types:
-        import_strs.extend(compute_import(package, t))
+        import_strs.extend(compute_import(msg_context, package, t))
     import_strs = set(import_strs)
     for i in import_strs:
         if i:
@@ -1036,7 +1038,7 @@ def msg_generator(msg_context, spec, search_path):
 ################################################################################
 # dynamic generation of deserializer
 
-def _generate_dynamic_specs(specs, dep_msg):
+def _generate_dynamic_specs(msg_context, specs, dep_msg):
     """
     :param dep_msg: text of dependent .msg definition, ``str``
     :returns: type name, message spec, ``str, MsgSpec``
@@ -1048,7 +1050,7 @@ def _generate_dynamic_specs(specs, dep_msg):
         raise MsgGenerationException("invalid input to generate_dynamic: dependent type is missing 'MSG:' type declaration header")
     dep_type = msg_line[5:].strip()
     dep_pkg, dep_base_type = genmsg.package_resource_name(dep_type)
-    dep_spec = genmsg.msgs.load_from_string(dep_msg[line1+1:], dep_pkg)
+    dep_spec = genmsg.msg_loader.load_msg_from_string(msg_context, dep_msg[line1+1:], dep_pkg)
     return dep_type, dep_spec
     
 def _gen_dyn_name(pkg, base_type):
@@ -1095,6 +1097,7 @@ def generate_dynamic(core_type, msg_cat):
     :param msg_cat str: concatenation of full message text (output of gendeps --cat)
     :raises: MsgGenerationException If dep_msg is improperly formatted
     """
+    msg_context = genmsg.msg_loader.MsgContext.create_default()
     core_pkg, core_base_type = genmsg.package_resource_name(core_type)
     
     # REP 100: pretty gross hack to deal with the fact that we moved
@@ -1109,17 +1112,17 @@ def generate_dynamic(core_type, msg_cat):
     deps_msgs = splits[1:]
 
     # create MsgSpec representations of .msg text
-    specs = { core_type: msgs.load_from_string(core_msg, core_pkg) }
+    specs = { core_type: genmsg.msg_loader.load_msg_from_string(msg_context, core_msg, core_pkg) }
     # - dependencies
     for dep_msg in deps_msgs:
         # dependencies require more handling to determine type name
-        dep_type, dep_spec = _generate_dynamic_specs(specs, dep_msg)
+        dep_type, dep_spec = _generate_dynamic_specs(msg_context, specs, dep_msg)
         specs[dep_type] = dep_spec
     
     # clear the message registration table and register loaded
     # types. The types have to be registered globally in order for
     # message generation of dependents to work correctly.
-    msg_context = MsgContext.create_default()
+    msg_context = genmsg.msg_loader.MsgContext.create_default()
     for t, spec in specs.items():
         msg_context.register(t, spec)
 

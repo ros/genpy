@@ -146,8 +146,8 @@ def test_flatten():
     import genpy.generator
     msg_context = MsgContext.create_default()
 
-    simple = MsgSpec(['string'], ['data'], [], 'string data\n')
-    simple2 = MsgSpec(['string', 'int32'], ['data', 'data2'], [], 'string data\nint32 data2\n')
+    simple = MsgSpec(['string'], ['data'], [], 'string data\n', 'simple/String')
+    simple2 = MsgSpec(['string', 'int32'], ['data', 'data2'], [], 'string data\nint32 data2\n', 'simpe/Data2')
     assert simple == genpy.generator.flatten(msg_context, simple)
     assert simple2 == genpy.generator.flatten(msg_context, simple2)
 
@@ -262,73 +262,75 @@ def test_compute_pkg_type():
     assert ('std_msgs', 'String') == genpy.generator.compute_pkg_type('std_msgs', 'String')
         
 def test_compute_import():
-
-    assert [] == genpy.generator.compute_import('foo', 'bar')
-    assert [] == genpy.generator.compute_import('foo', 'int32')
-
+    import genpy.generator
     msg_context = MsgContext.create_default()
-    msg_context.register('ci_msgs/Base', MsgSpec(['int8'], ['data'], [], 'int8 data\n'))
-    msg_context.register('ci2_msgs/Base2', MsgSpec(['ci_msgs/Base'], ['data2'], [], 'ci_msgs/Base data2\n'))
-    msg_context.register('ci3_msgs/Base3', MsgSpec(['ci2_msgs/Base2'], ['data3'], [], 'ci2_msgs/Base2 data3\n'))
-    msg_context.register('ci4_msgs/Base', MsgSpec(['int8'], ['data'], [], 'int8 data\n'))
-    msg_context.register('ci4_msgs/Base4', MsgSpec(['ci2_msgs/Base2', 'ci3_msgs/Base3', 'ci4_msgs/Base'],
+
+    assert [] == genpy.generator.compute_import(msg_context, 'foo', 'bar')
+    assert [] == genpy.generator.compute_import(msg_context, 'foo', 'int32')
+
+    msg_context.register('ci_msgs/Base', MsgSpec(['int8'], ['data'], [], 'int8 data\n', 'ci_msgs/Base'))
+    msg_context.register('ci2_msgs/Base2', MsgSpec(['ci_msgs/Base'], ['data2'], [], 'ci_msgs/Base data2\n', 'ci2_msgs/Base2'))
+    msg_context.register('ci3_msgs/Base3', MsgSpec(['ci2_msgs/Base2'], ['data3'], [], 'ci2_msgs/Base2 data3\n', 'ci3_msgs/Base3'))
+    msg_context.register('ci4_msgs/Base', MsgSpec(['int8'], ['data'], [], 'int8 data\n', 'ci4_msgs/Base'))
+    msg_context.register('ci4_msgs/Base4', MsgSpec(['ci2_msgs/Base2', 'ci3_msgs/Base3', 'ci4_msgs/Base4'],
                                        ['data4a', 'data4b', 'data4c'],
                                        [], 'ci2_msgs/Base2 data4a\nci3_msgs/Base3 data4b\nci4_msgs/Base data4c\n'))
 
-    msg_context.register('ci5_msgs/Base', MsgSpec(['time'], ['data'], [], 'time data\n'))
+    msg_context.register('ci5_msgs/Base', MsgSpec(['time'], ['data'], [], 'time data\n', 'ci5_msgs/Base'))
 
-    assert ['import ci_msgs.msg'] == genpy.generator.compute_import('foo', 'ci_msgs/Base')
-    assert ['import ci_msgs.msg'] == genpy.generator.compute_import('ci_msgs', 'ci_msgs/Base')
-    assert ['import ci2_msgs.msg', 'import ci_msgs.msg'] == genpy.generator.compute_import('ci2_msgs', 'ci2_msgs/Base2')
-    assert ['import ci2_msgs.msg', 'import ci_msgs.msg'] == genpy.generator.compute_import('foo', 'ci2_msgs/Base2')
-    assert ['import ci3_msgs.msg', 'import ci2_msgs.msg', 'import ci_msgs.msg'] == genpy.generator.compute_import('ci3_msgs', 'ci3_msgs/Base3')
+    assert ['import ci_msgs.msg'] == genpy.generator.compute_import(msg_context, 'foo', 'ci_msgs/Base')
+    assert ['import ci_msgs.msg'] == genpy.generator.compute_import(msg_context, 'ci_msgs', 'ci_msgs/Base')
+    assert ['import ci2_msgs.msg', 'import ci_msgs.msg'] == genpy.generator.compute_import(msg_context, 'ci2_msgs', 'ci2_msgs/Base2')
+    assert ['import ci2_msgs.msg', 'import ci_msgs.msg'] == genpy.generator.compute_import(msg_context, 'foo', 'ci2_msgs/Base2')
+    assert ['import ci3_msgs.msg', 'import ci2_msgs.msg', 'import ci_msgs.msg'] == genpy.generator.compute_import(msg_context, 'ci3_msgs', 'ci3_msgs/Base3')
 
-    assert set(['import ci4_msgs.msg', 'import ci3_msgs.msg', 'import ci2_msgs.msg', 'import ci_msgs.msg']) == set(genpy.generator.compute_import('foo', 'ci4_msgs/Base4'))
-    assert set(['import ci4_msgs.msg', 'import ci3_msgs.msg', 'import ci2_msgs.msg', 'import ci_msgs.msg']) == set(genpy.generator.compute_import('ci4_msgs', 'ci4_msgs/Base4'))
+    assert set(['import ci4_msgs.msg', 'import ci3_msgs.msg', 'import ci2_msgs.msg', 'import ci_msgs.msg']) == set(genpy.generator.compute_import(msg_context, 'foo', 'ci4_msgs/Base4'))
+    assert set(['import ci4_msgs.msg', 'import ci3_msgs.msg', 'import ci2_msgs.msg', 'import ci_msgs.msg']) == set(genpy.generator.compute_import(msg_context, 'ci4_msgs', 'ci4_msgs/Base4'))
 
-    assert ['import ci4_msgs.msg'] == genpy.generator.compute_import('foo', 'ci4_msgs/Base')    
-    assert ['import ci4_msgs.msg'] == genpy.generator.compute_import('ci4_msgs', 'ci4_msgs/Base')
-    assert ['import ci4_msgs.msg'] == genpy.generator.compute_import('ci4_msgs', 'Base')
+    assert ['import ci4_msgs.msg'] == genpy.generator.compute_import(msg_context, 'foo', 'ci4_msgs/Base')    
+    assert ['import ci4_msgs.msg'] == genpy.generator.compute_import(msg_context, 'ci4_msgs', 'ci4_msgs/Base')
+    assert ['import ci4_msgs.msg'] == genpy.generator.compute_import(msg_context, 'ci4_msgs', 'Base')
 
-    assert ['import ci5_msgs.msg', 'import genpy'] == genpy.generator.compute_import('foo', 'ci5_msgs/Base')
+    assert ['import ci5_msgs.msg', 'import genpy'] == genpy.generator.compute_import(msg_context, 'foo', 'ci5_msgs/Base')
         
 def test_get_registered_ex():
     import genpy.generator
-    s = MsgSpec(['string'], ['data'], [], 'string data\n')
-    register('tgr_msgs/String', s)
-    assert s == genpy.generator.get_registered_ex('tgr_msgs/String')
+    msg_context = MsgContext.create_default()
+    s = MsgSpec(['string'], ['data'], [], 'string data\n', 'tgr_msgs/String')
+    msg_context.register('tgr_msgs/String', s)
+    assert s == genpy.generator.get_registered_ex(msg_context, 'tgr_msgs/String')
     try:
-        genpy.generator.get_registered_ex('bad_msgs/String')
+        genpy.generator.get_registered_ex(msg_context, 'bad_msgs/String')
     except genpy.generator.MsgGenerationException: pass
             
 def test_compute_constructor():
     import genpy.generator
     msg_context = MsgContext.create_default()
-    msg_context.register('fake_msgs/String', MsgSpec(['string'], ['data'], [], 'string data\n'))
-    msg_context.register('fake_msgs/ThreeNums', MsgSpec(['int32', 'int32', 'int32'], ['x', 'y', 'z'], [], 'int32 x\nint32 y\nint32 z\n'))
+    msg_context.register('fake_msgs/String', MsgSpec(['string'], ['data'], [], 'string data\n', 'fake_msgs/String'))
+    msg_context.register('fake_msgs/ThreeNums', MsgSpec(['int32', 'int32', 'int32'], ['x', 'y', 'z'], [], 'int32 x\nint32 y\nint32 z\n', 'fake_msgs/ThreeNums'))
 
     # builtin specials
-    assert 'genpy.Time()' == genpy.generator.compute_constructor('roslib', 'time')
-    assert 'genpy.Duration()' == genpy.generator.compute_constructor('roslib', 'duration')
-    assert 'std_msgs.msg._Header.Header()' == genpy.generator.compute_constructor('std_msgs', 'Header')
+    assert 'genpy.Time()' == genpy.generator.compute_constructor(msg_context, 'roslib', 'time')
+    assert 'genpy.Duration()' == genpy.generator.compute_constructor(msg_context, 'roslib', 'duration')
+    assert 'std_msgs.msg._Header.Header()' == genpy.generator.compute_constructor(msg_context, 'std_msgs', 'Header')
 
-    assert 'genpy.Time()' == genpy.generator.compute_constructor('std_msgs', 'time')
-    assert 'genpy.Duration()' == genpy.generator.compute_constructor('std_msgs', 'duration')
+    assert 'genpy.Time()' == genpy.generator.compute_constructor(msg_context, 'std_msgs', 'time')
+    assert 'genpy.Duration()' == genpy.generator.compute_constructor(msg_context, 'std_msgs', 'duration')
 
     # generic instances
     # - unregistered type
-    assert None == genpy.generator.compute_constructor("unknown_msgs", "unknown_msgs/Foo")
-    assert None == genpy.generator.compute_constructor("unknown_msgs", "Foo")
+    assert None == genpy.generator.compute_constructor(msg_context, "unknown_msgs", "unknown_msgs/Foo")
+    assert None == genpy.generator.compute_constructor(msg_context, "unknown_msgs", "Foo")
     # - wrong context
-    assert None == genpy.generator.compute_constructor('std_msgs', 'ThreeNums')
+    assert None == genpy.generator.compute_constructor(msg_context, 'std_msgs', 'ThreeNums')
 
     # - registered types
-    assert 'fake_msgs.msg.String()' == genpy.generator.compute_constructor('std_msgs', 'fake_msgs/String')
-    assert 'fake_msgs.msg.String()' == genpy.generator.compute_constructor('fake_msgs', 'fake_msgs/String')
-    assert 'fake_msgs.msg.String()' == genpy.generator.compute_constructor('fake_msgs', 'String')
-    assert 'fake_msgs.msg.ThreeNums()' == genpy.generator.compute_constructor('fake_msgs', 'fake_msgs/ThreeNums')
-    assert 'fake_msgs.msg.ThreeNums()' == genpy.generator.compute_constructor('fake_msgs', 'fake_msgs/ThreeNums')
-    assert 'fake_msgs.msg.ThreeNums()' == genpy.generator.compute_constructor('fake_msgs', 'ThreeNums')
+    assert 'fake_msgs.msg.String()' == genpy.generator.compute_constructor(msg_context, 'std_msgs', 'fake_msgs/String')
+    assert 'fake_msgs.msg.String()' == genpy.generator.compute_constructor(msg_context, 'fake_msgs', 'fake_msgs/String')
+    assert 'fake_msgs.msg.String()' == genpy.generator.compute_constructor(msg_context, 'fake_msgs', 'String')
+    assert 'fake_msgs.msg.ThreeNums()' == genpy.generator.compute_constructor(msg_context, 'fake_msgs', 'fake_msgs/ThreeNums')
+    assert 'fake_msgs.msg.ThreeNums()' == genpy.generator.compute_constructor(msg_context, 'fake_msgs', 'fake_msgs/ThreeNums')
+    assert 'fake_msgs.msg.ThreeNums()' == genpy.generator.compute_constructor(msg_context, 'fake_msgs', 'ThreeNums')
 
 def test_pack():
     import genpy.generator
