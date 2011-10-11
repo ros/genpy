@@ -156,8 +156,8 @@ class Special:
         
 _SPECIAL_TYPES = {
     genmsg.HEADER:   Special('std_msgs.msg._Header.Header()',     None, 'import std_msgs.msg'),
-    genmsg.TIME:     Special('genmsg.Time()',     '%s.canon()', 'import genmsg'),
-    genmsg.DURATION: Special('genmsg.Duration()', '%s.canon()', 'import genmsg'), 
+    genmsg.TIME:     Special('genpy.Time()',     '%s.canon()', 'import genpy'),
+    genmsg.DURATION: Special('genpy.Duration()', '%s.canon()', 'import genpy'), 
     }
 
 ################################################################################
