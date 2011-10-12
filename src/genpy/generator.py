@@ -1196,19 +1196,19 @@ def _module_name(type_name):
 ## Convert resource filename to ROS resource name
 ## :param filename str: path to .msg/.srv file
 ## :returns str: name of ROS resource
-def compute_resource_name(filename):
-    return os.path.basename(filename)[:-len(self.ext)]
+def compute_resource_name(filename, ext):
+    return os.path.basename(filename)[:-len(ext)]
 
 ## :param outdir str: path to directory that files are generated to
 ## :returns str: output file path based on input file name and output directory
-def compute_outfile_name(outdir, infile_name):
+def compute_outfile_name(outdir, infile_name, ext):
     # Use leading _ so that module name does not collide with message name. It also
     # makes it more clear that the .py file should not be imported directly
-    return os.path.join(outdir, _module_name(compute_resource_name(infile_name))+".py")
+    return os.path.join(outdir, _module_name(compute_resource_name(infile_name, ext))+".py")
 
 class Generator(object):
     
-    def __init__(self, name, what, ext, subdir):
+    def __init__(self, name, what):
         """
         :param name: name of resource types, ``str``
         :param ext: file extension of resources (e.g. '.msg'), ``str``
@@ -1216,8 +1216,6 @@ class Generator(object):
         """
         self.name = name
         self.what = what
-        self.subdir = subdir
-        self.ext = ext
     
     def generate(self, package, f, outdir, incdir):
         raise Exception('subclass must override')
@@ -1279,7 +1277,7 @@ class Generator(object):
                 staticinit = '%s/%s/__init__.py' % (srcdir, package)
                 print("if os.path.isfile('%s'): execfile('%s')" % (staticinit, staticinit), file=f)
 
-    def generate_package(self, msg_context, package, package_filess, options):
+    def generate_package(self, msg_context, package, package_files, options):
         if not genmsg.is_legal_resource_base_name(package):
             print("\nERROR[%s]: package name '%s' is illegal and cannot be used in message generation.\nPlease see http://ros.org/wiki/Names"%(self.name, package), file=sys.stderr)
             return 1 # flag error
@@ -1287,7 +1285,7 @@ class Generator(object):
         # package/src/package/msg for messages, packages/src/package/srv for services
         outdir = options.outdir
         retcode = 0
-        for f in package_filess:
+        for f in package_files:
             try:
                 #TODO: need to generate the full_name symbol of the message we are loading
                 outfile = self.generate(msg_context, package, f, outdir, options.includepath) #actual generation

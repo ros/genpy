@@ -55,8 +55,7 @@ class GenmsgPackage(genpy.generator.Generator):
     """
     def __init__(self):
         super(GenmsgPackage, self).__init__(
-            'genmsg_py', 'messages', 
-            genmsg.EXT_MSG, 'msg')
+            'genmsg_py', 'messages')
 
     def generate(self, msg_context, package, f, outdir, search_path):
         """
@@ -65,20 +64,20 @@ class GenmsgPackage(genpy.generator.Generator):
         :param outdir: output directory for generated code, ``str``
         :returns: filename of generated Python code, ``str``
         """
+        # TODO: it would be better of generator did not do type name calculation
         verbose = True
+        assert f.endswith(genmsg.EXT_MSG), f
+
         f = os.path.abspath(f)
         infile_name = os.path.basename(f)
-        outfile_name = genpy.generator.compute_outfile_name(outdir, infile_name)
+        outfile_name = genpy.generator.compute_outfile_name(outdir, infile_name, genmsg.EXT_MSG)
 
-        full_name = 'TODO'
-        raise Exception("TODO")
-        name, spec = genmsg.msg_loader.load_msg_from_file(msg_context, f, full_name, package)
-        base_name = genmsg.resource_name_base(name)
-        
-        self.write_gen(outfile_name, 
-                       genpy.generator.msg_generator(msg_context, package, base_name, spec, search_path), 
-                       verbose)
-        msg_context.register(name, spec)
+        short_name = infile_name[:-len(genmsg.EXT_MSG)]
+        full_name = '%s/%s'%(package, short_name)
+        spec = genmsg.msg_loader.load_msg_from_file(msg_context, f, full_name)
+        gen = genpy.generator.msg_generator(msg_context, spec, search_path)
+        self.write_gen(outfile_name, gen, verbose)
+        msg_context.register(full_name, spec)
         return outfile_name
 
 if __name__ == "__main__":
