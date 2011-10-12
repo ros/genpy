@@ -1217,7 +1217,7 @@ class Generator(object):
         self.name = name
         self.what = what
     
-    def generate(self, package, f, outdir, incdir):
+    def generate(self, msg_context, package, f, outdir, search_path):
         raise Exception('subclass must override')
 
     def write_modules(self, package_files, options):
@@ -1256,16 +1256,13 @@ class Generator(object):
         elif not os.path.isdir(basedir):
             raise MsgGenerationException("file preventing the creating of module directory: %s"%dir)
         p = os.path.join(basedir, '__init__.py')
-        f = open(p, 'w')
-        try:
+        with open(p, 'w') as f:
             #this causes more problems than anticipated -- for pure python
             #packages it works fine, but in C++ packages doxygen seems to prefer python first.
             #f.write('## \mainpage\n') #doxygen
             #f.write('# \htmlinclude manifest.html\n')
             for mod in generated_modules:
                 f.write('from %s import *\n'%mod)
-        finally:
-            f.close()
 
         parent_init = os.path.dirname(basedir)
         p = os.path.join(parent_init, '__init__.py')
@@ -1277,18 +1274,17 @@ class Generator(object):
                 staticinit = '%s/%s/__init__.py' % (srcdir, package)
                 print("if os.path.isfile('%s'): execfile('%s')" % (staticinit, staticinit), file=f)
 
-    def generate_package(self, msg_context, package, package_files, options):
+    def generate_package(self, msg_context, package, package_files, outdir, search_path):
         if not genmsg.is_legal_resource_base_name(package):
             print("\nERROR[%s]: package name '%s' is illegal and cannot be used in message generation.\nPlease see http://ros.org/wiki/Names"%(self.name, package), file=sys.stderr)
             return 1 # flag error
         
         # package/src/package/msg for messages, packages/src/package/srv for services
-        outdir = options.outdir
         retcode = 0
         for f in package_files:
             try:
                 #TODO: need to generate the full_name symbol of the message we are loading
-                outfile = self.generate(msg_context, package, f, outdir, options.includepath) #actual generation
+                outfile = self.generate(msg_context, package, f, outdir, search_path) #actual generation
             except Exception as e:
                 if not isinstance(e, MsgGenerationException) and not isinstance(e, genmsg.msgs.InvalidMsgSpec):
                     traceback.print_exc()
@@ -1309,13 +1305,12 @@ class Generator(object):
         # pass 2: write the __init__.py file for the module
         self.write_modules(package_files, options)
         
-    def generate_messages(self, files, options):
+    def generate_messages(self, package, files, outdir, search_path):
         """
         :returns: return code, ``int``
         """
         msg_context = MsgContext.create_default()
-        #TODO: why only files[0]
-        return self.generate_package(msg_context, options.package, [files[0]], options)
+        return self.generate_package(msg_context, package, files, outdir, search_path)
 
     def write_gen(self, outfile, gen, verbose):
         with open(outfile, 'w') as f:
@@ -1326,7 +1321,7 @@ def usage(progname):
     print("%(progname)s file(s)"%vars())
 
 def genmain(argv, gen, usage_fn=usage):
-
+    import genmsg.command_line
     from optparse import OptionParser
     parser = OptionParser("options")
     parser.add_option('--initpy', dest='initpy', action='store_true',
@@ -1342,7 +1337,10 @@ def genmain(argv, gen, usage_fn=usage):
         else:
             if len(args) < 2:
                 parser.error("please specify args")
-            retcode = gen.generate_messages(args[1:], options)
+            if not os.path.exists(options.outdir):
+                os.makedirs(options.outdir)
+            search_path = genmsg.command_line.includepath_to_dict(options.includepath)
+            retcode = gen.generate_messages(options.package, args[1:], options.outdir, search_path)
     except genmsg.InvalidMsgSpec as e:
         print("ERROR: ", e, file=sys.stderr)
         retcode = 1

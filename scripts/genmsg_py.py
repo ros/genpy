@@ -54,8 +54,7 @@ class GenmsgPackage(genpy.generator.Generator):
     single .msg file, see msg_generator.
     """
     def __init__(self):
-        super(GenmsgPackage, self).__init__(
-            'genmsg_py', 'messages')
+        super(GenmsgPackage, self).__init__('genmsg_py', 'messages')
 
     def generate(self, msg_context, package, f, outdir, search_path):
         """
