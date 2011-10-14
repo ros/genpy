@@ -423,7 +423,8 @@ def string_serializer_generator(package, type_, name, serialize):
 def array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
     """
     Generator for array types
-    @raise MsgGenerationException: if array spec is invalid
+
+    :raises: :exc:`MsgGenerationException` If array spec is invalid
     """
     base_type, is_array, array_len = msgs.parse_type(type_)
     if not is_array:
@@ -801,8 +802,7 @@ def msg_generator(msg_context, spec, search_path):
   def serialize(self, buff):
     \"\"\"
     serialize message into buffer
-    :param buff: buffer
-    @type  buff: StringIO
+    :param buff: buffer, ``StringIO``
     \"\"\""""
     for y in serialize_fn_generator(msg_context, spec):
         yield "    "+ y
@@ -810,8 +810,7 @@ def msg_generator(msg_context, spec, search_path):
   def deserialize(self, str):
     \"\"\"
     unpack serialized message in str into this message instance
-    :param str: byte array of serialized message
-    @type  str: str
+    :param str: byte array of serialized message, ``str``
     \"\"\""""
     for y in deserialize_fn_generator(msg_context, spec):
         yield "    " + y
@@ -821,10 +820,8 @@ def msg_generator(msg_context, spec, search_path):
   def serialize_numpy(self, buff, numpy):
     \"\"\"
     serialize message with numpy array types into buffer
-    :param buff: buffer
-    @type  buff: StringIO
+    :param buff: buffer, ``StringIO``
     :param numpy: numpy python module
-    @type  numpy module
     \"\"\""""
     for y in serialize_fn_generator(msg_context, spec, is_numpy=True):
         yield "    "+ y
@@ -832,10 +829,8 @@ def msg_generator(msg_context, spec, search_path):
   def deserialize_numpy(self, str, numpy):
     \"\"\"
     unpack serialized message in str into this message instance using numpy for array types
-    :param str: byte array of serialized message
-    @type  str: str
+    :param str: byte array of serialized message, ``str``
     :param numpy: numpy python module
-    @type  numpy: module
     \"\"\""""
     for y in deserialize_fn_generator(msg_context, spec, is_numpy=True):
         yield "    " + y
@@ -873,21 +868,27 @@ def srv_generator(msg_context, spec, search_path):
     yield "  _request_class  = %s"%req
     yield "  _response_class = %s"%resp
 
-## :param type_name str: Name of message type sans package,
-## e.g. 'String'
-## :returns str: name of python module for auto-generated code
 def _module_name(type_name):
+    """
+    :param type_name str: Name of message type sans package,
+      e.g. 'String'
+    :returns str: name of python module for auto-generated code
+    """
     return "_"+type_name
     
-## Convert resource filename to ROS resource name
-## :param filename str: path to .msg/.srv file
-## :returns str: name of ROS resource
 def compute_resource_name(filename, ext):
+    """
+    Convert resource filename to ROS resource name
+    :param filename str: path to .msg/.srv file
+    :returns str: name of ROS resource
+    """
     return os.path.basename(filename)[:-len(ext)]
 
-## :param outdir str: path to directory that files are generated to
-## :returns str: output file path based on input file name and output directory
 def compute_outfile_name(outdir, infile_name, ext):
+    """
+    :param outdir str: path to directory that files are generated to
+    :returns str: output file path based on input file name and output directory
+    """
     # Use leading _ so that module name does not collide with message name. It also
     # makes it more clear that the .py file should not be imported directly
     return os.path.join(outdir, _module_name(compute_resource_name(infile_name, ext))+".py")
