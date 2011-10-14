@@ -34,45 +34,9 @@ import genmsg.msgs
 from genmsg.msgs import MsgSpec
 from genmsg.msg_loader import MsgContext
 
-import cStringIO
 import time
 import sys
 
-
-def test_exceptions():
-    from genpy.generator import MsgGenerationException
-    try:
-        raise MsgGenerationException('bad')
-    except MsgGenerationException:
-        pass
-
-def test_reduce_pattern():
-    import genpy.generator
-    tests = [
-        ('', ''),
-        ('hhhh', '4h'),
-        ('hhhhi', '4hi'),
-        ('hhhhiiiibbb', '4h4i3b'),            
-        ('1h2h3h', '1h2h3h'),            
-        ('hIi', 'hIi'),
-        ('66h', '66h'),
-        ('%ss', '%ss'), #don't reduce strings with format chars in them
-        ('<I', '<I'),
-        ('<11s', '<11s'),            
-        ]
-    for input, result in tests:
-        assert result == genpy.generator.reduce_pattern(input)
-        
-def test_is_simple():
-    import genpy.generator
-    for t in ['uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32', 'uint64', 'int64', 'float32', 'float64', 'byte', 'char']:
-        assert genpy.generator.is_simple(t)
-
-def test_SIMPLE_TYPES():
-    import genpy.generator
-    # tripwire to make sure we don't add builtin types without making sure that simple types has been updated
-    assert set(['string', 'time', 'duration']) == set(genmsg.msgs.BUILTIN_TYPES) - set(genpy.generator.SIMPLE_TYPES)
-    
 def test_is_special():
     import genpy.generator
     for t in ['time', 'duration', 'Header']:
@@ -103,45 +67,6 @@ def test_compute_post_deserialize():
     assert None == genpy.generator.compute_post_deserialize('int8', 'self.bar')
     assert None == genpy.generator.compute_post_deserialize('string', 'self.bar')
 
-def test_compute_struct_pattern():
-    import genpy.generator
-    assert None == genpy.generator.compute_struct_pattern(None)
-    assert None == genpy.generator.compute_struct_pattern([])
-    # string should immediately bork any simple types
-    assert None == genpy.generator.compute_struct_pattern(['string'])
-    assert None == genpy.generator.compute_struct_pattern(['uint32', 'string'])
-    assert None == genpy.generator.compute_struct_pattern(['string', 'int32'])
-    # array types should not compute
-    assert None == genpy.generator.compute_struct_pattern(['uint32[]'])
-    assert None == genpy.generator.compute_struct_pattern(['uint32[1]'])
-
-    assert "B" == genpy.generator.compute_struct_pattern(['uint8'])
-    assert "BB" == genpy.generator.compute_struct_pattern(['uint8', 'uint8'])
-    assert "B" == genpy.generator.compute_struct_pattern(['char'])
-    assert "BB" == genpy.generator.compute_struct_pattern(['char', 'char'])        
-    assert "b" == genpy.generator.compute_struct_pattern(['byte'])
-    assert "bb" == genpy.generator.compute_struct_pattern(['byte', 'byte'])        
-    assert "b" == genpy.generator.compute_struct_pattern(['int8'])
-    assert "bb" == genpy.generator.compute_struct_pattern(['int8', 'int8'])        
-    assert "H" == genpy.generator.compute_struct_pattern(['uint16'])
-    assert "HH" == genpy.generator.compute_struct_pattern(['uint16', 'uint16'])        
-    assert "h" == genpy.generator.compute_struct_pattern(['int16'])
-    assert "hh" == genpy.generator.compute_struct_pattern(['int16', 'int16'])        
-    assert "I" == genpy.generator.compute_struct_pattern(['uint32'])
-    assert "II" == genpy.generator.compute_struct_pattern(['uint32', 'uint32'])        
-    assert "i" == genpy.generator.compute_struct_pattern(['int32'])
-    assert "ii" == genpy.generator.compute_struct_pattern(['int32', 'int32'])        
-    assert "Q" == genpy.generator.compute_struct_pattern(['uint64'])
-    assert "QQ" == genpy.generator.compute_struct_pattern(['uint64', 'uint64'])        
-    assert "q" == genpy.generator.compute_struct_pattern(['int64'])
-    assert "qq" == genpy.generator.compute_struct_pattern(['int64', 'int64'])        
-    assert "f" == genpy.generator.compute_struct_pattern(['float32'])
-    assert "ff" == genpy.generator.compute_struct_pattern(['float32', 'float32'])
-    assert "d" == genpy.generator.compute_struct_pattern(['float64'])
-    assert "dd" == genpy.generator.compute_struct_pattern(['float64', 'float64'])
-
-    assert "bBhHiIqQfd" == genpy.generator.compute_struct_pattern(['int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64', 'float32', 'float64'])
-
 def test_flatten():
     import genpy.generator
     from genpy.generator import flatten
@@ -168,11 +93,6 @@ def test_flatten():
                               ['dataA.data3.data.data', 'dataA.data4.data.data', 'dataB.data3.data.data', 'dataB.data4.data.data'],
                               [], 'X', 'f_msgs/Base4') == flatten(msg_context, b4)
         
-def test_numpy_dtype():
-    import genpy.generator
-    for t in genpy.generator.SIMPLE_TYPES:
-        assert t in genpy.generator._NUMPY_DTYPE
-
 def test_default_value():
     import genpy.generator
     from genpy.generator import default_value
@@ -336,118 +256,6 @@ def test_compute_constructor():
     assert 'fake_msgs.msg.ThreeNums()' == compute_constructor(msg_context, 'fake_msgs', 'fake_msgs/ThreeNums')
     assert 'fake_msgs.msg.ThreeNums()' == compute_constructor(msg_context, 'fake_msgs', 'ThreeNums')
 
-def test_pack():
-    import genpy.generator
-    assert "buff.write(_struct_3lL3bB.pack(foo, bar))" == genpy.generator.pack('lllLbbbB', 'foo, bar')
-
-def test_pack2():
-    import genpy.generator
-    assert 'buff.write(struct.pack(patt_name, foo, bar))' == genpy.generator.pack2('patt_name', 'foo, bar')
-
-def test_unpack():
-    import genpy.generator    
-    assert "var_x = _struct_I3if2I.unpack(bname)" == genpy.generator.unpack('var_x', 'IiiifII', 'bname')
-
-def test_unpack2():
-    import genpy.generator    
-    assert 'x = struct.unpack(patt, b)' == genpy.generator.unpack2('x', 'patt', 'b')
-
-def test_generate_dynamic():
-    import genpy
-    import genpy.generator    
-    msgs = genpy.generator.generate_dynamic("gd_msgs/EasyString", "string data\n")
-    assert ['gd_msgs/EasyString'] == msgs.keys()
-    m_cls = msgs['gd_msgs/EasyString']
-    m_instance = m_cls()
-    m_instance.data = 'foo'
-    buff = cStringIO.StringIO()
-    m_instance.serialize(buff)
-    m_cls().deserialize(buff.getvalue())
-
-    # 'probot_msgs' is a test for #1183, failure if the package no longer exists
-    msgs = genpy.generator.generate_dynamic("gd_msgs/MoveArmState", """Header header
-probot_msgs/ControllerStatus status
-
-#Current arm configuration
-probot_msgs/JointState[] configuration
-#Goal arm configuration
-probot_msgs/JointState[] goal
-
-================================================================================
-MSG: std_msgs/Header
-#Standard metadata for higher-level flow data types
-#sequence ID: consecutively increasing ID 
-uint32 seq
-#Two-integer timestamp that is expressed as:
-# * stamp.secs: seconds (stamp_secs) since epoch
-# * stamp.nsecs: nanoseconds since stamp_secs
-# time-handling sugar is provided by the client library
-time stamp
-#Frame this data is associated with
-# 0: no frame
-# 1: global frame
-string frame_id
-
-================================================================================
-MSG: probot_msgs/ControllerStatus
-# This message defines the expected format for Controller Statuss messages
-# Embed this in the feedback state message of highlevel controllers
-byte UNDEFINED=0
-byte SUCCESS=1
-byte ABORTED=2
-byte PREEMPTED=3
-byte ACTIVE=4
-
-# Status of the controller = {UNDEFINED, SUCCESS, ABORTED, PREEMPTED, ACTIVE}
-byte value
-
-#Comment for debug
-string comment
-================================================================================
-MSG: probot_msgs/JointState
-string name
-float64 position
-float64 velocity
-float64 applied_effort
-float64 commanded_effort
-byte is_calibrated
-
-""")
-    assert set(['gd_msgs/MoveArmState', 'probot_msgs/JointState', 'probot_msgs/ControllerStatus', 'std_msgs/Header']) ==  set(msgs.keys())
-    m_instance1 = msgs['std_msgs/Header']() # make sure default constructor works
-    m_instance2 = msgs['std_msgs/Header'](stamp=genpy.Time.from_sec(time.time()), frame_id='foo-%s'%time.time(), seq=12390)
-    _test_ser_deser(m_instance2, m_instance1)
-
-    m_instance1 = msgs['probot_msgs/ControllerStatus']()
-    m_instance2 = msgs['probot_msgs/ControllerStatus'](value=4, comment=str(time.time()))
-    d = {'UNDEFINED':0,'SUCCESS':1,'ABORTED':2,'PREEMPTED':3,'ACTIVE':4}
-    for k, v in d.iteritems():
-        assert v == getattr(m_instance1, k)
-    _test_ser_deser(m_instance2, m_instance1)
-
-    m_instance1 = msgs['probot_msgs/JointState']()
-    m_instance2 = msgs['probot_msgs/JointState'](position=time.time(), velocity=time.time(), applied_effort=time.time(), commanded_effort=time.time(), is_calibrated=2)
-    _test_ser_deser(m_instance2, m_instance1)
-
-    m_instance1 = msgs['gd_msgs/MoveArmState']()
-    js = msgs['probot_msgs/JointState']
-    config = []
-    goal = []
-    # generate some data for config/goal
-    for i in range(0, 10):
-        config.append(js(position=time.time(), velocity=time.time(), applied_effort=time.time(), commanded_effort=time.time(), is_calibrated=2))
-        goal.append(js(position=time.time(), velocity=time.time(), applied_effort=time.time(), commanded_effort=time.time(), is_calibrated=2))
-    m_instance2 = msgs['gd_msgs/MoveArmState'](header=msgs['std_msgs/Header'](),
-                                               status=msgs['probot_msgs/ControllerStatus'](),
-                                               configuration=config, goal=goal)
-    _test_ser_deser(m_instance2, m_instance1)
-
-def _test_ser_deser(m_instance1, m_instance2):
-    buff = cStringIO.StringIO()
-    m_instance1.serialize(buff)
-    m_instance2.deserialize(buff.getvalue())
-    assert m_instance1 == m_instance2
-        
 def test_len_serializer_generator():
     import genpy.generator
     # generator tests are mainly tripwires/coverage tests

@@ -32,76 +32,16 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 """
-ROS message source code generation for Python.
+ROS service source code generation for Python.
 
 Converts ROS .srv files into Python source code implementations.
 """
 
 import os
 import sys
-import traceback
 
-import genmsg.msg_loader
-import genmsg.gentools
-
-import genpy
 import genpy.generator
+import genpy.genpy_main
 
-REQUEST ='Request'
-RESPONSE='Response'
-
-def srv_generator(msg_context, spec, search_path):
-    name = spec.short_name
-    req, resp = ["%s%s"%(name, suff) for suff in [REQUEST, RESPONSE]]
-
-    fulltype = '%s/%s'%(package, name)
-
-    genmsg.msg_loader.load_depends(msg_context, spec, search_path)
-    md5 = genmsg.compute_md5(msg_context, spec)
-
-    yield "class %s(object):"%name
-    yield "  _type          = '%s'"%fulltype
-    yield "  _md5sum = '%s'"%md5
-    yield "  _request_class  = %s"%req
-    yield "  _response_class = %s"%resp
-
-class SrvGenerator(genpy.generator.Generator):
-    def __init__(self):
-        super(SrvGenerator, self) \
-            .__init__('gensrv_py', 'services')
-
-    def generate(self, msg_context, package, f, outdir, search_path):
-        verbose = True
-        f = os.path.abspath(f)
-        infile_name = os.path.basename(f)
-        try:
-            # you can't just check first... race condition
-            os.makedirs(outdir)
-        except OSError, e:
-            if e.errno != 17: # file exists
-                raise
-
-        assert infile_name.endswith(genmsg.EXT_SRV)
-        short_name = infile_name[:-len(genmsg.EXT_SRV)]
-        # generate message files for request/response
-        short_name = 'TODO'
-        full_type = "%s/%s"%(package, short_name)
-        spec = genmsg.msg_loader.load_srv_from_file(msg_context, f, full_type)
-        
-        outfile = genpy.generator.compute_outfile_name(outdir, infile_name, genmsg.EXT_SRV)
-        with open(outfile, 'w') as f:
-            for mspec in (spec.request, spec.response):
-                for l in genpy.generator.msg_generator(msg_context, mspec, search_path):
-                    f.write(l+'\n')
-
-            # generate service file
-            for l in srv_generator(msg_context, spec, search_path):
-                f.write(l+'\n')
-        return outfile
-    
 if __name__ == "__main__":
-    import trace
-    tracer = trace.Trace(
-        ignoredirs=[sys.prefix, sys.exec_prefix],
-        trace=0)
-    tracer.run("genpy.generator.genmain(sys.argv, SrvGenerator())")
+    genpy.genpy_main.genmain(sys.argv, 'gensrv_py.py', genpy.generator.SrvGenerator())

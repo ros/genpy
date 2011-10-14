@@ -41,44 +41,9 @@ Converts ROS .msg files in a package into Python source code implementations.
 import os
 import sys
 
-import genmsg
-import genmsg.msg_loader
-
-import genpy
 import genpy.generator
-
-class GenmsgPackage(genpy.generator.Generator):
-    """
-    GenmsgPackage generates Python message code for all messages in a
-    package. See genutil.Generator. In order to generator code for a
-    single .msg file, see msg_generator.
-    """
-    def __init__(self):
-        super(GenmsgPackage, self).__init__('genmsg_py', 'messages')
-
-    def generate(self, msg_context, package, f, outdir, search_path):
-        """
-        Generate python message code for a single .msg file
-        :param f: path to .msg file, ``str``
-        :param outdir: output directory for generated code, ``str``
-        :returns: filename of generated Python code, ``str``
-        """
-        # TODO: it would be better of generator did not do type name calculation
-        verbose = True
-        assert f.endswith(genmsg.EXT_MSG), f
-
-        f = os.path.abspath(f)
-        infile_name = os.path.basename(f)
-        outfile_name = genpy.generator.compute_outfile_name(outdir, infile_name, genmsg.EXT_MSG)
-
-        short_name = infile_name[:-len(genmsg.EXT_MSG)]
-        full_name = '%s/%s'%(package, short_name)
-        spec = genmsg.msg_loader.load_msg_from_file(msg_context, f, full_name)
-        gen = genpy.generator.msg_generator(msg_context, spec, search_path)
-        self.write_gen(outfile_name, gen, verbose)
-        msg_context.register(full_name, spec)
-        return outfile_name
+import genpy.genpy_main
 
 if __name__ == "__main__":
-    genpy.generator.genmain(sys.argv, GenmsgPackage())
+    genpy.genpy_main.genmain(sys.argv, 'genmsg_py.py', genpy.generator.GenmsgPackage())
     
