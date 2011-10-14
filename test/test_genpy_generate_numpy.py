@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # Software License Agreement (BSD License)
 #
 # Copyright (c) 2008, Willow Garage, Inc.
@@ -30,20 +29,10 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-#
-# Revision $Id: genmsg_py.py 9002 2010-04-09 01:08:47Z kwc $
 
-"""
-ROS message source code generation for Python
+def test_numpy_dtype():
+    from genpy.generate_numpy import NUMPY_DTYPE
+    from genpy.generator import SIMPLE_TYPES
+    for t in SIMPLE_TYPES:
+        assert t in NUMPY_DTYPE
 
-Converts ROS .msg files in a package into Python source code implementations.
-"""
-import os
-import sys
-
-import genpy.generator
-import genpy.genpy_main
-
-if __name__ == "__main__":
-    genpy.genpy_main.genmain(sys.argv, 'genmsg_py.py', genpy.generator.MsgGenerator())
-    

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # Software License Agreement (BSD License)
 #
 # Copyright (c) 2008, Willow Garage, Inc.
@@ -30,20 +29,43 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-#
-# Revision $Id: genmsg_py.py 9002 2010-04-09 01:08:47Z kwc $
 
-"""
-ROS message source code generation for Python
+class MsgGenerationException(Exception):
+    """
+    Exception type for errors in genpy
+    """
+    pass
 
-Converts ROS .msg files in a package into Python source code implementations.
-"""
-import os
-import sys
+################################################################################
+# Primitive type handling for ROS builtin types
 
-import genpy.generator
-import genpy.genpy_main
+SIMPLE_TYPES_DICT = { #see python module struct
+    'int8': 'b', 
+    'uint8': 'B',
+    # Python 2.6 adds in '?' for C99 _Bool, which appears equivalent to an uint8,
+    # thus, we use uint8
+    'bool': 'B',    
+    'int16' : 'h',
+    'uint16' : 'H',
+    'int32' : 'i',
+    'uint32' : 'I',
+    'int64' : 'q',
+    'uint64' : 'Q',
+    'float32': 'f',
+    'float64': 'd',
+    # deprecated
+    'char' : 'B', #unsigned
+    'byte' : 'b', #signed
+    }
 
-if __name__ == "__main__":
-    genpy.genpy_main.genmain(sys.argv, 'genmsg_py.py', genpy.generator.MsgGenerator())
-    
+## Simple types are primitives with fixed-serialization length
+SIMPLE_TYPES = list(SIMPLE_TYPES_DICT.keys()) #py3k
+
+def is_simple(type_):
+    """
+    :returns: ``True`` if type is a 'simple' type, i.e. is of
+      fixed/known serialization length. This is effectively all primitive
+      types except for string, ``bool``
+    """
+    return type_ in SIMPLE_TYPES
+

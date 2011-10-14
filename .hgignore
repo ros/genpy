@@ -6,6 +6,7 @@ syntax: glob
 *~
 *.log
 .coverage
+src/genpy.egg-info
 nosetests.xml
 syntax: regexp
 (target|build|dist)/.*

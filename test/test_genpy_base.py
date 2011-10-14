@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # Software License Agreement (BSD License)
 #
 # Copyright (c) 2008, Willow Garage, Inc.
@@ -30,20 +29,23 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-#
-# Revision $Id: genmsg_py.py 9002 2010-04-09 01:08:47Z kwc $
 
-"""
-ROS message source code generation for Python
+import genmsg
 
-Converts ROS .msg files in a package into Python source code implementations.
-"""
-import os
-import sys
+def test_exceptions():
+    from genpy.base import MsgGenerationException
+    try:
+        raise MsgGenerationException('bad')
+    except MsgGenerationException:
+        pass
 
-import genpy.generator
-import genpy.genpy_main
+def test_is_simple():
+    from genpy.base import is_simple
+    for t in ['uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32', 'uint64', 'int64', 'float32', 'float64', 'byte', 'char']:
+        assert is_simple(t)
 
-if __name__ == "__main__":
-    genpy.genpy_main.genmain(sys.argv, 'genmsg_py.py', genpy.generator.MsgGenerator())
+def test_SIMPLE_TYPES():
+    from genpy.generator import SIMPLE_TYPES
+    # tripwire to make sure we don't add builtin types without making sure that simple types has been updated
+    assert set(['string', 'time', 'duration']) == set(genmsg.msgs.BUILTIN_TYPES) - set(SIMPLE_TYPES)
     

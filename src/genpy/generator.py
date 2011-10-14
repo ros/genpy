@@ -900,7 +900,7 @@ class Generator(object):
         self.spec_loader_fn = spec_loader_fn
         self.generator_fn = generator_fn
     
-    def generate(self, msg_context, package, f, outdir, search_path):
+    def generate(self, msg_context, full_type, f, outdir, search_path):
         try:
             # you can't just check first... race condition
             os.makedirs(outdir)
@@ -909,18 +909,21 @@ class Generator(object):
                 raise
         # generate message files for request/response
         spec = self.spec_loader_fn(msg_context, f, full_type)
-        outfile = compute_outfile_name(outdir, infile_name, self.ext)
+        outfile = compute_outfile_name(outdir, os.path.basename(f), self.ext)
         with open(outfile, 'w') as f:
             for l in self.generator_fn(msg_context, spec, search_path):
                 f.write(l+'\n')
         return outfile
 
-    def generate_package(self, msg_context, package, package_files, outdir, search_path):
+    def generate_messages(self, package, package_files, outdir, search_path):
+        """
+        :returns: return code, ``int``
+        """
         if not genmsg.is_legal_resource_base_name(package):
-            print("\nERROR: package name '%s' is illegal and cannot be used in message generation.\nPlease see http://ros.org/wiki/Names"%(package), file=sys.stderr)
-            return 1 # flag error
+            raise MsgGenerationException("\nERROR: package name '%s' is illegal and cannot be used in message generation.\nPlease see http://ros.org/wiki/Names"%(package))
         
         # package/src/package/msg for messages, packages/src/package/srv for services
+        msg_context = MsgContext.create_default()
         retcode = 0
         for f in package_files:
             try:
@@ -935,21 +938,13 @@ class Generator(object):
                 else:
                     raise MsgGenerationException("unknown file extension: %s"%f)
                 full_type = "%s/%s"%(package, short_name)
-
-                outfile = self.generate(msg_context, full_name, f, outdir, search_path) #actual generation
+                outfile = self.generate(msg_context, full_type, f, outdir, search_path) #actual generation
             except Exception as e:
                 if not isinstance(e, MsgGenerationException) and not isinstance(e, genmsg.msgs.InvalidMsgSpec):
                     traceback.print_exc()
                 print("\nERROR: Unable to generate %s for package '%s': while processing '%s': %s\n"%(self.what, package, f, e), file=sys.stderr)
                 retcode = 1 #flag error
         return retcode
-        
-    def generate_messages(self, package, files, outdir, search_path):
-        """
-        :returns: return code, ``int``
-        """
-        msg_context = MsgContext.create_default()
-        return self.generate_package(msg_context, package, files, outdir, search_path)
 
 class SrvGenerator(Generator):
 
@@ -960,12 +955,12 @@ class SrvGenerator(Generator):
 
 class MsgGenerator(Generator):
     """
-    GenmsgPackage generates Python message code for all messages in a
+    Generates Python message code for all messages in a
     package. See genutil.Generator. In order to generator code for a
     single .msg file, see msg_generator.
     """
     def __init__(self):
-        super(GenmsgPackage, self).__init__('messages', genmsg.EXT_MSG,
-                                            genmsg.msg_loader.load_msg_from_file,
-                                            msg_generator)
+        super(MsgGenerator, self).__init__('messages', genmsg.EXT_MSG,
+                                           genmsg.msg_loader.load_msg_from_file,
+                                           msg_generator)
 
