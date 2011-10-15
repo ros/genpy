@@ -313,10 +313,8 @@ class Duration(TVal):
         """
         Create new Duration instance from float seconds format.
         
-        :param float_seconds: time value in specified as float seconds
-        @type  float_seconds: float
-        :returns: Duration instance for specified float_seconds
-        @rtype: Duration
+        :param float_seconds: time value in specified as float seconds, ``float``
+        :returns: :class:`Duration` instance for specified float_seconds
         """
         secs = int(float_seconds)
         nsecs = int((float_seconds - secs) * 1000000000)
