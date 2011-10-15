@@ -30,12 +30,17 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import os
+
 import genmsg.msgs
 from genmsg.msgs import MsgSpec
 from genmsg.msg_loader import MsgContext
 
 import time
 import sys
+
+def get_test_dir():
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), 'files'))
 
 def test_is_special():
     import genpy.generator
@@ -304,3 +309,97 @@ var_name = str[start:end]"""
     # string serializer and array serializer are identical
     g = genpy.generator.string_serializer_generator('foo', 'string', 'var_name', False)
     assert val == '\n'.join(g)
+
+
+def test_array_serializer_generator_numpy():
+    is_numpy = True
+    from genpy.generator import array_serializer_generator, MsgGenerationException
+    d = os.path.join(get_test_dir(), 'array')
+    # generator tests are mainly tripwires/coverage tests
+
+    #array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
+    msg_context = MsgContext.create_default()
+
+    # permutations: var length, unint8
+    serialize = True
+    result = array_serializer_generator(msg_context, '', 'uint8[]', 'data', serialize, is_numpy)
+    compare_file(d, 'uint8_varlen_ser_np.txt', result)
+    result = array_serializer_generator(msg_context, '', 'int16[]', 'data', serialize, is_numpy)
+    compare_file(d, 'int16_varlen_ser_np.txt', result)
+    result = array_serializer_generator(msg_context, '', 'uint8[8]', 'data', serialize, is_numpy)
+    compare_file(d, 'uint8_fixed_ser_np.txt', result)
+    result = array_serializer_generator(msg_context, '', 'int16[10]', 'data', serialize, is_numpy)
+    compare_file(d, 'int16_fixed_ser_np.txt', result)
+    result = array_serializer_generator(msg_context, '', 'bool[]', 'data', serialize, is_numpy)
+    #compare_file(d, 'bool_varlen_ser_np.txt', result)
+    result = array_serializer_generator(msg_context, '', 'bool[3]', 'data', serialize, is_numpy)
+    #compare_file(d, 'bool_fixed_ser_np.txt', result)
+    
+    serialize = False
+    result = array_serializer_generator(msg_context, '', 'uint8[]', 'data', serialize, is_numpy)
+    compare_file(d, 'uint8_varlen_deser_np.txt', result)
+    result = array_serializer_generator(msg_context, '', 'int16[]', 'data', serialize, is_numpy)
+    compare_file(d, 'int16_varlen_deser_np.txt', result)
+    result = array_serializer_generator(msg_context, '', 'uint8[8]', 'data', serialize, is_numpy)
+    compare_file(d, 'uint8_fixed_deser_np.txt', result)
+    result = array_serializer_generator(msg_context, '', 'int16[10]', 'data', serialize, is_numpy)
+    compare_file(d, 'int16_fixed_deser_np.txt', result)
+    result = array_serializer_generator(msg_context, '', 'bool[]', 'data', serialize, is_numpy)
+    #compare_file(d, 'bool_varlen_deser_np.txt', result)
+    result = array_serializer_generator(msg_context, '', 'bool[3]', 'data', serialize, is_numpy)
+    #compare_file(d, 'bool_fixed_deser_np.txt', result)
+
+def compare_file(d, filename, result):
+    result = '\n'.join([l for l in result])
+    expected = open(os.path.join(d, filename)).read().strip()
+    assert result == expected, "\n[%s]\n[%s]"%(result, expected)
+    
+def exhaust(gen):
+    [g for g in gen]
+
+def test_array_serializer_generator():
+    from genpy.generator import array_serializer_generator, MsgGenerationException
+    d = os.path.join(get_test_dir(), 'array')
+    # generator tests are mainly tripwires/coverage tests
+
+    #array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
+    msg_context = MsgContext.create_default()
+
+    # permutations: var length, unint8
+    is_numpy = False
+
+    serialize = True
+    result = array_serializer_generator(msg_context, '', 'uint8[]', 'data', serialize, is_numpy)
+    compare_file(d, 'uint8_varlen_ser.txt', result)
+    result = array_serializer_generator(msg_context, '', 'int16[]', 'data', serialize, is_numpy)
+    compare_file(d, 'int16_varlen_ser.txt', result)
+    result = array_serializer_generator(msg_context, '', 'uint8[8]', 'data', serialize, is_numpy)
+    compare_file(d, 'uint8_fixed_ser.txt', result)
+    result = array_serializer_generator(msg_context, '', 'int16[10]', 'data', serialize, is_numpy)
+    compare_file(d, 'int16_fixed_ser.txt', result)
+    result = array_serializer_generator(msg_context, '', 'bool[]', 'data', serialize, is_numpy)
+    compare_file(d, 'bool_varlen_ser.txt', result)
+    result = array_serializer_generator(msg_context, '', 'bool[3]', 'data', serialize, is_numpy)
+    compare_file(d, 'bool_fixed_ser.txt', result)
+    
+    serialize = False
+    result = array_serializer_generator(msg_context, '', 'uint8[]', 'data', serialize, is_numpy)
+    compare_file(d, 'uint8_varlen_deser.txt', result)
+    result = array_serializer_generator(msg_context, '', 'int16[]', 'data', serialize, is_numpy)
+    compare_file(d, 'int16_varlen_deser.txt', result)
+    result = array_serializer_generator(msg_context, '', 'uint8[8]', 'data', serialize, is_numpy)
+    compare_file(d, 'uint8_fixed_deser.txt', result)
+    result = array_serializer_generator(msg_context, '', 'int16[10]', 'data', serialize, is_numpy)
+    compare_file(d, 'int16_fixed_deser.txt', result)
+    result = array_serializer_generator(msg_context, '', 'bool[]', 'data', serialize, is_numpy)
+    compare_file(d, 'bool_varlen_deser.txt', result)
+    result = array_serializer_generator(msg_context, '', 'bool[3]', 'data', serialize, is_numpy)
+    compare_file(d, 'bool_fixed_deser.txt', result)
+
+    # test w/ bad args
+    try:
+        result = array_serializer_generator(msg_context, '', 'uint8', 'data', True, False)
+        exhaust(result)
+        assert False, "should have raised"
+    except MsgGenerationException:
+        pass

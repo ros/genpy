@@ -426,7 +426,7 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
 
     :raises: :exc:`MsgGenerationException` If array spec is invalid
     """
-    base_type, is_array, array_len = msgs.parse_type(type_)
+    base_type, is_array, array_len = genmsg.msgs.parse_type(type_)
     if not is_array:
         raise MsgGenerationException("Invalid array spec: %s"%type_)
     var_length = array_len is None
@@ -442,7 +442,7 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
     try:
         # yield length serialization, if necessary
         if var_length:
-            for y in len_serializer_generator(msg_context, var, False, serialize):
+            for y in len_serializer_generator(var, False, serialize):
                 yield y #serialize array length
             length = None
         else:
@@ -455,7 +455,7 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
                 yield "pattern = '<%%s%s'%%length"%pattern
                 if serialize:
                     if is_numpy:
-                        yield pack_numpy(var)                        
+                        yield pack_numpy(var)
                     else:
                         yield pack2('pattern', "*"+var)
                 else:
