@@ -319,6 +319,10 @@ def next_var():
     _counter += 1
     return '_v%s'%_counter
     
+def reset_var():
+    global _counter
+    _counter = 0
+    
 def push_context(context):
     """
     Push new variable context onto context stack.  The context stack

@@ -1,0 +1,3 @@
+for val0 in data:
+  length = len(val0)
+  buff.write(struct.pack('<I%ss'%length, length, val0.encode()))

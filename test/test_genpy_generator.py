@@ -330,10 +330,6 @@ def test_array_serializer_generator_numpy():
     compare_file(d, 'uint8_fixed_ser_np.txt', result)
     result = array_serializer_generator(msg_context, '', 'int16[10]', 'data', serialize, is_numpy)
     compare_file(d, 'int16_fixed_ser_np.txt', result)
-    result = array_serializer_generator(msg_context, '', 'bool[]', 'data', serialize, is_numpy)
-    #compare_file(d, 'bool_varlen_ser_np.txt', result)
-    result = array_serializer_generator(msg_context, '', 'bool[3]', 'data', serialize, is_numpy)
-    #compare_file(d, 'bool_fixed_ser_np.txt', result)
     
     serialize = False
     result = array_serializer_generator(msg_context, '', 'uint8[]', 'data', serialize, is_numpy)
@@ -344,10 +340,6 @@ def test_array_serializer_generator_numpy():
     compare_file(d, 'uint8_fixed_deser_np.txt', result)
     result = array_serializer_generator(msg_context, '', 'int16[10]', 'data', serialize, is_numpy)
     compare_file(d, 'int16_fixed_deser_np.txt', result)
-    result = array_serializer_generator(msg_context, '', 'bool[]', 'data', serialize, is_numpy)
-    #compare_file(d, 'bool_varlen_deser_np.txt', result)
-    result = array_serializer_generator(msg_context, '', 'bool[3]', 'data', serialize, is_numpy)
-    #compare_file(d, 'bool_fixed_deser_np.txt', result)
 
 def compare_file(d, filename, result):
     result = '\n'.join([l for l in result])
@@ -358,7 +350,7 @@ def exhaust(gen):
     [g for g in gen]
 
 def test_array_serializer_generator():
-    from genpy.generator import array_serializer_generator, MsgGenerationException
+    from genpy.generator import array_serializer_generator, MsgGenerationException, reset_var
     d = os.path.join(get_test_dir(), 'array')
     # generator tests are mainly tripwires/coverage tests
 
@@ -381,6 +373,14 @@ def test_array_serializer_generator():
     compare_file(d, 'bool_varlen_ser.txt', result)
     result = array_serializer_generator(msg_context, '', 'bool[3]', 'data', serialize, is_numpy)
     compare_file(d, 'bool_fixed_ser.txt', result)
+
+    # for 'complex' types have to reset the variable generator
+    reset_var()
+    result = array_serializer_generator(msg_context, '', 'string[]', 'data', serialize, is_numpy)
+    compare_file(d, 'string_varlen_ser.txt', result)
+    reset_var()
+    result = array_serializer_generator(msg_context, '', 'string[2]', 'data', serialize, is_numpy)
+    compare_file(d, 'string_fixed_ser.txt', result)
     
     serialize = False
     result = array_serializer_generator(msg_context, '', 'uint8[]', 'data', serialize, is_numpy)
@@ -395,6 +395,14 @@ def test_array_serializer_generator():
     compare_file(d, 'bool_varlen_deser.txt', result)
     result = array_serializer_generator(msg_context, '', 'bool[3]', 'data', serialize, is_numpy)
     compare_file(d, 'bool_fixed_deser.txt', result)
+
+    # for 'complex' types have to reset the variable generator
+    reset_var()
+    result = array_serializer_generator(msg_context, '', 'string[]', 'data', serialize, is_numpy)
+    compare_file(d, 'string_varlen_deser.txt', result)
+    reset_var()    
+    result = array_serializer_generator(msg_context, '', 'string[2]', 'data', serialize, is_numpy)
+    compare_file(d, 'string_fixed_deser.txt', result)
 
     # test w/ bad args
     try:
