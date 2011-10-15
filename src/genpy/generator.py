@@ -234,8 +234,6 @@ def compute_constructor(msg_context, package, type_):
         if not msg_context.is_registered("%s/%s"%(base_pkg,base_type_)):
             return None
         else:
-            #TODOXXX:REMOVE
-            assert '[' not in base_type_
             return '%s.msg.%s()'%(base_pkg, base_type_)
 
 def compute_pkg_type(package, type_):
@@ -443,88 +441,82 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
         return
     
     var = _serial_context+name
-    try:
-        # yield length serialization, if necessary
+    # yield length serialization, if necessary
+    if var_length:
+        for y in len_serializer_generator(var, False, serialize):
+            yield y #serialize array length
+        length = None
+    else:
+        length = array_len
+
+    #optimization for simple arrays
+    if is_simple(base_type):
         if var_length:
-            for y in len_serializer_generator(var, False, serialize):
-                yield y #serialize array length
-            length = None
-        else:
-            length = array_len
-        
-        #optimization for simple arrays
-        if is_simple(base_type):
-            if var_length:
-                pattern = compute_struct_pattern([base_type])
-                yield "pattern = '<%%s%s'%%length"%pattern
-                if serialize:
-                    if is_numpy:
-                        yield pack_numpy(var)
-                    else:
-                        yield pack2('pattern', "*"+var)
-                else:
-                    yield "start = end" 
-                    yield "end += struct.calcsize(pattern)"
-                    if is_numpy:
-                        dtype = NUMPY_DTYPE[base_type]
-                        yield unpack_numpy(var, 'length', dtype, 'str[start:end]') 
-                    else:
-                        yield unpack2(var, 'pattern', 'str[start:end]')
-            else:
-                pattern = "%s%s"%(length, compute_struct_pattern([base_type]))
-                if serialize:
-                    if is_numpy:
-                        yield pack_numpy(var)
-                    else:
-                        yield pack(pattern, "*"+var)
-                else:
-                    yield "start = end"
-                    yield "end += %s"%struct.calcsize('<%s'%pattern)
-                    if is_numpy:
-                        dtype = NUMPY_DTYPE[base_type]
-                        yield unpack_numpy(var, length, dtype, 'str[start:end]') 
-                    else:
-                        yield unpack(var, pattern, 'str[start:end]')
-            if not serialize and base_type == 'bool':
-                # convert uint8 to bool
-                if base_type == 'bool':
-                    yield "%s = map(bool, %s)"%(var, var)
-            
-        else:
-            #generic recursive serializer
-            #NOTE: this is functionally equivalent to the is_registered branch of complex_serializer_generator
-
-            # choose a unique temporary variable for iterating
-            loop_var = 'val%s'%len(_context_stack)
-
-            # compute the variable context and factory to use
-            if base_type == 'string':
-                push_context('') 
-                factory = string_serializer_generator(package, base_type, loop_var, serialize)
-            else:
-                push_context('%s.'%loop_var)
-                factory = serializer_generator(msg_context, package, get_registered_ex(msg_context, base_type), serialize, is_numpy)
-
+            pattern = compute_struct_pattern([base_type])
+            yield "pattern = '<%%s%s'%%length"%pattern
             if serialize:
-                yield 'for %s in %s:'%(loop_var, var)
-            else:
-                yield '%s = []'%var
-                if var_length:
-                    yield 'for i in range(0, length):'
+                if is_numpy:
+                    yield pack_numpy(var)
                 else:
-                    yield 'for i in range(0, %s):'%length
-                if base_type != 'string':
-                    yield INDENT + '%s = %s'%(loop_var, compute_constructor(msg_context, package, base_type))
-            for y in factory:
-                yield INDENT + y
-            if not serialize:
-                yield INDENT + '%s.append(%s)'%(var, loop_var)
-            pop_context()
+                    yield pack2('pattern', "*"+var)
+            else:
+                yield "start = end" 
+                yield "end += struct.calcsize(pattern)"
+                if is_numpy:
+                    dtype = NUMPY_DTYPE[base_type]
+                    yield unpack_numpy(var, 'length', dtype, 'str[start:end]') 
+                else:
+                    yield unpack2(var, 'pattern', 'str[start:end]')
+        else:
+            pattern = "%s%s"%(length, compute_struct_pattern([base_type]))
+            if serialize:
+                if is_numpy:
+                    yield pack_numpy(var)
+                else:
+                    yield pack(pattern, "*"+var)
+            else:
+                yield "start = end"
+                yield "end += %s"%struct.calcsize('<%s'%pattern)
+                if is_numpy:
+                    dtype = NUMPY_DTYPE[base_type]
+                    yield unpack_numpy(var, length, dtype, 'str[start:end]') 
+                else:
+                    yield unpack(var, pattern, 'str[start:end]')
+        if not serialize and base_type == 'bool':
+            # convert uint8 to bool
+            if base_type == 'bool':
+                yield "%s = map(bool, %s)"%(var, var)
 
-    except MsgGenerationException:
-        raise #re-raise
-    except Exception as e:
-        raise MsgGenerationException(e) #wrap
+    else:
+        #generic recursive serializer
+        #NOTE: this is functionally equivalent to the is_registered branch of complex_serializer_generator
+
+        # choose a unique temporary variable for iterating
+        loop_var = 'val%s'%len(_context_stack)
+
+        # compute the variable context and factory to use
+        if base_type == 'string':
+            push_context('') 
+            factory = string_serializer_generator(package, base_type, loop_var, serialize)
+        else:
+            push_context('%s.'%loop_var)
+            factory = serializer_generator(msg_context, get_registered_ex(msg_context, base_type), serialize, is_numpy)
+
+        if serialize:
+            yield 'for %s in %s:'%(loop_var, var)
+        else:
+            yield '%s = []'%var
+            if var_length:
+                yield 'for i in range(0, length):'
+            else:
+                yield 'for i in range(0, %s):'%length
+            if base_type != 'string':
+                yield INDENT + '%s = %s'%(loop_var, compute_constructor(msg_context, package, base_type))
+        for y in factory:
+            yield INDENT + y
+        if not serialize:
+            yield INDENT + '%s.append(%s)'%(var, loop_var)
+        pop_context()
     
 def complex_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
     """
@@ -563,7 +555,7 @@ def complex_serializer_generator(msg_context, package, type_, name, serialize, i
             push_context(ctx_var+'.')
             # unoptimized code
             #push_context(_serial_context+name+'.')             
-            for y in serializer_generator(msg_context, package, get_registered_ex(msg_context, type_), serialize, is_numpy):
+            for y in serializer_generator(msg_context, get_registered_ex(msg_context, type_), serialize, is_numpy):
                 yield y #recurs on subtype
             pop_context()
         else:
@@ -628,13 +620,13 @@ def serializer_generator(msg_context, spec, serialize, is_numpy):
     # yield serializer for any simple types we've encountered until
     # then, then yield the complex type serializer
     curr = 0
-    for (i, type_) in enumerate(types):
-        if not is_simple(type_):
+    for (i, full_type) in enumerate(types):
+        if not is_simple(full_type):
             if i != curr: #yield chunk of simples
                 for y in simple_serializer_generator(msg_context, spec, curr, i, serialize):
                     yield y
             curr = i+1
-            for y in complex_serializer_generator(msg_context, spec.package, type_, names[i], serialize, is_numpy): 
+            for y in complex_serializer_generator(msg_context, spec.package, full_type, names[i], serialize, is_numpy): 
                 yield y 
     if curr < len(types): #yield rest of simples
         for y in simple_serializer_generator(msg_context, spec, curr, len(types), serialize):

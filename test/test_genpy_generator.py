@@ -350,12 +350,17 @@ def exhaust(gen):
     [g for g in gen]
 
 def test_array_serializer_generator():
+    from genmsg.msg_loader import load_msg_by_type
     from genpy.generator import array_serializer_generator, MsgGenerationException, reset_var
     d = os.path.join(get_test_dir(), 'array')
     # generator tests are mainly tripwires/coverage tests
 
     #array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
     msg_context = MsgContext.create_default()
+    # load in some objects
+    search_path = {'foo': d}
+    load_msg_by_type(msg_context, 'foo/Object', search_path)
+    load_msg_by_type(msg_context, 'foo/ObjectArray', search_path)
 
     # permutations: var length, unint8
     is_numpy = False
@@ -382,6 +387,13 @@ def test_array_serializer_generator():
     result = array_serializer_generator(msg_context, '', 'string[2]', 'data', serialize, is_numpy)
     compare_file(d, 'string_fixed_ser.txt', result)
     
+    reset_var()
+    result = array_serializer_generator(msg_context, 'foo', 'foo/Object[]', 'data', serialize, is_numpy)
+    compare_file(d, 'object_varlen_ser.txt', result)
+    reset_var()
+    result = array_serializer_generator(msg_context, 'foo', 'foo/Object[3]', 'data', serialize, is_numpy)
+    compare_file(d, 'object_fixed_ser.txt', result)
+
     serialize = False
     result = array_serializer_generator(msg_context, '', 'uint8[]', 'data', serialize, is_numpy)
     compare_file(d, 'uint8_varlen_deser.txt', result)
@@ -404,9 +416,59 @@ def test_array_serializer_generator():
     result = array_serializer_generator(msg_context, '', 'string[2]', 'data', serialize, is_numpy)
     compare_file(d, 'string_fixed_deser.txt', result)
 
+    reset_var()
+    result = array_serializer_generator(msg_context, 'foo', 'foo/Object[]', 'data', serialize, is_numpy)
+    compare_file(d, 'object_varlen_deser.txt', result)
+    reset_var()
+    result = array_serializer_generator(msg_context, 'foo', 'foo/Object[3]', 'data', serialize, is_numpy)
+    compare_file(d, 'object_fixed_deser.txt', result)
+
     # test w/ bad args
     try:
         result = array_serializer_generator(msg_context, '', 'uint8', 'data', True, False)
+        exhaust(result)
+        assert False, "should have raised"
+    except MsgGenerationException:
+        pass
+
+def test_complex_serializer_generator():
+    from genmsg.msg_loader import load_msg_by_type
+    from genpy.generator import complex_serializer_generator, MsgGenerationException, reset_var
+    array_d = os.path.join(get_test_dir(), 'array')
+    complex_d = os.path.join(get_test_dir(), 'complex')
+    # generator tests are mainly tripwires/coverage tests
+
+    #array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
+    msg_context = MsgContext.create_default()
+    # load in some objects
+    search_path = {'foo': array_d}
+    load_msg_by_type(msg_context, 'foo/Object', search_path)
+    load_msg_by_type(msg_context, 'foo/ObjectArray', search_path)
+
+
+    serialize = True
+    is_numpy = False
+    reset_var()
+    result = complex_serializer_generator(msg_context, 'foo', 'foo/Object', 'data', serialize, is_numpy)
+    compare_file(complex_d, 'object_ser.txt', result)
+    reset_var()
+    result = complex_serializer_generator(msg_context, 'foo', 'foo/Object[]', 'data', serialize, is_numpy)
+    compare_file(array_d, 'object_varlen_ser.txt', result)
+    reset_var()
+    result = complex_serializer_generator(msg_context, 'foo', 'foo/Object[3]', 'data', serialize, is_numpy)
+    compare_file(array_d, 'object_fixed_ser.txt', result)
+
+    serialize = False
+    
+    reset_var()
+    result = complex_serializer_generator(msg_context, 'foo', 'foo/Object[]', 'data', serialize, is_numpy)
+    compare_file(array_d, 'object_varlen_deser.txt', result)
+    reset_var()
+    result = complex_serializer_generator(msg_context, 'foo', 'foo/Object[3]', 'data', serialize, is_numpy)
+    compare_file(array_d, 'object_fixed_deser.txt', result)
+
+    try:
+        result = complex_serializer_generator(msg_context, 'foo', 'bad/Object', 'data', serialize, is_numpy)
         exhaust(result)
         assert False, "should have raised"
     except MsgGenerationException:
