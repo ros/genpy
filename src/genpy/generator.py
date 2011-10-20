@@ -38,6 +38,8 @@ The structure of the serialization descends several levels of serializers:
   - serialize_fn_generator: generator for msg.serialize()
     - serializer_generator
       - field-type-specific serializers
+                    raise MsgGenerationException("unknown file extension: %s"%f)
+
   - deserialize_fn_generator: generator for msg.deserialize()
     - serializer_generator
       - field-type-specific serializers
@@ -926,15 +928,7 @@ class Generator(object):
             try:
                 f = os.path.abspath(f)
                 infile_name = os.path.basename(f)
-                short_name = None
-                # strip extension
-                for ext in (genmsg.EXT_MSG, genmsg.EXT_SRV):
-                    if infile_name.endswith(ext):
-                        short_name = infile_name[:-len(ext)]
-                        break
-                else:
-                    raise MsgGenerationException("unknown file extension: %s"%f)
-                full_type = "%s/%s"%(package, short_name)
+                full_type = gentools.compute_full_type_name(package, infile_name);
                 outfile = self.generate(msg_context, full_type, f, outdir, search_path) #actual generation
             except Exception as e:
                 if not isinstance(e, MsgGenerationException) and not isinstance(e, genmsg.msgs.InvalidMsgSpec):
