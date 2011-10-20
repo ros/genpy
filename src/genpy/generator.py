@@ -58,10 +58,11 @@ import struct
 import genmsg
 import genmsg.msgs
 import genmsg.msg_loader
+import genmsg.gentools
 
-from genmsg import InvalidMsgSpec, MsgContext, MsgSpec
+from genmsg import InvalidMsgSpec, MsgContext, MsgSpec, MsgGenerationException
 
-from . base import MsgGenerationException, is_simple, SIMPLE_TYPES, SIMPLE_TYPES_DICT
+from . base import is_simple, SIMPLE_TYPES, SIMPLE_TYPES_DICT
 from . generate_numpy import unpack_numpy, pack_numpy, NUMPY_DTYPE
 from . generate_struct import reduce_pattern, serialize, \
      int32_pack, int32_unpack, pack, pack2, unpack, unpack2, compute_struct_pattern, \
@@ -928,7 +929,7 @@ class Generator(object):
             try:
                 f = os.path.abspath(f)
                 infile_name = os.path.basename(f)
-                full_type = gentools.compute_full_type_name(package, infile_name);
+                full_type = genmsg.gentools.compute_full_type_name(package, infile_name);
                 outfile = self.generate(msg_context, full_type, f, outdir, search_path) #actual generation
             except Exception as e:
                 if not isinstance(e, MsgGenerationException) and not isinstance(e, genmsg.msgs.InvalidMsgSpec):

@@ -30,12 +30,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-class MsgGenerationException(Exception):
-    """
-    Exception type for errors in genpy
-    """
-    pass
-
 ################################################################################
 # Primitive type handling for ROS builtin types
 

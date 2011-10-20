@@ -49,9 +49,8 @@ import tempfile
 
 import genmsg
 import genmsg.msg_loader
-from genmsg import InvalidMsgSpec, MsgContext, MsgSpec
+from genmsg import InvalidMsgSpec, MsgContext, MsgSpec, MsgGenerationException
 
-from . base import MsgGenerationException
 from . generator import msg_generator
 
 def _generate_dynamic_specs(msg_context, specs, dep_msg):

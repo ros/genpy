@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import os
 
-from . base import MsgGenerationException
+from genmsg import MsgGenerationException
 
 ## :param type_name str: Name of message type sans package,
 ## e.g. 'String'

@@ -7,7 +7,7 @@ import sys
 import genmsg
 import genmsg.command_line
 
-from . base import MsgGenerationException
+from genmsg import MsgGenerationException
 from . generate_initpy import write_modules
 
 def usage(progname):
