@@ -288,7 +288,7 @@ def test_string_serializer_generator():
     # Test Serializers
     g = genpy.generator.string_serializer_generator('foo', 'string', 'var_name', True)
     assert """length = len(var_name)
-buff.write(struct.pack('<I%ss'%length, length, var_name.encode()))""" == '\n'.join(g)
+buff.write(struct.pack('<I%ss'%length, length, var_name))""" == '\n'.join(g)
 
     for t in ['uint8[]', 'byte[]', 'uint8[10]', 'byte[20]']:
         g = genpy.generator.string_serializer_generator('foo', 'uint8[]', 'b_name', True)
