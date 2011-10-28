@@ -1,0 +1,7 @@
+try:
+  length = len(self.array)
+  buff.write(_struct_I.pack(length))
+  for val1 in self.array:
+    buff.write(_struct_i.pack(val1.data))
+except struct.error as se: self._check_types(se)
+except TypeError as te: self._check_types(te)

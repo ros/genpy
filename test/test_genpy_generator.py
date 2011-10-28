@@ -97,7 +97,20 @@ def test_flatten():
     assert MsgSpec(['int8', 'int8', 'int8', 'int8'],
                               ['dataA.data3.data.data', 'dataA.data4.data.data', 'dataB.data3.data.data', 'dataB.data4.data.data'],
                               [], 'X', 'f_msgs/Base4') == flatten(msg_context, b4)
-        
+
+def test_flatten_array_objects():
+    # make sure array of types don't flatten
+    import genpy.generator
+    from genpy.generator import flatten
+    msg_context = MsgContext.create_default()
+
+    b1 = MsgSpec(['int8'], ['data'], [], 'X', 'f_msgs/Base')
+    b5 = MsgSpec(['f_msgs/Base[]'], ['data'], [], 'X', 'f_msgs/Base5')
+
+    msg_context.register('f_msgs/Base', b1)
+    msg_context.register('f_msgs/Base5', b5)
+    assert b5 == flatten(msg_context, b5)
+    
 def test_default_value():
     import genpy.generator
     from genpy.generator import default_value
@@ -473,3 +486,29 @@ def test_complex_serializer_generator():
         assert False, "should have raised"
     except MsgGenerationException:
         pass
+
+
+def test_serialize_fn_generator():
+    
+    from genmsg.msg_loader import load_msg_by_type
+    from genpy.generator import serialize_fn_generator, MsgGenerationException, reset_var
+    array_d = os.path.join(get_test_dir(), 'array')
+    complex_d = os.path.join(get_test_dir(), 'complex')
+    # generator tests are mainly tripwires/coverage tests
+
+    #array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
+    msg_context = MsgContext.create_default()
+    # load in some objects
+    search_path = {'foo': array_d}
+    object_spec = load_msg_by_type(msg_context, 'foo/Object', search_path)
+    object_array_spec = load_msg_by_type(msg_context, 'foo/ObjectArray', search_path)
+
+    is_numpy = False
+    reset_var()
+    result = serialize_fn_generator(msg_context, object_spec, is_numpy)
+    compare_file(complex_d, 'object_ser_full.txt', result)
+    reset_var()
+    result = serialize_fn_generator(msg_context, object_array_spec, is_numpy)
+    compare_file(array_d, 'object_varlen_ser_full.txt', result)
+    reset_var()
+

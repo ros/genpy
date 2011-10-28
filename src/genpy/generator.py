@@ -61,6 +61,7 @@ import genmsg.msg_loader
 import genmsg.gentools
 
 from genmsg import InvalidMsgSpec, MsgContext, MsgSpec, MsgGenerationException
+from genmsg.base import log
 
 from . base import is_simple, SIMPLE_TYPES, SIMPLE_TYPES_DICT
 from . generate_numpy import unpack_numpy, pack_numpy, NUMPY_DTYPE
@@ -174,8 +175,10 @@ def flatten(msg_context, msg):
     new_types = []
     new_names = []
     for t, n in zip(msg.types, msg.names):
+        # Parse type to make sure we don't flatten an array
+        msg_type, is_array, _ = genmsg.msgs.parse_type(t)
         #flatten embedded types - note: bug #59
-        if msg_context.is_registered(t):
+        if not is_array and msg_context.is_registered(t):
             msg_spec = flatten(msg_context, msg_context.get_registered(t))
             new_types.extend(msg_spec.types)
             for n2 in msg_spec.names:
@@ -288,7 +291,6 @@ def compute_import(msg_context, package, type_):
         for t in iter_types:
             assert t != full_msg_type, "msg [%s] has circular self-dependencies"%(full_msg_type)
             full_sub_type = "%s/%s"%(package, t)
-            from genmsg.base import log
             log("compute_import", full_msg_type, package, t)
             sub = compute_import(msg_context, package, t)
             retval.extend([x for x in sub if not x in retval])
@@ -646,6 +648,7 @@ def serialize_fn_generator(msg_context, spec, is_numpy=False):
     yield "try:"
     push_context('self.')
     #NOTE: we flatten the spec for optimal serialization
+    flattened = flatten(msg_context, spec)
     for y in serializer_generator(msg_context, flatten(msg_context, spec), True, is_numpy):
         yield "  "+y 
     pop_context()

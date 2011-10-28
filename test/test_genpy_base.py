@@ -32,13 +32,6 @@
 
 import genmsg
 
-def test_exceptions():
-    from genpy.base import MsgGenerationException
-    try:
-        raise MsgGenerationException('bad')
-    except MsgGenerationException:
-        pass
-
 def test_is_simple():
     from genpy.base import is_simple
     for t in ['uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32', 'uint64', 'int64', 'float32', 'float64', 'byte', 'char']:

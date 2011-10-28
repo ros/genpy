@@ -1,0 +1,4 @@
+try:
+  buff.write(_struct_i.pack(self.data))
+except struct.error as se: self._check_types(se)
+except TypeError as te: self._check_types(te)
