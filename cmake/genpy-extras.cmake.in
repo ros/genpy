@@ -1,0 +1,72 @@
+if(@PACKAGE_NAME@_SOURCE_DIR)
+  find_program_required(GENMSG_PY_BIN genmsg_py.py PATHS ${@PACKAGE_NAME@_SOURCE_DIR}/scripts)
+  find_program_required(GENSRV_PY_BIN gensrv_py.py PATHS ${@PACKAGE_NAME@_SOURCE_DIR}/scripts)
+  set(GENPY_TEMPLATE_DIR ${@PACKAGE_NAME@_SOURCE_DIR}/scripts)
+else()
+  find_program_required(GENMSG_PY_BIN genmsg_py.py)
+  find_program_required(GENSRV_PY_BIN gensrv_py.py)
+  set(GENPY_TEMPLATE_DIR ${CMAKE_INSTALL_PREFIX}/share/genpy)
+endif()
+
+# Generate .msg->.h for py
+# The generated .h files should be added ALL_GEN_OUTPUT_FILES_py
+macro(_generate_msg_py ARG_PKG ARG_MSG ARG_IFLAGS ARG_MSG_DEPS ARG_GEN_OUTPUT_DIR)
+
+  #Create input and output filenames
+  get_filename_component(MSG_SHORT_NAME ${ARG_MSG} NAME_WE)
+  set(MSG_INPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ARG_MSG})
+
+  set(MSG_GENERATED_NAME ${MSG_SHORT_NAME}.h)
+  set(GEN_OUTPUT_FILE ${ARG_GEN_OUTPUT_DIR}/${MSG_GENERATED_NAME})
+
+  if(@PACKAGE_NAME@_SOURCE_DIR)
+    set(ENV_PREFIX1 "/usr/bin/env")
+    set(ENV_PREFIX2 "PYTHONPATH=${genmsg_PYTHONPATH}:${genpy_PYTHONPATH}")
+  else()
+    set(ENV_PREFIX1 "")
+    set(ENV_PREFIX2 "")
+  endif()
+
+  add_custom_command(OUTPUT ${GEN_OUTPUT_FILE}
+    DEPENDS ${GENMSG_PY_BIN} ${MSG_INPUT_FILE} ${ARG_MSG_DEPS}
+    COMMAND ${ENV_PREFIX1} ${ENV_PREFIX2} ${GENMSG_PY_BIN} ${MSG_INPUT_FILE}
+    ${ARG_IFLAGS}
+    -p ${ARG_PKG}
+    -o ${ARG_GEN_OUTPUT_DIR}
+    COMMENT "Generating Python from MSG ${ARG_PKG}/${MSG_SHORT_NAME}"
+    )
+
+  list(APPEND ALL_GEN_OUTPUT_FILES_py ${GEN_OUTPUT_FILE})
+
+endmacro()
+
+#todo, these macros are practically equal. Check for input file extension instead
+macro(_generate_srv_py ARG_PKG ARG_SRV ARG_IFLAGS ARG_MSG_DEPS ARG_GEN_OUTPUT_DIR)
+
+  #Create input and output filenames
+  get_filename_component(SRV_SHORT_NAME ${ARG_SRV} NAME_WE)
+  set(SRV_INPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ARG_SRV})
+
+  set(SRV_GENERATED_NAME ${SRV_SHORT_NAME}.h)
+  set(GEN_OUTPUT_FILE ${ARG_GEN_OUTPUT_DIR}/${SRV_GENERATED_NAME})
+
+  if(@PACKAGE_NAME@_SOURCE_DIR)
+    set(ENV_PREFIX1 "/usr/bin/env")
+    set(ENV_PREFIX2 "PYTHONPATH=${genmsg_PYTHONPATH}:${genpy_PYTHONPATH}")
+  else()
+    set(ENV_PREFIX1 "")
+    set(ENV_PREFIX2 "")
+  endif()
+
+  add_custom_command(OUTPUT ${GEN_OUTPUT_FILE}
+    DEPENDS ${GENSRV_PY_BIN} ${SRV_INPUT_FILE} ${ARG_MSG_DEPS}
+    COMMAND ${ENV_PREFIX1} ${ENV_PREFIX2} ${GENSRV_PY_BIN} ${SRV_INPUT_FILE}
+    ${ARG_IFLAGS}
+    -p ${ARG_PKG}
+    -o ${ARG_GEN_OUTPUT_DIR}
+    COMMENT "Generating Python code from SRV ${ARG_PKG}/${SRV_SHORT_NAME}"
+    )
+
+  list(APPEND ALL_GEN_OUTPUT_FILES_py ${GEN_OUTPUT_FILE})
+
+endmacro()
