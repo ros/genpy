@@ -70,3 +70,5 @@ macro(_generate_srv_py ARG_PKG ARG_SRV ARG_IFLAGS ARG_MSG_DEPS ARG_GEN_OUTPUT_DI
   list(APPEND ALL_GEN_OUTPUT_FILES_py ${GEN_OUTPUT_FILE})
 
 endmacro()
+
+set(genpy_INSTALL_DIR lib/python)
