@@ -4,6 +4,7 @@ from optparse import OptionParser
 
 import os
 import sys
+import traceback
 import genmsg
 import genmsg.command_line
 
@@ -14,7 +15,7 @@ def usage(progname):
     print("%(progname)s file(s)"%vars())
 
 def genmain(argv, progname, gen):
-    parser = OptionParser("%s file(s)"%(progname))
+    parser = OptionParser("%s file"%(progname))
     parser.add_option('--initpy', dest='initpy', action='store_true',
                       default=False)
     parser.add_option('-p', dest='package')
@@ -24,7 +25,11 @@ def genmain(argv, progname, gen):
     options, args = parser.parse_args(argv)
     try:
         if options.initpy:
-            retcode = write_modules(options.package, args, options.outdir, options.srcdir)
+            if options.outdir:
+                print (args)
+                retcode = write_modules(options.outdir)
+            else:
+                parser.error("Missing args")
         else:
             if len(args) < 2:
                 parser.error("please specify args")

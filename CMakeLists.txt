@@ -11,3 +11,5 @@ install_cmake_infrastructure(genpy
   )
 
 catkin_package(genpy)
+
+enable_python(genpy)

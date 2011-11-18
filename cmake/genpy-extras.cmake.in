@@ -12,12 +12,15 @@ endif()
 # The generated .h files should be added ALL_GEN_OUTPUT_FILES_py
 macro(_generate_msg_py ARG_PKG ARG_MSG ARG_IFLAGS ARG_MSG_DEPS ARG_GEN_OUTPUT_DIR)
 
+  #Append msg to output dir
+  set(GEN_OUTPUT_DIR "${ARG_GEN_OUTPUT_DIR}/msg")
+
   #Create input and output filenames
   get_filename_component(MSG_SHORT_NAME ${ARG_MSG} NAME_WE)
   set(MSG_INPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ARG_MSG})
 
   set(MSG_GENERATED_NAME _${MSG_SHORT_NAME}.py)
-  set(GEN_OUTPUT_FILE ${ARG_GEN_OUTPUT_DIR}/${MSG_GENERATED_NAME})
+  set(GEN_OUTPUT_FILE ${GEN_OUTPUT_DIR}/${MSG_GENERATED_NAME})
 
   if(@PACKAGE_NAME@_SOURCE_DIR)
     set(ENV_PREFIX1 "/usr/bin/env")
@@ -32,7 +35,7 @@ macro(_generate_msg_py ARG_PKG ARG_MSG ARG_IFLAGS ARG_MSG_DEPS ARG_GEN_OUTPUT_DI
     COMMAND ${ENV_PREFIX1} ${ENV_PREFIX2} ${GENMSG_PY_BIN} ${MSG_INPUT_FILE}
     ${ARG_IFLAGS}
     -p ${ARG_PKG}
-    -o ${ARG_GEN_OUTPUT_DIR}
+    -o ${GEN_OUTPUT_DIR}
     COMMENT "Generating Python from MSG ${ARG_PKG}/${MSG_SHORT_NAME}"
     )
 
@@ -43,12 +46,15 @@ endmacro()
 #todo, these macros are practically equal. Check for input file extension instead
 macro(_generate_srv_py ARG_PKG ARG_SRV ARG_IFLAGS ARG_MSG_DEPS ARG_GEN_OUTPUT_DIR)
 
+  #Append msg to output dir
+  set(GEN_OUTPUT_DIR "${ARG_GEN_OUTPUT_DIR}/msg")
+
   #Create input and output filenames
   get_filename_component(SRV_SHORT_NAME ${ARG_SRV} NAME_WE)
   set(SRV_INPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ARG_SRV})
 
   set(SRV_GENERATED_NAME _${SRV_SHORT_NAME}.py)
-  set(GEN_OUTPUT_FILE ${ARG_GEN_OUTPUT_DIR}/${SRV_GENERATED_NAME})
+  set(GEN_OUTPUT_FILE ${GEN_OUTPUT_DIR}/${SRV_GENERATED_NAME})
 
   if(@PACKAGE_NAME@_SOURCE_DIR)
     set(ENV_PREFIX1 "/usr/bin/env")
@@ -63,8 +69,26 @@ macro(_generate_srv_py ARG_PKG ARG_SRV ARG_IFLAGS ARG_MSG_DEPS ARG_GEN_OUTPUT_DI
     COMMAND ${ENV_PREFIX1} ${ENV_PREFIX2} ${GENSRV_PY_BIN} ${SRV_INPUT_FILE}
     ${ARG_IFLAGS}
     -p ${ARG_PKG}
-    -o ${ARG_GEN_OUTPUT_DIR}
+    -o ${GEN_OUTPUT_DIR}
     COMMENT "Generating Python code from SRV ${ARG_PKG}/${SRV_SHORT_NAME}"
+    )
+
+  list(APPEND ALL_GEN_OUTPUT_FILES_py ${GEN_OUTPUT_FILE})
+
+endmacro()
+
+macro(_generate_module_py ARG_PKG ARG_GEN_OUTPUT_DIR ARG_GENERATED_FILES)
+
+  #Append msg to output dir
+  set(GEN_OUTPUT_DIR "${ARG_GEN_OUTPUT_DIR}/msg")
+  set(GEN_OUTPUT_FILE ${GEN_OUTPUT_DIR}/__init__.py)
+
+  add_custom_command(OUTPUT ${GEN_OUTPUT_FILE}
+    DEPENDS ${GENMSG_PY_BIN} ${ARG_GENERATED_FILES}
+    COMMAND ${ENV_PREFIX1} ${ENV_PREFIX2} ${GENMSG_PY_BIN}
+    -o ${GEN_OUTPUT_DIR}
+    --initpy
+    COMMENT "Generating Python __init__.py for ${ARG_PKG}"
     )
 
   list(APPEND ALL_GEN_OUTPUT_FILES_py ${GEN_OUTPUT_FILE})
