@@ -11,8 +11,8 @@ install_cmake_infrastructure(genpy
   )
 
 
-file(WRITE genpy "Python")
-install(FILES genpy
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/genpy "Python")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/genpy
   DESTINATION etc/langs
   )
 
