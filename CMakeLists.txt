@@ -10,6 +10,12 @@ install_cmake_infrastructure(genpy
   PYTHONPATH src
   )
 
+
+file(WRITE genpy "Python")
+install(FILES genpy
+  DESTINATION etc/langs
+  )
+
 catkin_package(genpy)
 
 enable_python(genpy)
