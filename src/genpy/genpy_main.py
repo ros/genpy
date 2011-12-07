@@ -26,7 +26,6 @@ def genmain(argv, progname, gen):
     try:
         if options.initpy:
             if options.outdir:
-                print (args)
                 retcode = write_modules(options.outdir)
             else:
                 parser.error("Missing args")
