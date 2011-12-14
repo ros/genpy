@@ -1,11 +1,11 @@
 Package: genpy
-Version: 3.4.5
+Version: 0.1.0
 Section: misc
 Priority: extra
-Architecture: all
-Depends: ${misc:Depends} python-empy, cmake, make, @(CATKIN_PACKAGE_PREFIX)genmsg, @(CATKIN_PACKAGE_PREFIX)catkin
-Build-Depends: debhelper (>= 7), cmake, gcc, make, python, python-empy, python-setuptools,
-               @(CATKIN_PACKAGE_PREFIX)catkin, @(CATKIN_PACKAGE_PREFIX)genmsg 
+Architecture: any
+Depends: cmake, python, @(PackagePrefix)genmsg, @(PackagePrefix)catkin
+Build-Depends: cmake, python, python-setuptools,
+               @(PackagePrefix)catkin, @(PackagePrefix)genmsg 
 Description: Willow Garage low level build system macros and infrastructure
 Author: Troy Straszheim <straszheim@willowgarage.com>, Morten Kjaergaard
 Maintainer: Troy Straszheim <straszheim@willowgarage.com>
