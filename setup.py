@@ -10,18 +10,18 @@ from genpy import __version__
 setup(name='genpy',
       version= __version__,
       packages=['genpy'],
-      package_dir = {'':'src'},
+      package_dir = {'genpy':'src/genpy'},
       install_requires=['genmsg'],
       scripts = ['scripts/genmsg_py.py', 'scripts/gensrv_py.py'],
-      author = "Ken Conley", 
+      author = "Ken Conley",
       author_email = "kwc@willowgarage.com",
       url = "http://www.ros.org/wiki/genpy",
-      download_url = "http://pr.willowgarage.com/downloads/genpy/", 
+      download_url = "http://pr.willowgarage.com/downloads/genpy/",
       keywords = ["ROS"],
       classifiers = [
-        "Programming Language :: Python", 
+        "Programming Language :: Python",
         "License :: OSI Approved :: BSD License" ],
-      description = "ROS msg/srv Python generation", 
+      description = "ROS msg/srv Python generation",
       long_description = """\
 Library and scripts for generating ROS message data structures in Python.
 """,

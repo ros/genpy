@@ -3,9 +3,15 @@ if(@PACKAGE_NAME@_SOURCE_DIR)
   find_program_required(GENSRV_PY_BIN gensrv_py.py PATHS ${@PACKAGE_NAME@_SOURCE_DIR}/scripts)
   set(GENPY_TEMPLATE_DIR ${@PACKAGE_NAME@_SOURCE_DIR}/scripts)
 else()
-  find_program_required(GENMSG_PY_BIN genmsg_py.py)
-  find_program_required(GENSRV_PY_BIN gensrv_py.py)
-  set(GENPY_TEMPLATE_DIR ${CMAKE_INSTALL_PREFIX}/share/genpy)
+
+  find_program_required(GENMSG_PY_BIN genmsg_py.py
+    PATHS @CMAKE_INSTALL_PREFIX@/share/genpy/bin
+    )
+  find_program_required(GENSRV_PY_BIN gensrv_py.py
+    PATHS @CMAKE_INSTALL_PREFIX@/share/genpy/bin
+    )
+
+  set(GENPY_TEMPLATE_DIR @CMAKE_INSTALL_PREFIX@/share/genpy)
 endif()
 
 # Generate .msg->.h for py
