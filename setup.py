@@ -10,7 +10,7 @@ from genpy import __version__
 setup(name='genpy',
       version= __version__,
       packages=['genpy'],
-      package_dir = {'genpy':'src/genpy'},
+      package_dir = {'':'src'},
       install_requires=['genmsg'],
       scripts = ['scripts/genmsg_py.py', 'scripts/gensrv_py.py'],
       author = "Ken Conley",
