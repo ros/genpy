@@ -1,18 +1,15 @@
-Package: genpy
-Version: 0.1.0
-Section: misc
-Priority: extra
-Architecture: any
-Depends: cmake, python, @(PackagePrefix)genmsg, @(PackagePrefix)catkin
-Build-Depends: cmake, python, python-setuptools,
-               @(PackagePrefix)catkin, @(PackagePrefix)genmsg 
+Catkin-ProjectName: genpy
+Version: 0.1.3
 Description: Willow Garage low level build system macros and infrastructure
 Author: Troy Straszheim <straszheim@willowgarage.com>, Morten Kjaergaard
 Maintainer: Troy Straszheim <straszheim@willowgarage.com>
 Homepage: http://www.ros.org
 
-Catkin-ProjectName: genpy
+Depends: catkin, genmsg
+
 Catkin-CopyrightType:  willowgarage
-Catkin-Depends: catkin, genmsg
-Catkin-ROS-Message-Generator: py
 Catkin-DebRulesType: python_distutils
+Catkin-ROS-Message-Generator: py
+
+Release-Pull: git://github.com/wg-debs/genpy.git
+Release-Push: git@github.com:wg-debs/genpy.git
