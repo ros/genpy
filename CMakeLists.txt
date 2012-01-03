@@ -16,5 +16,5 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/genpy
   DESTINATION etc/langs
   )
 
-catkin_package(genpy)
 enable_python(genpy)
+
