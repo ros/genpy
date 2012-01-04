@@ -7,7 +7,6 @@ add_subdirectory(scripts)
 catkin_project(genpy
   VERSION 0.0.1
   CFG_EXTRAS genpy-extras.cmake
-  PYTHONPATH src
   )
 
 
@@ -16,5 +15,5 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/genpy
   DESTINATION etc/langs
   )
 
-enable_python(genpy)
+export_python_dirs(src)
 
