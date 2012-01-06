@@ -78,7 +78,7 @@ macro(_generate_module_py ARG_PKG ARG_GEN_OUTPUT_DIR ARG_GENERATED_FILES)
       add_custom_command(OUTPUT ${GEN_OUTPUT_FILE}
 	DEPENDS ${GENMSG_PY_BIN} ${ARG_GENERATED_FILES}
 	COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_PY_BIN}
-	-o ${ARG_GEN_OUTPUT_DIR}
+	-o ${GEN_OUTPUT_DIR}
 	--initpy
 	COMMENT "Generating Python ${type} __init__.py for ${ARG_PKG}")
       list(APPEND ALL_GEN_OUTPUT_FILES_py ${GEN_OUTPUT_FILE})
