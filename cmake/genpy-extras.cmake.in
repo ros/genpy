@@ -44,7 +44,7 @@ endmacro()
 macro(_generate_srv_py ARG_PKG ARG_SRV ARG_IFLAGS ARG_MSG_DEPS ARG_GEN_OUTPUT_DIR)
 
   #Append msg to output dir
-  set(GEN_OUTPUT_DIR "${ARG_GEN_OUTPUT_DIR}/msg")
+  set(GEN_OUTPUT_DIR "${ARG_GEN_OUTPUT_DIR}/srv")
 
   #Create input and output filenames
   get_filename_component(SRV_SHORT_NAME ${ARG_SRV} NAME_WE)
