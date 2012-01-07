@@ -80,7 +80,7 @@ macro(_generate_module_py ARG_PKG ARG_GEN_OUTPUT_DIR ARG_GENERATED_FILES)
 	COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_PY_BIN}
 	-o ${GEN_OUTPUT_DIR}
 	--initpy
-	COMMENT "Generating Python ${type} __init__.py for ${ARG_PKG}/${type}")
+	COMMENT "Generating Python ${type} __init__.py for ${ARG_PKG}")
       list(APPEND ALL_GEN_OUTPUT_FILES_py ${GEN_OUTPUT_FILE})
     endif()
 
@@ -89,16 +89,6 @@ macro(_generate_module_py ARG_PKG ARG_GEN_OUTPUT_DIR ARG_GENERATED_FILES)
   if( NOT PACKAGE_PYTHONPATH )
     catkin_export_python()
   endif()
-
-  #We also need an __init__.py in the parent of the msg dir
-  set(GEN_OUTPUT_FILE_PARENT ${ARG_GEN_OUTPUT_DIR}/__init__.py)
-
-  add_custom_command(OUTPUT ${GEN_OUTPUT_FILE_PARENT}
-    COMMAND ${CMAKE_COMMAND} -E touch ${GEN_OUTPUT_FILE_PARENT}
-    COMMENT "Generating Python __init__.py for ${ARG_PKG}"
-    )
-
-  list(APPEND ALL_GEN_OUTPUT_FILES_py ${GEN_OUTPUT_FILE} ${GEN_OUTPUT_FILE_PARENT})
 
 endmacro()
 
