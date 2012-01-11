@@ -379,6 +379,7 @@ def _fill_val(msg, f, v, keys, prefix):
     :param f: field name, ``str``
     :param v: field value
     :param keys: keys to use as substitute values for messages and timestamps, ``dict``
+    :raises: exc:`MessageException`
     """
     if not f in msg.__slots__:
         raise MessageException("No field name [%s%s]"%(prefix, f))
@@ -407,21 +408,29 @@ def _fill_val(msg, f, v, keys, prefix):
         # determine base_type of field by looking at _slot_types
         idx = msg.__slots__.index(f)
         t = msg._slot_types[idx]
-        base_type = genmsg.msgs.bare_msg_type(t)
+        base_type, is_array, length = genmsg.msgs.parse_type(t)
         # - for primitives, we just directly set (we don't
         #   type-check. we rely on serialization type checker)
         if base_type in genmsg.msgs.PRIMITIVE_TYPES:
+            # 3785
+            if length is not None and len(v) != length:
+                raise MessageException("Field [%s%s] has incorrect number of elements: %s != %s"%(prefix, f, len(v), length))                
             setattr(msg, f, v)
 
         # - for complex types, we have to iteratively append to def_val
         else:
+            # 3785            
+            if length is not None and len(v) != length:
+                raise MessageException("Field [%s%s] has incorrect number of elements: %s != %s"%(prefix, f, len(v), length))
             list_msg_class = get_message_class(base_type)
+            if list_msg_class is None:
+                raise MessageException("Cannot instantiate messages for field [%s%s] : cannot load class %s"%(prefix, f, base_type))                
+            del def_val[:]
             for el in v:
                 inner_msg = list_msg_class()
                 _fill_message_args(inner_msg, el, prefix)
                 def_val.append(inner_msg)
     else:
-        #print "SET2", f, v
         setattr(msg, f, v)
     
     
@@ -504,4 +513,82 @@ def fill_message_args(msg, msg_args, keys={}):
         _fill_message_args(msg, msg_args[0], keys, '')
     else:
         _fill_message_args(msg, msg_args, keys, '')
+
+def _get_message_or_service_class(type_str, message_type, reload_on_error=False):
+    """
+    Utility for retrieving message/service class instances. Used by
+    get_message_class and get_service_class. 
+    :param type_str: 'msg' or 'srv', ``str``
+    :param message_type: type name of message/service, ``str``
+    :returns: Message/Service  for message/service type or None, ``class``
+    :raises: :exc:`ValueError` If message_type is invalidly specified
+    """
+    ## parse package and local type name for import
+    package, base_type = genmsg.package_resource_name(message_type)
+    if not package:
+        if base_type == 'Header':
+            package = 'std_msgs'
+        else:
+            raise ValueError("message type is missing package name: %s"%str(message_type))
+    pypkg = val = None
+    try: 
+        # import the package and return the class
+        pypkg = __import__('%s.%s'%(package, type_str))
+        val = getattr(getattr(pypkg, type_str), base_type)
+    except ImportError:
+        val = None
+    except AttributeError:
+        val = None
+
+    # this logic is mainly to support rosh, so that a user doesn't
+    # have to exit a shell just because a message wasn't built yet
+    if val is None and reload_on_error:
+        try:
+            if pypkg:
+                reload(pypkg)
+            val = getattr(getattr(pypkg, type_str), base_type)
+        except:
+            val = None
+    return val
+        
+## cache for get_message_class
+_message_class_cache = {}
+
+def get_message_class(message_type, reload_on_error=False):
+    """
+    Get the message class. NOTE: this function maintains a
+    local cache of results to improve performance.
+    :param message_type: type name of message, ``str``
+    :param reload_on_error: (optional). Attempt to reload the Python
+      module if unable to load message the first time. Defaults to
+      False. This is necessary if messages are built after the first load.
+    :returns: Message class for message/service type, ``Message class``
+    :raises :exc:`ValueError`: if  message_type is invalidly specified
+    """
+    if message_type in _message_class_cache:
+        return _message_class_cache[message_type]
+    cls = _get_message_or_service_class('msg', message_type, reload_on_error=reload_on_error)
+    if cls:
+        _message_class_cache[message_type] = cls
+    return cls
+
+## cache for get_service_class
+_service_class_cache = {}
+
+def get_service_class(service_type, reload_on_error=False):
+    """
+    Get the service class. NOTE: this function maintains a
+    local cache of results to improve performance.
+    :param service_type: type name of service, ``str``
+    :param reload_on_error: (optional). Attempt to reload the Python
+      module if unable to load message the first time. Defaults to
+      False. This is necessary if messages are built after the first load.
+    :returns: Service class for service type, ``Service class``
+    :raises :exc:`Exception` If service_type is invalidly specified
+    """
+    if service_type in _service_class_cache:
+        return _service_class_cache[service_type]
+    cls = _get_message_or_service_class('srv', service_type, reload_on_error=reload_on_error)
+    _service_class_cache[service_type] = cls
+    return cls
 
