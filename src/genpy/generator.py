@@ -144,14 +144,14 @@ def default_value(msg_context, field_type, default_package):
     elif field_type in ['float32', 'float64']:
         return '0.'
     elif field_type == 'string':
-        # strings, byte[], and uint8s are all optimized to be strings
+        # strings, char[], and uint8s are all optimized to be strings
         return "''"
     elif field_type == 'bool':
         return 'False'
     elif field_type.endswith(']'): # array type
         base_type, is_array, array_len = genmsg.msgs.parse_type(field_type)
-        if base_type in ['byte', 'uint8']:
-            # strings, byte[], and uint8s are all optimized to be strings
+        if base_type in ['char', 'uint8']:
+            # strings, char[], and uint8s are all optimized to be strings
             if array_len is not None:
                 return "chr(0)*%s"%array_len
             else:
@@ -395,7 +395,7 @@ def string_serializer_generator(package, type_, name, serialize):
     # optimize the serialization call.
     base_type, is_array, array_len = genmsg.msgs.parse_type(type_)
     # - don't serialize length for fixed-length arrays of bytes
-    if base_type not in ['uint8', 'byte'] or array_len is None:
+    if base_type not in ['uint8', 'char'] or array_len is None:
         for y in len_serializer_generator(var, True, serialize):
             yield y #serialize string length
 
@@ -404,7 +404,7 @@ def string_serializer_generator(package, type_, name, serialize):
 
         #check to see if its a uint8/byte type, in which case we need to convert to string before serializing
         base_type, is_array, array_len = genmsg.msgs.parse_type(type_)
-        if base_type in ['uint8', 'byte']:
+        if base_type in ['uint8', 'char']:
             yield "# - if encoded as a list instead, serialize as bytes instead of string"
             if array_len is None:
                 yield "if type(%s) in [list, tuple]:"%var
@@ -441,7 +441,7 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
 
     # handle fixed-size byte arrays could be slightly more efficient
     # as we recalculated the length in the generated code.
-    if base_type in ['byte', 'uint8']: #treat unsigned int8 arrays as string type
+    if base_type in ['char', 'uint8']: #treat unsigned int8 arrays as string type
         for y in string_serializer_generator(package, type_, name, serialize):
             yield y
         return
