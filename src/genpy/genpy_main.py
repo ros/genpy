@@ -19,7 +19,6 @@ def genmain(argv, progname, gen):
     parser.add_option('--initpy', dest='initpy', action='store_true',
                       default=False)
     parser.add_option('-p', dest='package')
-    parser.add_option('-s', dest='srcdir')
     parser.add_option('-o', dest='outdir')
     parser.add_option('-I', dest='includepath', action='append')
     options, args = parser.parse_args(argv)
