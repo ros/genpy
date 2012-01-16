@@ -92,4 +92,4 @@ macro(_generate_module_py ARG_PKG ARG_GEN_OUTPUT_DIR ARG_GENERATED_FILES)
 
 endmacro()
 
-set(genpy_INSTALL_DIR lib/python${PYTHON_VERSION_XDOTY}/dist-packages)
+set(genpy_INSTALL_DIR lib/python${PYTHON_VERSION_XDOTY}/${PYTHON_PACKAGES_DIR})
