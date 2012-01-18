@@ -5,7 +5,10 @@ from setuptools import setup
 import sys
 sys.path.insert(0, 'src')
 
-from genpy import __version__
+import yaml
+from os import path
+__version__ = yaml.load(open(path.join(path.dirname(__file__),'stack.yaml'))['Version']
+#from genpy import __version__
 
 setup(name='genpy',
       version= __version__,
