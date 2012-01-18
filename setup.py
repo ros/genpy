@@ -5,9 +5,13 @@ from setuptools import setup
 import sys
 sys.path.insert(0, 'src')
 
-import yaml
-from os import path
-__version__ = yaml.load(open(path.join(path.dirname(__file__),'stack.yaml')))['Version']
+import re
+search = re.search(r'Version\:\s*(\d+\.\d+\.\d+)',open('stack.yaml').read())
+if not search:
+    print >>sys.stderr, 'You must have a Version field in your stack.yaml'
+    sys.exit(-1)
+__version__ = search.groups()[0]
+
 #from genpy import __version__
 
 setup(name='genpy',
