@@ -7,7 +7,7 @@ sys.path.insert(0, 'src')
 
 import yaml
 from os import path
-__version__ = yaml.load(open(path.join(path.dirname(__file__),'stack.yaml'))['Version']
+__version__ = yaml.load(open(path.join(path.dirname(__file__),'stack.yaml')))['Version']
 #from genpy import __version__
 
 setup(name='genpy',
