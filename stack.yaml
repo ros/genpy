@@ -5,7 +5,7 @@ Author: Troy Straszheim <straszheim@willowgarage.com>, Morten Kjaergaard
 Maintainer: Troy Straszheim <straszheim@willowgarage.com>
 Homepage: http://www.ros.org
 
-Depends: catkin, genmsg, langs
+Depends: catkin, genmsg
 
 Catkin-CopyrightType:  willowgarage
 Catkin-DebRulesType: python_distutils
