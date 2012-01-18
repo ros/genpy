@@ -1,11 +1,11 @@
 Catkin-ProjectName: genpy
-Version: 0.2.0
+Version: 0.3.0
 Description: Willow Garage low level build system macros and infrastructure
 Author: Troy Straszheim <straszheim@willowgarage.com>, Morten Kjaergaard
 Maintainer: Troy Straszheim <straszheim@willowgarage.com>
 Homepage: http://www.ros.org
 
-Depends: catkin, genmsg
+Depends: catkin, genmsg, langs
 
 Catkin-CopyrightType:  willowgarage
 Catkin-DebRulesType: python_distutils
