@@ -21,7 +21,6 @@ macro(_generate_msg_py ARG_PKG ARG_MSG ARG_IFLAGS ARG_MSG_DEPS ARG_GEN_OUTPUT_DI
   #Append msg to output dir
   set(GEN_OUTPUT_DIR "${ARG_GEN_OUTPUT_DIR}/msg")
   file(MAKE_DIRECTORY ${GEN_OUTPUT_DIR})
-
   #Create input and output filenames
   get_filename_component(MSG_SHORT_NAME ${ARG_MSG} NAME_WE)
 
@@ -92,4 +91,6 @@ macro(_generate_module_py ARG_PKG ARG_GEN_OUTPUT_DIR ARG_GENERATED_FILES)
 
 endmacro()
 
-set(genpy_INSTALL_DIR lib/python${PYTHON_VERSION_XDOTY}/${PYTHON_PACKAGES_DIR})
+if(NOT EXISTS @PACKAGE_NAME@_SOURCE_DIR)
+  set(genpy_INSTALL_DIR lib/python${PYTHON_VERSION_XDOTY}/${PYTHON_PACKAGES_DIR})
+endif()
