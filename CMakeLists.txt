@@ -15,5 +15,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/genpy
   DESTINATION etc/langs
   )
 
+install(FILES stack.yaml DESTINATION share/${PROJECT_NAME})
 catkin_export_python(src)
 
