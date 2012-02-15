@@ -156,25 +156,23 @@ def test_default_value():
     assert 'fake_msgs.msg.ThreeNums()' == default_value(msg_context, 'ThreeNums', 'fake_msgs')
 
     # var-length arrays always default to empty arrays... except for byte and uint8 which are strings
-    for t in ['int8', 'uint16', 'int16', 'uint32', 'int32', 'uint64', 'int64', 'float32', 'float64', 'char']:
-        assert '[]' == default_value(msg_context, t+'[]', 'std_msgs')
+    for t in ['int8', 'uint16', 'int16', 'uint32', 'int32', 'uint64', 'int64', 'float32', 'float64']:
+        val = default_value(msg_context, t+'[]', 'std_msgs')
+        assert '[]' == val, "[%s]: %s"%(t, val)
         assert '[]' == default_value(msg_context, t+'[]', 'roslib')
 
     assert "''" == default_value(msg_context, 'uint8[]', 'roslib')
-    assert "''" == default_value(msg_context, 'byte[]', 'roslib')
 
     # fixed-length arrays should be zero-filled... except for byte and uint8 which are strings
     for t in ['float32', 'float64']:
         assert '[0.,0.,0.]' == default_value(msg_context, t+'[3]', 'std_msgs')
         assert '[0.]' == default_value(msg_context, t+'[1]', 'std_msgs')
-    for t in ['int8', 'uint16', 'int16', 'uint32', 'int32', 'uint64', 'int64', 'char']:
+    for t in ['int8', 'uint16', 'int16', 'uint32', 'int32', 'uint64', 'int64']:
         assert '[0,0,0,0]' == default_value(msg_context, t+'[4]', 'std_msgs')
         assert '[0]' == default_value(msg_context, t+'[1]', 'roslib')
 
     assert "chr(0)*1" == default_value(msg_context, 'uint8[1]', 'roslib')
     assert "chr(0)*4" == default_value(msg_context, 'uint8[4]', 'roslib')
-    assert "chr(0)*1" == default_value(msg_context, 'byte[1]', 'roslib')
-    assert "chr(0)*4" == default_value(msg_context, 'byte[4]', 'roslib')
 
     assert '[]' == default_value(msg_context, 'fake_msgs/String[]', 'std_msgs')
     assert '[fake_msgs.msg.String(),fake_msgs.msg.String()]' == default_value(msg_context, 'fake_msgs/String[2]', 'std_msgs')
@@ -182,12 +180,12 @@ def test_default_value():
 def test_make_python_safe():
     from genpy.generator import make_python_safe
     from genmsg.msgs import Constant
-    s = MsgSpec(['int32', 'int32', 'int32', 'int32'], ['ok', 'if', 'self', 'fine'],
+    s = MsgSpec(['int32', 'int32', 'int32', 'int32', 'int32', 'int32'], ['ok', 'if', 'self', 'fine', 'self.x', 'self.while'],
                 [Constant('int32', 'if', '1', '1'), Constant('int32', 'okgo', '1', '1')],
                 'x', 'test_msgs/Foo')
     s2 = make_python_safe(s)
     assert s != s2
-    assert ['ok', 'if_', 'self_', 'fine'] == s2.names
+    assert ['ok', 'if_', 'self_', 'fine', 'self.x', 'self.while_'] == s2.names, s2.names
     assert s2.types == s.types
     assert [Constant('int32', 'if_', '1', '1') == Constant('int32', 'okgo', '1', '1')], s2.constants
     assert s2.text == s.text

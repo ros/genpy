@@ -168,7 +168,7 @@ def flatten(msg_context, msg):
     """
     Flattens the msg spec so that embedded message fields become
     direct references. The resulting MsgSpec isn't a true/legal
-    L{MsgSpec} and should only be used for serializer generation
+    :class:`MsgSpec` and should only be used for serializer generation.
     :param msg: MsgSpec to flatten
     :returns: flattened MsgSpec message
     """
@@ -207,9 +207,17 @@ def _remap_reserved(field_name):
     :returns: remapped name, ``str``
     """
     # include 'self' as well because we are within a class instance
-    if field_name in keyword.kwlist + ['self']:
-        return field_name + "_"
-    return field_name
+    idx = field_name.rfind('.')
+    if idx > 0:
+        prefix = field_name[:idx+1]
+        sub_field_name = field_name[idx+1:]
+    else:
+        prefix = ''
+        sub_field_name = field_name
+        
+    if sub_field_name in keyword.kwlist + ['self']:
+        sub_field_name = sub_field_name + "_"
+    return prefix + sub_field_name
 
 ################################################################################
 # (de)serialization routines
@@ -648,8 +656,9 @@ def serialize_fn_generator(msg_context, spec, is_numpy=False):
     yield "try:"
     push_context('self.')
     #NOTE: we flatten the spec for optimal serialization
-    flattened = flatten(msg_context, spec)
-    for y in serializer_generator(msg_context, flatten(msg_context, spec), True, is_numpy):
+    # #3741: make sure to have sub-messages python safe
+    flattened = make_python_safe(flatten(msg_context, spec))
+    for y in serializer_generator(msg_context, flattened, True, is_numpy):
         yield "  "+y
     pop_context()
     yield "except struct.error as se: self._check_types(se)"
@@ -674,7 +683,9 @@ def deserialize_fn_generator(msg_context, spec, is_numpy=False):
     # method-var context #########
     push_context('self.')
     #NOTE: we flatten the spec for optimal serialization
-    for y in serializer_generator(msg_context, flatten(msg_context, spec), False, is_numpy):
+    # #3741: make sure to have sub-messages python safe
+    flattened = make_python_safe(flatten(msg_context, spec))
+    for y in serializer_generator(msg_context, flattened, False, is_numpy):
         yield "  "+y
     pop_context()
     # done w/ method-var context #
