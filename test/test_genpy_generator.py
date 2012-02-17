@@ -298,8 +298,12 @@ def test_string_serializer_generator():
     # generator tests are mainly tripwires/coverage tests
     # Test Serializers
     g = genpy.generator.string_serializer_generator('foo', 'string', 'var_name', True)
+    val = '\n'.join(g)
     assert """length = len(var_name)
-buff.write(struct.pack('<I%ss'%length, length, var_name))""" == '\n'.join(g)
+if python3 or type(var_name) == unicode:
+  var_name = var_name.encode('utf-8')
+  length = len(var_name)
+buff.write(struct.pack('<I%ss'%length, length, var_name))""" == val, val
 
     for t in ['uint8[]', 'byte[]', 'uint8[10]', 'byte[20]']:
         g = genpy.generator.string_serializer_generator('foo', 'uint8[]', 'b_name', True)
@@ -316,7 +320,10 @@ end += 4
 (length,) = _struct_I.unpack(str[start:end])
 start = end
 end += length
-var_name = str[start:end]"""
+if python3:
+  var_name = str[start:end].decode('utf-8')
+else:
+  var_name = str[start:end]"""
     # string serializer and array serializer are identical
     g = genpy.generator.string_serializer_generator('foo', 'string', 'var_name', False)
     assert val == '\n'.join(g)
