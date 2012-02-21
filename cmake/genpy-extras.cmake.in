@@ -68,6 +68,11 @@ endmacro()
 
 macro(_generate_module_py ARG_PKG ARG_GEN_OUTPUT_DIR ARG_GENERATED_FILES)
 
+  # generate empty __init__ to make parent folder of msg/srv a python module
+  if(NOT EXISTS ${ARG_GEN_OUTPUT_DIR}/__init__.py)
+    file(WRITE ${ARG_GEN_OUTPUT_DIR}/__init__.py "")
+  endif()
+
   #Append msg to output dir
   foreach(type "msg" "srv")
     set(GEN_OUTPUT_DIR "${ARG_GEN_OUTPUT_DIR}/${type}")
@@ -84,10 +89,6 @@ macro(_generate_module_py ARG_PKG ARG_GEN_OUTPUT_DIR ARG_GENERATED_FILES)
     endif()
 
   endforeach()
-
-  if( NOT PACKAGE_PYTHONPATH )
-    catkin_export_python()
-  endif()
 
 endmacro()
 
