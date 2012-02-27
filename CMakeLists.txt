@@ -6,7 +6,6 @@ add_subdirectory(scripts)
 
 catkin_stack()
 catkin_project(genpy
-  VERSION 0.0.1
   CFG_EXTRAS genpy-extras.cmake
   )
 
