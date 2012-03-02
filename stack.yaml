@@ -1,5 +1,5 @@
 Catkin-ProjectName: genpy
-Version: 0.3.1
+Version: 0.3.2
 Description: Python code generators for ROS messages
 Author: Ken Conley <kwc@willowgarage.com>, Troy Straszheim <straszheim@willowgarage.com>, Morten Kjaergaard
 Maintainer: Ken Conley <kwc@willowgarage.com>
