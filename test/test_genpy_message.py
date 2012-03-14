@@ -30,8 +30,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
-import sys
 import time
 import unittest
 import traceback
@@ -116,7 +114,6 @@ class MessageTest(unittest.TestCase):
         fill_message_args(msg, [{}]) 
         assert msg == M1()
         
-        from genpy.msg import TestPrimitiveArray
         msg = TestPrimitiveArray()
         fill_message_args(msg, [{}])
         assert msg == TestPrimitiveArray()
@@ -178,7 +175,7 @@ class MessageTest(unittest.TestCase):
         except MessageException: pass
 
     def test_fill_message_args_embed_time(self):
-        from genpy import Time, Duration
+        from genpy import Time
         from genpy.message import fill_message_args
         from genpy.msg import TestFillEmbedTime
 
@@ -189,9 +186,6 @@ class MessageTest(unittest.TestCase):
         # std_msgs/String[] str_msg_array
         # int32 i32
 
-        tests = [
-            
-        ]
         m = TestFillEmbedTime()
         fill_message_args(m, [{}])
         self.assertEquals(m.t, Time())

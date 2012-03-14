@@ -49,7 +49,7 @@ import tempfile
 
 import genmsg
 import genmsg.msg_loader
-from genmsg import InvalidMsgSpec, MsgContext, MsgSpec, MsgGenerationException
+from genmsg import MsgContext, MsgGenerationException
 
 from . generator import msg_generator
 

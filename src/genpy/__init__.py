@@ -34,3 +34,6 @@ __version__ = '0.1.7'
 
 from . rostime import Time, Duration, TVal
 from . message import Message, SerializationError, DeserializationError, MessageException, struct_I
+
+__all__ = ['Time', 'Duration', 'TVal',
+        'Message', 'SerializationError', 'DeserializationError', 'MessageException', 'struct_I']

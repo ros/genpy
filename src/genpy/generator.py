@@ -48,7 +48,6 @@ The structure of the serialization descends several levels of serializers:
 from __future__ import print_function
 
 import os
-import errno  # for smart handling of exceptions for os.makedirs()
 import keyword
 import itertools
 import sys

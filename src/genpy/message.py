@@ -52,7 +52,7 @@ from .rostime import Time, Duration, TVal
 # add another import to messages (which incurs higher import cost)
 
 if sys.version > '3':
-	long = int
+    long = int
 
 struct_I = struct.Struct('<I')
 
@@ -64,7 +64,7 @@ def isstring(s):
         return isinstance(s, basestring)
     except NameError:
         return isinstance(s, str)
-    
+
 class MessageException(Exception):
     """
     Base exception type for errors in genmsg routines

@@ -32,8 +32,6 @@
 
 from __future__ import division
 
-import os
-import sys
 import unittest
 
 class RostimeTruedivTest(unittest.TestCase):

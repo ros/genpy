@@ -1,5 +1,3 @@
-import struct
-
 from .base import SIMPLE_TYPES_DICT
 
 _context_patterns = []

@@ -36,9 +36,6 @@ import genmsg.msgs
 from genmsg.msgs import MsgSpec
 from genmsg.msg_loader import MsgContext
 
-import time
-import sys
-
 def get_test_dir():
     return os.path.abspath(os.path.join(os.path.dirname(__file__), 'files'))
 
@@ -100,7 +97,6 @@ def test_flatten():
 
 def test_flatten_array_objects():
     # make sure array of types don't flatten
-    import genpy.generator
     from genpy.generator import flatten
     msg_context = MsgContext.create_default()
 
@@ -112,7 +108,6 @@ def test_flatten_array_objects():
     assert b5 == flatten(msg_context, b5)
     
 def test_default_value():
-    import genpy.generator
     from genpy.generator import default_value
     msg_context = MsgContext.create_default()
 
@@ -191,7 +186,6 @@ def test_make_python_safe():
     assert s2.text == s.text
     
 def test_compute_pkg_type():
-    import genpy.generator
     from genpy.generator import compute_pkg_type, MsgGenerationException
     try:
         compute_pkg_type('std_msgs', 'really/bad/std_msgs/String')
@@ -243,7 +237,6 @@ def test_get_registered_ex():
     except genpy.generator.MsgGenerationException: pass
             
 def test_compute_constructor():
-    import genpy.generator
     from genpy.generator import compute_constructor
     msg_context = MsgContext.create_default()
     msg_context.register('fake_msgs/String', MsgSpec(['string'], ['data'], [], 'string data\n', 'fake_msgs/String'))
@@ -331,7 +324,7 @@ else:
 
 def test_array_serializer_generator_numpy():
     is_numpy = True
-    from genpy.generator import array_serializer_generator, MsgGenerationException
+    from genpy.generator import array_serializer_generator
     d = os.path.join(get_test_dir(), 'array')
     # generator tests are mainly tripwires/coverage tests
 
@@ -376,7 +369,7 @@ def test_array_serializer_generator():
     #array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
     msg_context = MsgContext.create_default()
     # load in some objects
-    search_path = {'foo': d}
+    search_path = {'foo': [d]}
     load_msg_by_type(msg_context, 'foo/Object', search_path)
     load_msg_by_type(msg_context, 'foo/ObjectArray', search_path)
 
@@ -459,7 +452,7 @@ def test_complex_serializer_generator():
     #array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
     msg_context = MsgContext.create_default()
     # load in some objects
-    search_path = {'foo': array_d}
+    search_path = {'foo': [array_d]}
     load_msg_by_type(msg_context, 'foo/Object', search_path)
     load_msg_by_type(msg_context, 'foo/ObjectArray', search_path)
 
@@ -496,7 +489,7 @@ def test_complex_serializer_generator():
 def test_serialize_fn_generator():
     
     from genmsg.msg_loader import load_msg_by_type
-    from genpy.generator import serialize_fn_generator, MsgGenerationException, reset_var
+    from genpy.generator import serialize_fn_generator, reset_var
     array_d = os.path.join(get_test_dir(), 'array')
     complex_d = os.path.join(get_test_dir(), 'complex')
     # generator tests are mainly tripwires/coverage tests
@@ -504,7 +497,7 @@ def test_serialize_fn_generator():
     #array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
     msg_context = MsgContext.create_default()
     # load in some objects
-    search_path = {'foo': array_d}
+    search_path = {'foo': [array_d]}
     object_spec = load_msg_by_type(msg_context, 'foo/Object', search_path)
     object_array_spec = load_msg_by_type(msg_context, 'foo/ObjectArray', search_path)
 
