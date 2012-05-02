@@ -37,7 +37,7 @@ def write_module(basedir, generated_modules):
     p = os.path.join(basedir, '__init__.py')
     with open(p, 'w') as f:
         for mod in generated_modules:
-            f.write('from %s import *\n'%mod)
+            f.write('from .%s import *\n'%mod)
 
     parent_init = os.path.dirname(basedir)
 #    p = os.path.join(parent_init, '__init__.py')
