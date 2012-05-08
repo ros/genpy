@@ -93,5 +93,11 @@ macro(_generate_module_py ARG_PKG ARG_GEN_OUTPUT_DIR ARG_GENERATED_FILES)
 endmacro()
 
 if(NOT EXISTS @PACKAGE_NAME@_SOURCE_DIR)
-  set(genpy_INSTALL_DIR lib/python${PYTHON_VERSION_XDOTY}/${PYTHON_PACKAGES_DIR})
+  # Windows setuptools installs to Lib/site-packages not Lib/python2.7/site-packages 
+  # Or is this SETUPTOOLS_DEB_LAYOUT dependant? See also catkin/cmake/python.cmake
+  if(MSVC)
+    set(genpy_INSTALL_DIR lib/${PYTHON_PACKAGES_DIR})
+  else()
+    set(genpy_INSTALL_DIR lib/python${PYTHON_VERSION_XDOTY}/${PYTHON_PACKAGES_DIR})
+  endif()
 endif()
