@@ -1,21 +1,19 @@
 #!/usr/bin/env python
 
+import rospkg.stack
 from setuptools import setup
-
 import sys
+
+try:
+    version = rospkg.stack.parse_stack_file('stack.xml').version
+except Exception, e:
+    print >> sys.stderr, 'Could not extract version from your stack.xml:\n%s' % e
+    sys.exit(-1)
+
 sys.path.insert(0, 'src')
 
-import re
-search = re.search(r'Version\:\s*(\d+\.\d+\.\d+)',open('stack.yaml').read())
-if not search:
-    print >>sys.stderr, 'You must have a Version field in your stack.yaml'
-    sys.exit(-1)
-__version__ = search.groups()[0]
-
-#from genpy import __version__
-
 setup(name='genpy',
-      version= __version__,
+      version= version,
       packages=['genpy'],
       package_dir = {'':'src'},
       install_requires=['genmsg'],
