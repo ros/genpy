@@ -1,6 +1,6 @@
 <stack>
   <name>genpy</name>
-  <version>0.3.3</version>
+  <version>0.3.4</version>
   <description>ROS message generation for Pzthon.</description>
   <author>Ken Conley</author>
   <author email="straszheim@willowgarage.com">Troy Straszheim</author>
