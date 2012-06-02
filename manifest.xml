@@ -1,5 +1,4 @@
 <package>
-  <catkin/>
   <description brief="genpy">
 
      Python ROS message and service generators.
