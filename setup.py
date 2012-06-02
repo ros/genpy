@@ -1,22 +1,22 @@
 #!/usr/bin/env python
 
-import rospkg.stack
 from setuptools import setup
 import sys
+from xml.etree.ElementTree import ElementTree
 
 try:
-    version = rospkg.stack.parse_stack_file('stack.xml').version
+    root = ElementTree('stack', 'stack.xml')
+    version = root.findtext('version')
 except Exception, e:
     print >> sys.stderr, 'Could not extract version from your stack.xml:\n%s' % e
-    sys.exit(-1)
 
 sys.path.insert(0, 'src')
 
-setup(name='genpy',
-      version= version,
-      packages=['genpy'],
-      package_dir = {'':'src'},
-      install_requires=['genmsg'],
+setup(name = 'genpy',
+      version = version,
+      packages = ['genpy'],
+      package_dir = {'': 'src'},
+      install_requires = ['genmsg'],
       scripts = ['scripts/genmsg_py.py', 'scripts/gensrv_py.py'],
       author = "Ken Conley",
       author_email = "kwc@willowgarage.com",
