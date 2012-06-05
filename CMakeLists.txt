@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(genpy)
-find_package(catkin)
+find_package(catkin REQUIRED)
 
 add_subdirectory(scripts)
 
