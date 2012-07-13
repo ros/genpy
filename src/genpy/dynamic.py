@@ -159,8 +159,8 @@ def generate_dynamic(core_type, msg_cat):
     # Afterwards, we are going to remove the directory so that the .pyc file gets cleaned up if it's still around
     atexit.register(shutil.rmtree, tmp_dir)
     
-    # write the entire text to a file and import it
-    tmp_file = tempfile.NamedTemporaryFile(suffix=".py",dir=tmp_dir)
+    # write the entire text to a file and import it (it will get deleted when tmp_dir goes - above)
+    tmp_file = tempfile.NamedTemporaryFile(suffix=".py",dir=tmp_dir,delete=False)
     tmp_file.file.write(full_text)
     tmp_file.file.close()
 
