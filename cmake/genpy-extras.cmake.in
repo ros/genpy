@@ -1,7 +1,7 @@
-if(@PACKAGE_NAME@_SOURCE_DIR)
-  find_program_required(GENMSG_PY_BIN genmsg_py.py PATHS ${@PACKAGE_NAME@_SOURCE_DIR}/scripts)
-  find_program_required(GENSRV_PY_BIN gensrv_py.py PATHS ${@PACKAGE_NAME@_SOURCE_DIR}/scripts)
-  set(GENPY_TEMPLATE_DIR ${@PACKAGE_NAME@_SOURCE_DIR}/scripts)
+if(@PROJECT_NAME@_SOURCE_DIR)
+  find_program_required(GENMSG_PY_BIN genmsg_py.py PATHS ${@PROJECT_NAME@_SOURCE_DIR}/scripts)
+  find_program_required(GENSRV_PY_BIN gensrv_py.py PATHS ${@PROJECT_NAME@_SOURCE_DIR}/scripts)
+  set(GENPY_TEMPLATE_DIR ${@PROJECT_NAME@_SOURCE_DIR}/scripts)
 else()
 
   find_program_required(GENMSG_PY_BIN genmsg_py.py
@@ -80,11 +80,11 @@ macro(_generate_module_py ARG_PKG ARG_GEN_OUTPUT_DIR ARG_GENERATED_FILES)
 
     if(IS_DIRECTORY ${GEN_OUTPUT_DIR})
       add_custom_command(OUTPUT ${GEN_OUTPUT_FILE}
-	DEPENDS ${GENMSG_PY_BIN} ${ARG_GENERATED_FILES}
-	COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_PY_BIN}
-	-o ${GEN_OUTPUT_DIR}
-	--initpy
-	COMMENT "Generating Python ${type} __init__.py for ${ARG_PKG}")
+        DEPENDS ${GENMSG_PY_BIN} ${ARG_GENERATED_FILES}
+        COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_PY_BIN}
+        -o ${GEN_OUTPUT_DIR}
+        --initpy
+        COMMENT "Generating Python ${type} __init__.py for ${ARG_PKG}")
       list(APPEND ALL_GEN_OUTPUT_FILES_py ${GEN_OUTPUT_FILE})
     endif()
 
@@ -92,12 +92,6 @@ macro(_generate_module_py ARG_PKG ARG_GEN_OUTPUT_DIR ARG_GENERATED_FILES)
 
 endmacro()
 
-if(NOT EXISTS @PACKAGE_NAME@_SOURCE_DIR)
-  # Windows setuptools installs to Lib/site-packages not Lib/python2.7/site-packages 
-  # Or is this SETUPTOOLS_DEB_LAYOUT dependant? See also catkin/cmake/python.cmake
-  if(MSVC)
-    set(genpy_INSTALL_DIR lib/${PYTHON_PACKAGES_DIR})
-  else()
-    set(genpy_INSTALL_DIR lib/python${PYTHON_VERSION_XDOTY}/${PYTHON_PACKAGES_DIR})
-  endif()
+if(NOT EXISTS @PROJECT_NAME@_SOURCE_DIR)
+  set(genpy_INSTALL_DIR ${PYTHON_INSTALL_DIR})
 endif()

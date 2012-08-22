@@ -9,9 +9,8 @@ catkin_project(genpy
   CFG_EXTRAS genpy-extras.cmake
   )
 
-
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/genpy "Python")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/genpy
+file(WRITE ${catkin_BUILD_PREFIX}/etc/langs/genpy "Python")
+install(FILES ${catkin_BUILD_PREFIX}/etc/langs/genpy
   DESTINATION etc/langs
   )
 
