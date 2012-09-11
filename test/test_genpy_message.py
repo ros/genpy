@@ -38,6 +38,7 @@ import yaml
 import genpy.message
 import genpy
 from genpy import Time, Duration
+from nose.tools import nottest
 
 # Not much to test, just tripwires
 
@@ -51,7 +52,10 @@ class MessageTest(unittest.TestCase):
         x = HeaderTest()
         x._check_types()
         
+    @nottest
     def test_Message_check_types(self):
+        # this test is disabled since genpy does not depend on std_msgs and can therefore not use it in the test
+
         # test on a generated message
         # - use UInt16MultiArray because it has an embedded MultiArrayLayout
         from std_msgs.msg import String, UInt16MultiArray, MultiArrayLayout, MultiArrayDimension
