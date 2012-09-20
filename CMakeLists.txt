@@ -3,7 +3,7 @@ project(genpy)
 find_package(catkin REQUIRED COMPONENTS genmsg)
 
 catkin_stack()
-catkin_project(${PROJECT_NAME}
+catkin_package(${PROJECT_NAME}
   CFG_EXTRAS genpy-extras.cmake)
 
 add_subdirectory(scripts)
