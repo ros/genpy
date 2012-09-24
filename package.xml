@@ -6,18 +6,20 @@
   <maintainer email="dthomas@willowgarage.com">Dirk Thomas</maintainer>
   <license>BSD</license>
 
-  <url type="website">http://www.ros.org/wiki/genpy</url>
   <url type="bugtracker">https://github.com/ros/genpy/issues</url>
   <url type="repository">https://github.com/ros/genpy</url>
 
   <author>Ken Conley</author>
+  <author>Troy Straszheim</author>
+  <author>Morten Kjaergaard</author>
 
   <build_depend>catkin</build_depend>
   <build_depend>genmsg</build_depend>
+
   <run_depend>genmsg</run_depend>
 
   <export>
     <message_generator>py</message_generator>
-    <rosdoc config="rosdoc.yaml"/>    
+    <rosdoc config="rosdoc.yaml"/>
   </export>
 </package>
