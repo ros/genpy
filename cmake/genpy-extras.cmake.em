@@ -1,5 +1,5 @@
-@[if BUILDSPACE]@
-# bin dir variables in buildspace
+@[if DEVELSPACE]@
+# bin dir variables in develspace
 set(GENPY_BIN_DIR @(CMAKE_CURRENT_SOURCE_DIR)/scripts)
 @[else]@
 # bin dir variables in installspace

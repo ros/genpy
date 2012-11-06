@@ -8,8 +8,8 @@ catkin_package(
 
 add_subdirectory(scripts)
 
-file(WRITE ${CATKIN_BUILD_PREFIX}/${GENMSG_LANGS_DESTINATION}/genpy "Python")
-install(FILES ${CATKIN_BUILD_PREFIX}/${GENMSG_LANGS_DESTINATION}/genpy
+file(WRITE ${CATKIN_DEVEL_PREFIX}/${GENMSG_LANGS_DESTINATION}/genpy "Python")
+install(FILES ${CATKIN_DEVEL_PREFIX}/${GENMSG_LANGS_DESTINATION}/genpy
   DESTINATION ${GENMSG_LANGS_DESTINATION})
 
 catkin_python_setup()
