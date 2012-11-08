@@ -3,8 +3,9 @@ project(genpy)
 find_package(catkin REQUIRED COMPONENTS genmsg)
 
 catkin_package(
-  DEPENDS genmsg
-  CFG_EXTRAS genpy-extras.cmake)
+  CATKIN_DEPENDS genmsg
+  CFG_EXTRAS genpy-extras.cmake
+)
 
 add_subdirectory(scripts)
 
