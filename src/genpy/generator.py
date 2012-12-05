@@ -637,6 +637,7 @@ def serializer_generator(msg_context, spec, serialize, is_numpy):
         yield "pass"
         return
 
+    _max_chunk = 255
     # iterate through types. whenever we encounter a non-simple type,
     # yield serializer for any simple types we've encountered until
     # then, then yield the complex type serializer
@@ -644,14 +645,18 @@ def serializer_generator(msg_context, spec, serialize, is_numpy):
     for (i, full_type) in enumerate(types):
         if not is_simple(full_type):
             if i != curr: #yield chunk of simples
-                for y in simple_serializer_generator(msg_context, spec, curr, i, serialize):
-                    yield y
+                for _start in range(curr, i, _max_chunk):
+                    _end = min(_start + _max_chunk, i)
+                    for y in simple_serializer_generator(msg_context, spec, _start, _end, serialize):
+                        yield y
             curr = i+1
             for y in complex_serializer_generator(msg_context, spec.package, full_type, names[i], serialize, is_numpy):
                 yield y
     if curr < len(types): #yield rest of simples
-        for y in simple_serializer_generator(msg_context, spec, curr, len(types), serialize):
-            yield y
+        for _start in range(curr, len(types), _max_chunk):
+            _end = min(_start + _max_chunk, len(types))
+            for y in simple_serializer_generator(msg_context, spec, _start, _end, serialize):
+                yield y
 
 def serialize_fn_generator(msg_context, spec, is_numpy=False):
     """
