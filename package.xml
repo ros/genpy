@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>genpy</name>
-  <version>0.4.8</version>
+  <version>0.4.9</version>
   <description>Python ROS message and service generators.</description>
   <maintainer email="dthomas@willowgarage.com">Dirk Thomas</maintainer>
   <license>BSD</license>
