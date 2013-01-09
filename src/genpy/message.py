@@ -41,6 +41,8 @@ import math
 import itertools
 import struct
 import sys
+import rospkg
+import roslib
 
 import genmsg
 
@@ -532,9 +534,13 @@ def _get_message_or_service_class(type_str, message_type, reload_on_error=False)
             raise ValueError("message type is missing package name: %s"%str(message_type))
     pypkg = val = None
     try: 
+        # bootstrap our sys.path
+        roslib.launcher.load_manifest(package)
         # import the package and return the class
         pypkg = __import__('%s.%s'%(package, type_str))
         val = getattr(getattr(pypkg, type_str), base_type)
+    except rospkg.ResourceNotFound:
+        val = None
     except ImportError:
         val = None
     except AttributeError:
