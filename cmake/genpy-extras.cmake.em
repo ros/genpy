@@ -1,9 +1,9 @@
 @[if DEVELSPACE]@
 # bin dir variables in develspace
-set(GENPY_BIN_DIR @(CMAKE_CURRENT_SOURCE_DIR)/scripts)
+set(GENPY_BIN_DIR "@(CMAKE_CURRENT_SOURCE_DIR)/scripts")
 @[else]@
 # bin dir variables in installspace
-set(GENPY_BIN_DIR @(CMAKE_INSTALL_PREFIX)/@(CATKIN_PACKAGE_BIN_DESTINATION))
+set(GENPY_BIN_DIR "@(CMAKE_INSTALL_PREFIX)/@(CATKIN_PACKAGE_BIN_DESTINATION)")
 @[end if]@
 
 set(GENMSG_PY_BIN ${GENPY_BIN_DIR}/genmsg_py.py)
