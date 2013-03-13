@@ -3,7 +3,7 @@
   <name>genpy</name>
   <version>0.4.11</version>
   <description>Python ROS message and service generators.</description>
-  <maintainer email="dthomas@willowgarage.com">Dirk Thomas</maintainer>
+  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
   <license>BSD</license>
 
   <url type="bugtracker">https://github.com/ros/genpy/issues</url>
