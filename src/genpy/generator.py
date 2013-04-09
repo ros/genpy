@@ -437,10 +437,13 @@ def string_serializer_generator(package, type_, name, serialize):
             yield "%s = str[start:end]" % var
         else:
             yield "end += length"
-            yield "if python3:"
-            yield INDENT+"%s = str[start:end].decode('utf-8')" % (var) #If messages are python3-decode back to unicode
-            yield "else:"
-            yield INDENT+"%s = str[start:end]" % (var)
+            if base_type in ['uint8', 'char']:
+                yield "%s = str[start:end]" % (var)
+            else:
+                yield "if python3:"
+                yield INDENT+"%s = str[start:end].decode('utf-8')" % (var) #If messages are python3-decode back to unicode
+                yield "else:"
+                yield INDENT+"%s = str[start:end]" % (var)
 
 
 def array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
