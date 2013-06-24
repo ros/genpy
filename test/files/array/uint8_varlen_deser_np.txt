@@ -3,7 +3,4 @@ end += 4
 (length,) = _struct_I.unpack(str[start:end])
 start = end
 end += length
-if python3:
-  data = str[start:end].decode('utf-8')
-else:
-  data = str[start:end]
+data = str[start:end]
