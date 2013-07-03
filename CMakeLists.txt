@@ -15,4 +15,6 @@ install(FILES ${CATKIN_DEVEL_PREFIX}/${GENMSG_LANGS_DESTINATION}/genpy
 
 catkin_python_setup()
 
-catkin_add_nosetests(test)
+if(CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(test)
+endif()
