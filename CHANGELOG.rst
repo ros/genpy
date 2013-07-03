@@ -2,6 +2,10 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.4.13 (2013-07-03)
+-------------------
+* check for CATKIN_ENABLE_TESTING to enable configure without tests
+
 0.4.12 (2013-06-18)
 -------------------
 * fix deserialize bytes in Python3 (`#10 <https://github.com/ros/genpy/issues/10>`_)
