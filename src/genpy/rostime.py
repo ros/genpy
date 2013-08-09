@@ -58,10 +58,11 @@ class TVal(object):
     __slots__ = ['secs', 'nsecs']
     def __init__(self, secs=0, nsecs=0):
         """
-        :param secs: seconds. If secs is a float, then nsecs must not be set or 0, ``int/float``
+        :param secs: seconds. If secs is a float, then nsecs must not be set or 0,
+          larger seconds will be of type long on 32-bit systems, ``int/long/float``
         :param nsecs: nanoseconds, ``int``
         """
-        if type(secs) != int:
+        if type(secs) != int and type(secs) != long:
             # float secs constructor
             if nsecs != 0:
                 raise ValueError("if secs is a float, nsecs cannot be set")
