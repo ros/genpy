@@ -438,7 +438,7 @@ def _fill_val(msg, f, v, keys, prefix):
                     else:
                         raise MessageException("Cannot create time values of type [%s]"%(type(inner_msg)))
                 else:
-                    _fill_message_args(inner_msg, el, prefix)
+                    _fill_message_args(inner_msg, el, keys, prefix)
                 def_val.append(inner_msg)
     else:
         setattr(msg, f, v)
