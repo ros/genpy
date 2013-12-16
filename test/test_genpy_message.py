@@ -30,6 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import sys
 import time
 import unittest
 import traceback
@@ -213,7 +214,7 @@ class MessageTest(unittest.TestCase):
             m = TestFillEmbedTime()            
             try:
                 fill_message_args(m, test)
-            except Exception, e:
+            except Exception as e:
                 self.fail("failed to fill with : %s\n%s"%(str(test), traceback.format_exc()))
 
             self.assertEquals(m.t, Time(10, 20))
@@ -389,15 +390,22 @@ class MessageTest(unittest.TestCase):
                           'test', 'bool', -2)
         self.assertRaises(SerializationError, genpy.message.check_type,
                           'test', 'bool', 2)
+        try:
+            u = unichr(1234)
+        except NameError:
+            u = chr(1234)
         self.assertRaises(SerializationError, genpy.message.check_type,
-                          'test', 'string', u'UnicodeString')
+                          'test', 'string', u)
         
     def test_Message(self):
-        import cStringIO
+        try:
+            from cStringIO import StringIO
+        except ImportError:
+            from io import StringIO
         from genpy import Message, SerializationError
         self.assert_(isinstance(Message(), Message))
         m = Message()
-        b = cStringIO.StringIO()
+        b = StringIO()
         m.serialize(b)
         m.deserialize('')
 
@@ -560,14 +568,17 @@ d:
   nsecs: 456""", strify_message(M5(Time(987, 654), Duration(123, 456))))
         
         # test final clause of strify -- str anything that isn't recognized
-        self.assertEquals("set([1])", strify_message(set([1])))
+        if sys.hexversion > 0x03000000:  # Python3
+            self.assertEquals("{1}", strify_message(set([1])))
+        else:
+            self.assertEquals("set([1])", strify_message(set([1])))
 
     def test_strify_yaml(self):
         def roundtrip(m):
             yaml_text = strify_message(m)
-            print yaml_text
+            print(yaml_text)
             loaded = yaml.load(yaml_text) 
-            print "loaded", loaded
+            print("loaded", loaded)
             new_inst = m.__class__()
             if loaded is not None:
                 fill_message_args(new_inst, [loaded])
@@ -629,7 +640,7 @@ d:
         for t, v in valids:
             try:
                 check_type('n', t, v)
-            except Exception, e:
+            except Exception as e:
                 traceback.print_exc()
                 raise Exception("failure type[%s] value[%s]: %s"%(t, v, str(e)))
 
