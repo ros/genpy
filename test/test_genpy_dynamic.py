@@ -30,20 +30,38 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import cStringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import BytesIO as StringIO
+import sys
 import time
 
 def test_generate_dynamic():
     import genpy
     from genpy.dynamic import generate_dynamic
     msgs = generate_dynamic("gd_msgs/EasyString", "string data\n")
-    assert ['gd_msgs/EasyString'] == msgs.keys()
+    assert ['gd_msgs/EasyString'] == list(msgs.keys())
     m_cls = msgs['gd_msgs/EasyString']
     m_instance = m_cls()
     m_instance.data = 'foo'
-    buff = cStringIO.StringIO()
+    buff = StringIO()
     m_instance.serialize(buff)
-    m_cls().deserialize(buff.getvalue())
+    m_instance2 = m_cls().deserialize(buff.getvalue())
+    assert m_instance == m_instance2
+
+    try:
+        char = unichr
+    except NameError:
+        char = chr
+    m_instance.data = 'foo' + char(1234)
+    buff = StringIO()
+    m_instance.serialize(buff)
+    m_instance2 = m_cls().deserialize(buff.getvalue())
+    if sys.hexversion < 0x03000000:
+        # python 2 requires manual decode into unicode
+        m_instance2.data = m_instance2.data.decode('utf-8')
+    assert m_instance == m_instance2
 
     # 'probot_msgs' is a test for #1183, failure if the package no longer exists
     msgs = generate_dynamic("gd_msgs/MoveArmState", """Header header
@@ -102,7 +120,7 @@ byte is_calibrated
     m_instance1 = msgs['probot_msgs/ControllerStatus']()
     m_instance2 = msgs['probot_msgs/ControllerStatus'](value=4, comment=str(time.time()))
     d = {'UNDEFINED':0,'SUCCESS':1,'ABORTED':2,'PREEMPTED':3,'ACTIVE':4}
-    for k, v in d.iteritems():
+    for k, v in d.items():
         assert v == getattr(m_instance1, k)
     _test_ser_deser(m_instance2, m_instance1)
 
@@ -124,7 +142,7 @@ byte is_calibrated
     _test_ser_deser(m_instance2, m_instance1)
 
 def _test_ser_deser(m_instance1, m_instance2):
-    buff = cStringIO.StringIO()
+    buff = StringIO()
     m_instance1.serialize(buff)
     m_instance2.deserialize(buff.getvalue())
     assert m_instance1 == m_instance2

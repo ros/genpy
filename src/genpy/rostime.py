@@ -120,9 +120,15 @@ class TVal(object):
     def __repr__(self):
         return "genpy.TVal[%d]"%self.to_nsec()
 
+    def __bool__(self):
+        """
+        Return if time value is not zero
+        """
+        return self.secs != 0 or self.nsecs != 0
+
     def __nonzero__(self):
         """
-        Check if time value is zero
+        Check if time value is not zero
         """
         return self.secs or self.nsecs
 
@@ -278,6 +284,9 @@ class Time(TVal):
             return False
         return self.secs == other.secs and self.nsecs == other.nsecs
 
+    def __hash__(self):
+        return super(Time, self).__hash__()
+
 class Duration(TVal):
     """
     Duration represents the ROS 'duration' primitive, which consists
@@ -429,3 +438,6 @@ class Duration(TVal):
         if not isinstance(other, Duration):
             return False
         return self.secs == other.secs and self.nsecs == other.nsecs
+
+    def __hash__(self):
+        return super(Duration, self).__hash__()

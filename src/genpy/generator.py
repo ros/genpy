@@ -429,7 +429,10 @@ def string_serializer_generator(package, type_, name, serialize):
             yield INDENT+"%s = %s.encode('utf-8')"%(var,var) #For unicode-strings in Python2, encode using utf-8
             yield INDENT+"length = len(%s)"%(var) # Update the length after utf-8 conversion
 
-            yield pack2("'<I%ss'%length", "length, %s"%var)
+            yield "if python3:"
+            yield INDENT+pack2("'<I%sB'%length", "length, *%s"%var)
+            yield "else:"
+            yield INDENT+pack2("'<I%ss'%length", "length, %s"%var)
     else:
         yield "start = end"
         if array_len is not None:

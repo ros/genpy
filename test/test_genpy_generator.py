@@ -296,7 +296,10 @@ def test_string_serializer_generator():
 if python3 or type(var_name) == unicode:
   var_name = var_name.encode('utf-8')
   length = len(var_name)
-buff.write(struct.pack('<I%ss'%length, length, var_name))""" == val, val
+if python3:
+  buff.write(struct.pack('<I%sB'%length, length, *var_name))
+else:
+  buff.write(struct.pack('<I%ss'%length, length, var_name))""" == val, val
 
     for t in ['uint8[]', 'byte[]', 'uint8[10]', 'byte[20]']:
         g = genpy.generator.string_serializer_generator('foo', 'uint8[]', 'b_name', True)
