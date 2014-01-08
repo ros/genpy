@@ -2,6 +2,12 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* python 3 compatibility (`#22 <https://github.com/ros/genpy/issues/22>`_)
+* use PYTHON_EXECUTABLE when invoking scripts for better Windows support (`#23 <https://github.com/ros/genpy/issues/23>`_)
+* improve exception message when message type does not match (`#21 <https://github.com/ros/genpy/issues/21>`_)
+
 0.4.14 (2013-08-21)
 -------------------
 * make genpy relocatable (`ros/catkin#490 <https://github.com/ros/catkin/issues/490>`_)
