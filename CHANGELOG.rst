@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.15 (2014-01-07)
+-------------------
 * python 3 compatibility (`#22 <https://github.com/ros/genpy/issues/22>`_)
 * use PYTHON_EXECUTABLE when invoking scripts for better Windows support (`#23 <https://github.com/ros/genpy/issues/23>`_)
 * improve exception message when message type does not match (`#21 <https://github.com/ros/genpy/issues/21>`_)
