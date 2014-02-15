@@ -2,4 +2,7 @@
 if type(data) in [list, tuple]:
   buff.write(_struct_8B.pack(*data))
 else:
+  if python3 and type(data) == str:
+    data = data.encode('utf-8')
+    assert length == len(data), 'fixed length array can not contain characters which encode in utf8 into multiple characters'
   buff.write(_struct_8s.pack(data))

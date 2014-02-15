@@ -3,4 +3,7 @@ length = len(data)
 if type(data) in [list, tuple]:
   buff.write(struct.pack('<I%sB'%length, length, *data))
 else:
+  if python3 and type(data) == str:
+    data = data.encode('utf-8')
+    length = len(data)
   buff.write(struct.pack('<I%ss'%length, length, data))

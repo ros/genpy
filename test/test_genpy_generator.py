@@ -296,10 +296,7 @@ def test_string_serializer_generator():
 if python3 or type(var_name) == unicode:
   var_name = var_name.encode('utf-8')
   length = len(var_name)
-if python3:
-  buff.write(struct.pack('<I%sB'%length, length, *var_name))
-else:
-  buff.write(struct.pack('<I%ss'%length, length, var_name))""" == val, val
+buff.write(struct.pack('<I%ss'%length, length, var_name))""" == val, val
 
     for t in ['uint8[]', 'byte[]', 'uint8[10]', 'byte[20]']:
         g = genpy.generator.string_serializer_generator('foo', 'uint8[]', 'b_name', True)
@@ -308,6 +305,9 @@ else:
 if type(b_name) in [list, tuple]:
   buff.write(struct.pack('<I%sB'%length, length, *b_name))
 else:
+  if python3 and type(b_name) == str:
+    b_name = b_name.encode('utf-8')
+    length = len(b_name)
   buff.write(struct.pack('<I%ss'%length, length, b_name))""" == '\n'.join(g)
 
     # Test Deserializers
@@ -316,10 +316,9 @@ end += 4
 (length,) = _struct_I.unpack(str[start:end])
 start = end
 end += length
-if python3:
-  var_name = str[start:end].decode('utf-8')
-else:
-  var_name = str[start:end]"""
+var_name = str[start:end]
+if python3 and type(var_name) == bytes:
+  var_name = var_name.decode('utf-8')"""
     # string serializer and array serializer are identical
     g = genpy.generator.string_serializer_generator('foo', 'string', 'var_name', False)
     assert val == '\n'.join(g)

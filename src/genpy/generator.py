@@ -417,22 +417,24 @@ def string_serializer_generator(package, type_, name, serialize):
                 yield "if type(%s) in [list, tuple]:"%var
                 yield INDENT+pack2("'<I%sB'%length", "length, *%s"%var)
                 yield "else:"
+                yield INDENT+"if python3 and type(%s) == str:" % var
+                yield INDENT+INDENT+"%s = %s.encode('utf-8')" % (var,var)  # convert into bytes
+                yield INDENT+INDENT+"length = len(%s)" % var  # Update the length after utf-8 conversion
                 yield INDENT+pack2("'<I%ss'%length", "length, %s"%var)
             else:
                 yield "if type(%s) in [list, tuple]:"%var
                 yield INDENT+pack('%sB'%array_len, "*%s"%var)
                 yield "else:"
+                yield INDENT+"if python3 and type(%s) == str:" % var
+                yield INDENT+INDENT+"length = len(%s)" % var
+                yield INDENT+INDENT+"%s = %s.encode('utf-8')" % (var,var)  # convert into bytes
+                yield INDENT+INDENT+"assert length == len(%s), 'fixed length array can not contain characters which encode in utf8 into multiple characters'" % var  # ensure that fixed length is still valid
                 yield INDENT+pack('%ss'%array_len, var)
         else:
-            # FIXME: for py3k, this needs to be w/ encode(), but this interferes with actual byte data
             yield "if python3 or type(%s) == unicode:"%(var)
             yield INDENT+"%s = %s.encode('utf-8')"%(var,var) #For unicode-strings in Python2, encode using utf-8
             yield INDENT+"length = len(%s)"%(var) # Update the length after utf-8 conversion
-
-            yield "if python3:"
-            yield INDENT+pack2("'<I%sB'%length", "length, *%s"%var)
-            yield "else:"
-            yield INDENT+pack2("'<I%ss'%length", "length, %s"%var)
+            yield pack2("'<I%ss'%length", "length, %s"%var)
     else:
         yield "start = end"
         if array_len is not None:
@@ -443,10 +445,9 @@ def string_serializer_generator(package, type_, name, serialize):
             if base_type in ['uint8', 'char']:
                 yield "%s = str[start:end]" % (var)
             else:
-                yield "if python3:"
-                yield INDENT+"%s = str[start:end].decode('utf-8')" % (var) #If messages are python3-decode back to unicode
-                yield "else:"
-                yield INDENT+"%s = str[start:end]" % (var)
+                yield "%s = str[start:end]" % (var)
+        yield "if python3 and type(%s) == bytes:" % var
+        yield INDENT+"%s = %s.decode('utf-8')" % (var, var)  # decode bytes in Python 3
 
 
 def array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):

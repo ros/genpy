@@ -8,8 +8,7 @@ for i in range(0, length):
   (length,) = _struct_I.unpack(str[start:end])
   start = end
   end += length
-  if python3:
-    val0 = str[start:end].decode('utf-8')
-  else:
-    val0 = str[start:end]
+  val0 = str[start:end]
+  if python3 and type(val0) == bytes:
+    val0 = val0.decode('utf-8')
   data.append(val0)

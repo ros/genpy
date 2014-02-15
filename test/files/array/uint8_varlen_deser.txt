@@ -4,3 +4,5 @@ end += 4
 start = end
 end += length
 data = str[start:end]
+if python3 and type(data) == bytes:
+  data = data.decode('utf-8')

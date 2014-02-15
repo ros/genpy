@@ -1,3 +1,5 @@
 start = end
 end += 8
 data = str[start:end]
+if python3 and type(data) == bytes:
+  data = data.decode('utf-8')
