@@ -201,12 +201,7 @@ def check_type(field_name, field_type, field_val):
     elif field_type == 'string':
         if sys.hexversion > 0x03000000:
             if type(field_val) == str:
-                try:
-                    field_val.encode('ascii')
-                except UnicodeEncodeError:
-                    raise SerializationError('field %s is a non-ascii string'%field_name)
-            elif not type(field_val) == bytes:
-                raise SerializationError('field %s must be of type bytes or an ascii string'%field_name)
+                raise SerializationError('field %s is a unicode string instead of an ascii string'%field_name)	
         else:		
             if type(field_val) == unicode:
                 raise SerializationError('field %s is a unicode string instead of an ascii string'%field_name)
