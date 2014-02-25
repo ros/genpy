@@ -2,6 +2,10 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* use catkin_install_python() to install Python scripts (`#25 <https://github.com/ros/genpy/issues/25>`_)
+
 0.4.15 (2014-01-07)
 -------------------
 * python 3 compatibility (`#22 <https://github.com/ros/genpy/issues/22>`_)
