@@ -550,14 +550,29 @@ def _get_message_or_service_class(type_str, message_type, reload_on_error=False)
         else:
             raise ValueError("message type is missing package name: %s"%str(message_type))
     pypkg = val = None
-    try: 
-        # import the package and return the class
-        pypkg = __import__('%s.%s'%(package, type_str))
-        val = getattr(getattr(pypkg, type_str), base_type)
+    try:
+        # import the package
+        pypkg = __import__('%s.%s' % (package, type_str))
     except ImportError:
-        val = None
-    except AttributeError:
-        val = None
+        # try importing from dry package if available
+        try:
+            from roslib import load_manifest
+            from roslib.packages import InvalidROSPkgException
+            try:
+                load_manifest(package)
+                try:
+                    pypkg = __import__('%s.%s' % (package, type_str))
+                except ImportError:
+                    pass
+            except InvalidROSPkgException:
+                pass
+        except ImportError:
+            pass
+    if pypkg:
+        try:
+            val = getattr(getattr(pypkg, type_str), base_type)
+        except AttributeError:
+            pass
 
     # this logic is mainly to support rosh, so that a user doesn't
     # have to exit a shell just because a message wasn't built yet
