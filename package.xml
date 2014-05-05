@@ -22,5 +22,6 @@
   <export>
     <message_generator>py</message_generator>
     <rosdoc config="rosdoc.yaml"/>
+    <architecture_independent/>
   </export>
 </package>
