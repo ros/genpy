@@ -2,6 +2,11 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* resolve message classes from dry packages (`ros/ros_comm#293 <https://github.com/ros/ros_comm/issues/293>`_)
+* add architecture_independent flag in package.xml (`#27 <https://github.com/ros/genpy/issues/27>`_)
+
 0.5.0 (2014-02-25)
 ------------------
 * use catkin_install_python() to install Python scripts (`#25 <https://github.com/ros/genpy/issues/25>`_)
