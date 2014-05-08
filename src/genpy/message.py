@@ -557,14 +557,14 @@ def _get_message_or_service_class(type_str, message_type, reload_on_error=False)
         # try importing from dry package if available
         try:
             from roslib import load_manifest
-            from roslib.packages import InvalidROSPkgException
+            from rospkg import ResourceNotFound
             try:
                 load_manifest(package)
                 try:
                     pypkg = __import__('%s.%s' % (package, type_str))
                 except ImportError:
                     pass
-            except InvalidROSPkgException:
+            except ResourceNotFound:
                 pass
         except ImportError:
             pass
