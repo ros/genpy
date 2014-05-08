@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.2 (2014-05-08)
+------------------
 * fix usage of load_manifest() introduced in 0.5.1 (`#28 <https://github.com/ros/genpy/issues/28>`_)
 
 0.5.1 (2014-05-07)
