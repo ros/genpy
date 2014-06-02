@@ -56,6 +56,10 @@ class TVal(object):
     """
 
     __slots__ = ['secs', 'nsecs']
+
+    # mimic same API as messages when being introspected
+    _slot_types = ['int32', 'int32']
+
     def __init__(self, secs=0, nsecs=0):
         """
         :param secs: seconds. If secs is a float, then nsecs must not be set or 0,
