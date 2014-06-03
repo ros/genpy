@@ -2,6 +2,11 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* make TVal more similar to generated messages for introspection (`ros/std_msgs#6 <https://github.com/ros/std_msgs/issues/6>`_)
+* resolve message classes from dry packages (`ros/ros_comm#293 <https://github.com/ros/ros_comm/issues/293>`_, `#28 <https://github.com/ros/genpy/issues/28>`_)
+
 0.4.16 (2014-02-25)
 -------------------
 * revert "python 3 compatibility" (introduced in 0.4.15)
