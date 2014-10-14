@@ -97,7 +97,15 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
     """
 
     type_ = type(val)
-    if type_ in (int, long, float, bool):
+    if type_ in (int, long, float) and fixed_width is not None:
+        if type_ is float:
+	    format_str = "%-." + fixed_width + "f";
+            dec_width = 1
+        else:
+	    format_str = "%-" + fixed_width + "d";
+            dec_width = 0
+        return (format_str % val)[:int(fixed_width) + dec_width]
+    elif type_ in (int, long, float, bool):
         return str(val)
     elif isstring(val):
         #TODO: need to escape strings correctly
@@ -115,13 +123,8 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
         if len(val) == 0:
             return "[]"
         val0 = val[0]
-        if type(val0) in (int, float) and not fixed_width is None:
-            format_str = ''
-            if type(val0) is float:
-                format_str = "%." + fixed_width + "f";
-            else:
-                format_str = "%" + fixed_width + "d";
-            list_str = "[" + ''.join((format_str % e)[:int(fixed_width) + 1] + " " for e in val) + "\b]"
+        if type(val0) in (int, float) and fixed_width is not None:
+            list_str = "[" + ''.join(strify_message(v, indent, time_offset, current_time, field_filter, fixed_width) + ", " for v in val).rstrip(", ") + "]"
             return list_str
         elif type(val0) in (int, float, str, bool):
             # TODO: escape strings properly
