@@ -81,7 +81,7 @@ class SerializationError(MessageException):
 
 # we expose the generic message-strify routine for fn-oriented code like rostopic
 
-def strify_message(val, indent='', time_offset=None, current_time=None, field_filter=None, fixed_width=None):
+def strify_message(val, indent='', time_offset=None, current_time=None, field_filter=None, fixed_numeric_width=None):
     """
     Convert value to string representation
     :param val: to convert to string representation. Most likely a Message.  ``Value``
@@ -97,14 +97,12 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
     """
 
     type_ = type(val)
-    if type_ in (int, long, float) and fixed_width is not None:
+    if type_ in (int, long, float) and fixed_numeric_width is not None:
         if type_ is float:
-	    format_str = "%-." + fixed_width + "f";
-            dec_width = 1
+            format_str = "%." + str(fixed_numeric_width) + "f";
         else:
-	    format_str = "%-" + fixed_width + "d";
-            dec_width = 0
-        return (format_str % val)[:int(fixed_width) + dec_width]
+            format_str = "%" + str(fixed_numeric_width) + "d";
+        return (format_str % val)[:fixed_numeric_width]
     elif type_ in (int, long, float, bool):
         return str(val)
     elif isstring(val):
@@ -117,14 +115,20 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
         if time_offset is not None and isinstance(val, Time):
             val = val-time_offset
 
-        return '\n%ssecs: %s\n%snsecs: %s'%(indent, val.secs, indent, val.nsecs)
+        if fixed_numeric_width is not None:
+            format_str = "%" + str(fixed_numeric_width) + "d";
+            sec_str = "\n%ssecs: " + (format_str % val.secs)[:fixed_numeric_width]
+            nsec_str = "\n%snsecs: " + (format_str % val.nsecs)[:fixed_numeric_width]
+            return ((sec_str + nsec_str) % (indent, indent))
+        else:
+            return '\n%ssecs: %s\n%snsecs: %s'%(indent, val.secs, indent, val.nsecs)
         
     elif type_ in (list, tuple):
         if len(val) == 0:
             return "[]"
         val0 = val[0]
-        if type(val0) in (int, float) and fixed_width is not None:
-            list_str = "[" + ''.join(strify_message(v, indent, time_offset, current_time, field_filter, fixed_width) + ", " for v in val).rstrip(", ") + "]"
+        if type(val0) in (int, float) and fixed_numeric_width is not None:
+            list_str = "[" + ''.join(strify_message(v, indent, time_offset, current_time, field_filter, fixed_numeric_width) + ", " for v in val).rstrip(", ") + "]"
             return list_str
         elif type(val0) in (int, float, str, bool):
             # TODO: escape strings properly
@@ -132,7 +136,7 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
         else:
             pref = indent + '- '
             indent = indent + '  '
-            return '\n'+'\n'.join([pref+strify_message(v, indent, time_offset, current_time, field_filter, fixed_width) for v in val])
+            return '\n'+'\n'.join([pref+strify_message(v, indent, time_offset, current_time, field_filter, fixed_numeric_width) for v in val])
     elif isinstance(val, Message):
         # allow caller to select which fields of message are strified
         if field_filter is not None:
@@ -144,10 +148,10 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
         ni = '  '+indent
         if sys.hexversion > 0x03000000: #Python3
             vals = '\n'.join([p%(f,
-                                 strify_message(_convert_getattr(val, f, t), ni, time_offset, current_time, field_filter, fixed_width)) for f,t in zip(val.__slots__, val._slot_types) if f in fields])			
+                                 strify_message(_convert_getattr(val, f, t), ni, time_offset, current_time, field_filter, fixed_numeric_width)) for f,t in zip(val.__slots__, val._slot_types) if f in fields])			
         else: #Python2
             vals = '\n'.join([p%(f,
-                                 strify_message(_convert_getattr(val, f, t), ni, time_offset, current_time, field_filter, fixed_width)) for f,t in itertools.izip(val.__slots__, val._slot_types) if f in fields])
+                                 strify_message(_convert_getattr(val, f, t), ni, time_offset, current_time, field_filter, fixed_numeric_width)) for f,t in itertools.izip(val.__slots__, val._slot_types) if f in fields])
         if indent:
             return '\n'+vals
         else:
