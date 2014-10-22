@@ -99,10 +99,12 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
     type_ = type(val)
     if type_ in (int, long, float) and fixed_numeric_width is not None:
         if type_ is float:
-            format_str = "%." + str(fixed_numeric_width) + "f";
+            num_str = ("%." + str(fixed_numeric_width) + "f") % val
+            min_len = num_str.find('.')
         else:
-            format_str = "%" + str(fixed_numeric_width) + "d";
-        return (format_str % val)[:fixed_numeric_width]
+            num_str = ("%" + str(fixed_numeric_width) + "d") % val
+            min_len = len(num_str)
+        return num_str[:max(min_len, fixed_numeric_width)]
     elif type_ in (int, long, float, bool):
         return str(val)
     elif isstring(val):
@@ -116,9 +118,11 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
             val = val-time_offset
 
         if fixed_numeric_width is not None:
-            format_str = "%" + str(fixed_numeric_width) + "d";
-            sec_str = "\n%ssecs: " + (format_str % val.secs)[:fixed_numeric_width]
-            nsec_str = "\n%snsecs: " + (format_str % val.nsecs)[:fixed_numeric_width]
+            format_str = "%" + str(fixed_numeric_width) + "d"
+            sec_str = (format_str % val.secs)
+            sec_str = "\n%ssecs: " + sec_str[:max(len(sec_str), fixed_numeric_width)]
+            nsec_str = (format_str % val.nsecs)
+            nsec_str = "\n%snsecs: " + nsec_str[:max(len(nsec_str), fixed_numeric_width)]
             return ((sec_str + nsec_str) % (indent, indent))
         else:
             return '\n%ssecs: %s\n%snsecs: %s'%(indent, val.secs, indent, val.nsecs)
