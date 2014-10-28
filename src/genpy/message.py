@@ -121,7 +121,7 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
             sec_str = "\n%ssecs: " + sec_str
             nsec_str = (format_str % val.nsecs)
             nsec_str = "\n%snsecs: " + nsec_str
-            return ((sec_str + nsec_str) % (indent, indent))
+            return (sec_str + nsec_str) % (indent, indent)
         else:
             return '\n%ssecs: %s\n%snsecs: %s'%(indent, val.secs, indent, val.nsecs)
         
