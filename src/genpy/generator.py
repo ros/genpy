@@ -491,7 +491,7 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
                 yield "end += struct.calcsize(pattern)"
                 if is_numpy:
                     dtype = NUMPY_DTYPE[base_type]
-                    yield unpack_numpy(var, 'length', dtype, 'str[start:end]')
+                    yield unpack_numpy(var, 'start', 'length', dtype, 'str')
                 else:
                     yield unpack2(var, 'pattern', 'str[start:end]')
         else:
@@ -506,7 +506,7 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
                 yield "end += %s"%struct.calcsize('<%s'%pattern)
                 if is_numpy:
                     dtype = NUMPY_DTYPE[base_type]
-                    yield unpack_numpy(var, length, dtype, 'str[start:end]')
+                    yield unpack_numpy(var, 'start', length, dtype, 'str')
                 else:
                     yield unpack(var, pattern, 'str[start:end]')
         if not serialize and base_type == 'bool':
