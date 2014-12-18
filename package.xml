@@ -19,6 +19,8 @@
 
   <run_depend>genmsg</run_depend>
 
+  <test_depend>python-yaml</test_depend>
+
   <export>
     <message_generator>py</message_generator>
     <rosdoc config="rosdoc.yaml"/>
