@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.4 (2014-12-22)
+------------------
 * add support for fixed-width floating-point and integer array values (`ros/ros_comm#400 <https://github.com/ros/ros_comm/issues/400>`_)
 * add missing test dependency on yaml
 
