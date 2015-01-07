@@ -132,7 +132,7 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
             return list_str
         elif type(val0) in (int, float, str, bool):
             # TODO: escape strings properly
-            return str(list(val))
+            return repr(list(val)).decode('string-escape')
         else:
             pref = indent + '- '
             indent = indent + '  '
