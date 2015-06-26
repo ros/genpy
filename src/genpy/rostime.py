@@ -346,7 +346,7 @@ class Duration(TVal):
         Absolute value of this duration
         :returns: positive :class:`Duration`
         """
-        if self.secs > 0:
+        if self.secs >= 0:
             return self
         return self.__neg__()
 

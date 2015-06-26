@@ -387,6 +387,7 @@ class RostimeTest(unittest.TestCase):
         self.assertEquals(abs(Duration(-1)), Duration(1))
         self.assertEquals(abs(Duration(0,-1)), Duration(0,1))
         self.assertEquals(abs(Duration(-1,-1)), Duration(1,1))
+        self.assertEquals(abs(Duration(0,1)), Duration(0,1))
         
         # Duration (float secs) vs. Duration(int, int)
         self.assertEquals(Duration.from_sec(0.5), Duration(0.5))
