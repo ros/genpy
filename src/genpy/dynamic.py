@@ -78,7 +78,7 @@ def _gen_dyn_name(pkg, base_type):
     """
     return "_%s__%s"%(pkg, base_type)
 
-def _gen_dyn_modify_references(py_text, types):
+def _gen_dyn_modify_references(py_text, current_type, types):
     """
     Modify the generated code to rewrite names such that the code can
     safely co-exist with messages of the same name.
@@ -95,10 +95,13 @@ def _gen_dyn_modify_references(py_text, types):
         py_text = py_text.replace("import %s.msg"%pkg, '')
         # - rewrite any references to class
         py_text = py_text.replace("%s.msg.%s"%(pkg, base_type), gen_name)
-        # - class declaration
-        py_text = py_text.replace('class %s('%base_type, 'class %s('%gen_name)
-        # - super() references for __init__
-        py_text = py_text.replace('super(%s,'%base_type, 'super(%s,'%gen_name)
+
+    pkg, base_type = genmsg.package_resource_name(current_type)
+    gen_name = _gen_dyn_name(pkg, base_type)
+    # - class declaration
+    py_text = py_text.replace('class %s('%base_type, 'class %s('%gen_name)
+    # - super() references for __init__
+    py_text = py_text.replace('super(%s,'%base_type, 'super(%s,'%gen_name)
     # std_msgs/Header also has to be rewritten to be a local reference
     py_text = py_text.replace('std_msgs.msg._Header.Header', _gen_dyn_name('std_msgs', 'Header'))
     return py_text
@@ -149,7 +152,7 @@ def generate_dynamic(core_type, msg_cat):
         pkg, s_type = genmsg.package_resource_name(t)
         # dynamically generate python message code
         for l in msg_generator(msg_context, spec, search_path):
-            l = _gen_dyn_modify_references(l, list(specs.keys()))
+            l = _gen_dyn_modify_references(l, t, list(specs.keys()))
             buff.write(l + '\n')
     full_text = buff.getvalue()
 
