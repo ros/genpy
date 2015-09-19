@@ -2,6 +2,11 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix handling of dynamic message classes with the same name (`#37 <https://github.com/ros/genpy/issues/37>`_)
+* fix Duration.abs() when sec is zero (`#35 <https://github.com/ros/genpy/issues/35>`_)
+
 0.5.4 (2014-12-22)
 ------------------
 * add support for fixed-width floating-point and integer array values (`ros/ros_comm#400 <https://github.com/ros/ros_comm/issues/400>`_)
