@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.5 (2015-09-19)
+------------------
 * fix handling of dynamic message classes with the same name (`#37 <https://github.com/ros/genpy/issues/37>`_)
 * fix Duration.abs() when sec is zero (`#35 <https://github.com/ros/genpy/issues/35>`_)
 
