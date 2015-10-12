@@ -2,6 +2,10 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix handling of dynamic message classes with names containing other message classes as substrings (`#40 <https://github.com/ros/genpy/pull/40>`_)
+
 0.5.5 (2015-09-19)
 ------------------
 * fix handling of dynamic message classes with the same name (`#37 <https://github.com/ros/genpy/issues/37>`_)
