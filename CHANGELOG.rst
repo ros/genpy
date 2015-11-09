@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.7 (2015-11-09)
+------------------
 * add line about encoding to generated Python files (`#41 <https://github.com/ros/genpy/issues/41>`_)
 
 0.5.6 (2015-10-12)
