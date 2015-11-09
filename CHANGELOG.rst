@@ -2,6 +2,10 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add line about encoding to generated Python files (`#41 <https://github.com/ros/genpy/issues/41>`_)
+
 0.5.6 (2015-10-12)
 ------------------
 * fix handling of dynamic message classes with names containing other message classes as substrings (`#40 <https://github.com/ros/genpy/pull/40>`_)
