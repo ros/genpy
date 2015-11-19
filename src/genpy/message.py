@@ -365,6 +365,8 @@ class Message(object):
             except AttributeError:
                 return False
         return True
+    def __ne__(self, other):
+        return not self == other
     
 
 def get_printable_message_args(msg, buff=None, prefix=''):
