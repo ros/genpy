@@ -455,7 +455,6 @@ class MessageTest(unittest.TestCase):
                 self.fail("check_types for %s should have failed"%m)
             except SerializationError: pass
         
-        
         valid = [
             ((), {}, M1),
             ((), {}, M2),
@@ -486,6 +485,11 @@ class MessageTest(unittest.TestCase):
                 cls(*args, **kwds)
                 self.fail("Message should have failed for cls[%s] *args[%s] and **kwds[%s]"%(cls, args, kwds))
             except: pass
+        
+        # Test inequality of identical messages is False
+        m2_first = M2(a=1, b=2)
+        m2_second = M2(a=1, b=2)
+        self.assertFalse(m2_first != m2_second)
         
     def test_strify_message(self):
         # this is a bit overtuned, but it will catch regressions
