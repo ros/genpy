@@ -487,6 +487,9 @@ class MessageTest(unittest.TestCase):
                 self.fail("Message should have failed for cls[%s] *args[%s] and **kwds[%s]"%(cls, args, kwds))
             except: pass
         
+        # Test inequality of identical messages is False
+        self.assertFalse(M2(a=1, b=2) != M2(a=1, b=2))
+        
     def test_strify_message(self):
         # this is a bit overtuned, but it will catch regressions
         from genpy.message import Message, strify_message
