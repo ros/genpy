@@ -146,4 +146,21 @@ def _test_ser_deser(m_instance1, m_instance2):
     m_instance1.serialize(buff)
     m_instance2.deserialize(buff.getvalue())
     assert m_instance1 == m_instance2
-        
+
+
+def test_serialize_exception():
+    import genpy
+    from genpy.dynamic import generate_dynamic
+    msgs = generate_dynamic("gd_msgs/EasyInt32", "int32 data\n")
+    assert ['gd_msgs/EasyInt32'] == list(msgs.keys())
+    m_cls = msgs['gd_msgs/EasyInt32']
+    m_instance = m_cls()
+    m_instance.data = '1'  # the type is incorrect
+    buff = StringIO()
+    try:
+        m_instance.serialize(buff)
+        assert False, 'This should have raised a genpy.SerializationError'
+    except genpy.SerializationError:
+        pass
+    except Exception:
+        assert False, 'This should have raised a genpy.SerializationError instead'
