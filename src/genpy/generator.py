@@ -679,8 +679,8 @@ def serialize_fn_generator(msg_context, spec, is_numpy=False):
     for y in serializer_generator(msg_context, flattened, True, is_numpy):
         yield "  "+y
     pop_context()
-    yield "except struct.error as se: self._check_types(struct.error(\"%s: '%s' when writing '%s'\" % (type(se), str(se), str(_x))))"
-    yield "except TypeError as te: self._check_types(ValueError(\"%s: '%s' when writing '%s'\" % (type(te), str(te), str(_x))))"
+    yield "except struct.error as se: self._check_types(struct.error(\"%s: '%s' when writing '%s'\" % (type(se), str(se), str(locals().get('_x', self)))))"
+    yield "except TypeError as te: self._check_types(ValueError(\"%s: '%s' when writing '%s'\" % (type(te), str(te), str(locals().get('_x', self)))))"
     # done w/ method-var context #
 
 def deserialize_fn_generator(msg_context, spec, is_numpy=False):
