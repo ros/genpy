@@ -48,7 +48,7 @@ def write_modules(outdir):
         return 0
     types_in_dir = set([f[1:-3] for f in os.listdir(outdir)
                      if f.endswith('.py') and f != '__init__.py'])
-    generated_modules = [_module_name(f) for f in types_in_dir]
+    generated_modules = [_module_name(f) for f in sorted(types_in_dir)]
     write_module(outdir, generated_modules)
     return 0
 
