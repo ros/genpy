@@ -121,7 +121,7 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
             nsec_str = '\n%snsecs: ' % indent + (format_str % val.nsecs)
             return sec_str + nsec_str
         else:
-            return '\n%ssecs: %s\n%snsecs: %s'%(indent, val.secs, indent, val.nsecs)
+            return '\n%ssecs: %s\n%snsecs: %9d'%(indent, val.secs, indent, val.nsecs)
         
     elif type_ in (list, tuple):
         if len(val) == 0:
