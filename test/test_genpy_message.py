@@ -562,10 +562,10 @@ list: []""", strify_message(M2('', -1, 0., False, [])))
                 self.d = d        
         self.assertEquals("""t: 
   secs: 987
-  nsecs: 654
+  nsecs:       654
 d: 
   secs: 123
-  nsecs: 456""", strify_message(M5(Time(987, 654), Duration(123, 456))))
+  nsecs:       456""", strify_message(M5(Time(987, 654), Duration(123, 456))))
         
         # test final clause of strify -- str anything that isn't recognized
         if sys.hexversion > 0x03000000:  # Python3
