@@ -2,6 +2,14 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
+* right align nsec fields of timestamps (`#45 <https://github.com/ros/genpy/issues/45>`_)
+* fix order of imports in generated init files deterministic (`#44 <https://github.com/ros/genpy/issues/44>`_)
+* fix exception handling code using undefined variable (`#42 <https://github.com/ros/genpy/issues/42>`_)
+* add test for expected exception when serializing wrong type
+
 0.5.7 (2015-11-09)
 ------------------
 * add line about encoding to generated Python files (`#41 <https://github.com/ros/genpy/issues/41>`_)
