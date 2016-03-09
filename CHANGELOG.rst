@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.8 (2016-03-09)
+------------------
 
 * right align nsec fields of timestamps (`#45 <https://github.com/ros/genpy/issues/45>`_)
 * fix order of imports in generated init files deterministic (`#44 <https://github.com/ros/genpy/issues/44>`_)
