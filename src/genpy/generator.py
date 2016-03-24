@@ -769,8 +769,12 @@ def msg_generator(msg_context, spec, search_path):
     yield '  _md5sum = "%s"'%(md5sum)
     yield '  _type = "%s"'%(fulltype)
     yield '  _has_header = %s #flag to mark the presence of a Header object'%spec.has_header()
-    # note: we introduce an extra newline to protect the escaping from quotes in the message
-    yield '  _full_text = """%s\n"""'%compute_full_text_escaped(msg_context, spec)
+    
+    full_text = compute_full_text_escaped(msg_context, spec)
+    # escape trailing double-quote, unless already escaped, before wrapping in """
+    if full_text[-1] == '"' and not full_text[-2:] == r'\"':
+        full_text = full_text[:-1] + r'\"'
+    yield '  _full_text = """%s"""'%full_text
 
     if spec.constants:
         yield '  # Pseudo-constants'
