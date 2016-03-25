@@ -313,7 +313,7 @@ def compute_full_text_escaped(msg_context, spec):
     :returns: concatenated text for msg/srv file and embedded msg/srv types. Text will be escaped for triple-quote, ``str``
     """
     msg_definition = genmsg.compute_full_text(msg_context, spec)
-    msg_definition.replace('"""', r'\"\"\"')
+    msg_definition = msg_definition.replace('"""', r'\"\"\"')
     return msg_definition
 
 ################################################################################
