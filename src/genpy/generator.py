@@ -772,7 +772,7 @@ def msg_generator(msg_context, spec, search_path):
     
     full_text = compute_full_text_escaped(msg_context, spec)
     # escape trailing double-quote, unless already escaped, before wrapping in """
-    if full_text[-1] == '"' and not full_text[-2:] == r'\"':
+    if full_text.endswith('"') and not full_text.endswith(r'\"'):
         full_text = full_text[:-1] + r'\"'
     yield '  _full_text = """%s"""'%full_text
 
