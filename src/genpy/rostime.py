@@ -124,17 +124,12 @@ class TVal(object):
     def __repr__(self):
         return "genpy.TVal[%d]"%self.to_nsec()
 
-    def __bool__(self):
+    def __nonzero__(self):
         """
         Return if time value is not zero
         """
         return self.secs != 0 or self.nsecs != 0
-
-    def __nonzero__(self):
-        """
-        Check if time value is not zero
-        """
-        return self.secs or self.nsecs
+    __bool__ = __nonzero__
 
     def __lt__(self, other):
         """
