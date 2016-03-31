@@ -181,12 +181,8 @@ class TVal(object):
     def __cmp__(self, other):
         if not isinstance(other, TVal):
             raise TypeError("Cannot compare to non-TVal")
-        nanos = self.to_nsec() - other.to_nsec()
-        if nanos > 0:
-            return 1
-        if nanos == 0:
-            return 0
-        return -1
+        return cmp(self.to_nsec(), other.to_nsec())
+
     def __eq__(self, other):
         if not isinstance(other, TVal):
             return False
@@ -266,12 +262,7 @@ class Time(TVal):
         """
         if not isinstance(other, Time):
             raise TypeError("cannot compare to non-Time")
-        nanos = self.to_nsec() - other.to_nsec()
-        if nanos > 0:
-            return 1
-        if nanos == 0:
-            return 0
-        return -1
+        return cmp(self.to_nsec(), other.to_nsec())
 
     def __eq__(self, other):
         """
@@ -414,12 +405,7 @@ class Duration(TVal):
     def __cmp__(self, other):
         if not isinstance(other, Duration):
             raise TypeError("Cannot compare to non-Duration")
-        nanos = self.to_nsec() - other.to_nsec()
-        if nanos > 0:
-            return 1
-        if nanos == 0:
-            return 0
-        return -1
+        return cmp(self.to_nsec(), other.to_nsec())
 
     def __eq__(self, other):
         if not isinstance(other, Duration):
