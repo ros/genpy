@@ -288,9 +288,6 @@ class Time(TVal):
             return False
         return self.secs == other.secs and self.nsecs == other.nsecs
 
-    def __hash__(self):
-        return super(Time, self).__hash__()
-
 class Duration(TVal):
     """
     Duration represents the ROS 'duration' primitive, which consists
@@ -442,6 +439,3 @@ class Duration(TVal):
         if not isinstance(other, Duration):
             return False
         return self.secs == other.secs and self.nsecs == other.nsecs
-
-    def __hash__(self):
-        return super(Duration, self).__hash__()
