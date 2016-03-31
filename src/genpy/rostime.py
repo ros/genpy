@@ -250,6 +250,8 @@ class Time(TVal):
             return NotImplemented
         return Time(self.secs + other.secs, self.nsecs + other.nsecs)
 
+    __radd__ = __add__
+
     def __sub__(self, other):
         """
         Subtract time or duration from this time
@@ -357,12 +359,13 @@ class Duration(TVal):
         :returns: :class:`Duration` if other is a :class:`Duration`
           instance, :class:`Time` if other is a :class:`Time`
         """
-        if isinstance(other, Time):
-            return other.__add__(self)
-        elif isinstance(other, Duration):
+        if isinstance(other, Duration):
             return Duration(self.secs+other.secs, self.nsecs+other.nsecs)
         else:
             return NotImplemented
+
+    __radd__ = __add__
+
     def __sub__(self, other):
         """
         Subtract duration from this duration, returning a new duration
@@ -386,6 +389,8 @@ class Duration(TVal):
             return Duration.from_sec(self.to_sec() * val)
         else:
             return NotImplemented
+
+    __rmul__ = __mul__
 
     def __floordiv__(self, val):
         """
