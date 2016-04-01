@@ -128,7 +128,7 @@ class TVal(object):
         """
         Time values are hashable. Time values with identical fields have the same hash.
         """
-        return ("%s.%s"%(self.secs, self.nsecs)) .__hash__()
+        return hash((self.secs, self.nsecs))
 
     def __str__(self):
         return str(self.to_nsec())
