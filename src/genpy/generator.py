@@ -143,7 +143,6 @@ def default_value(msg_context, field_type, default_package):
     elif field_type in ['float32', 'float64']:
         return '0.'
     elif field_type == 'string':
-        # strings, char[], and uint8s are all optimized to be strings
         return "''"
     elif field_type == 'bool':
         return 'False'
@@ -152,9 +151,9 @@ def default_value(msg_context, field_type, default_package):
         if base_type in ['char', 'uint8']:
             # strings, char[], and uint8s are all optimized to be strings
             if array_len is not None:
-                return "chr(0)*%s"%array_len
+                return r"b'\0'*%s"%array_len
             else:
-                return "''"
+                return "b''"
         elif array_len is None: #var-length
             return '[]'
         else: # fixed-length, fill values

@@ -156,7 +156,7 @@ def test_default_value():
         assert '[]' == val, "[%s]: %s"%(t, val)
         assert '[]' == default_value(msg_context, t+'[]', 'roslib')
 
-    assert "''" == default_value(msg_context, 'uint8[]', 'roslib')
+    assert b'' == eval(default_value(msg_context, 'uint8[]', 'roslib'))
 
     # fixed-length arrays should be zero-filled... except for byte and uint8 which are strings
     for t in ['float32', 'float64']:
@@ -166,8 +166,8 @@ def test_default_value():
         assert '[0,0,0,0]' == default_value(msg_context, t+'[4]', 'std_msgs')
         assert '[0]' == default_value(msg_context, t+'[1]', 'roslib')
 
-    assert "chr(0)*1" == default_value(msg_context, 'uint8[1]', 'roslib')
-    assert "chr(0)*4" == default_value(msg_context, 'uint8[4]', 'roslib')
+    assert b'\0' == eval(default_value(msg_context, 'uint8[1]', 'roslib'))
+    assert b'\0\0\0\0' == eval(default_value(msg_context, 'uint8[4]', 'roslib'))
 
     assert '[]' == default_value(msg_context, 'fake_msgs/String[]', 'std_msgs')
     assert '[fake_msgs.msg.String(),fake_msgs.msg.String()]' == default_value(msg_context, 'fake_msgs/String[2]', 'std_msgs')
