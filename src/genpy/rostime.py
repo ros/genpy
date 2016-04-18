@@ -368,7 +368,7 @@ class Duration(TVal):
         if isinstance(val, numbers.Integral) or isinstance(val, numbers.Real):
             return Duration.from_sec(self.to_sec() // val)
         elif isinstance(val, Duration):
-            return self.to_sec() // val.to_sec()
+            return int(self.to_sec() // val.to_sec())
         else:
             return NotImplemented
 
@@ -395,6 +395,28 @@ class Duration(TVal):
             return Duration.from_sec(self.to_sec() / val)
         elif isinstance(val, Duration):
             return self.to_sec() / val.to_sec()
+        else:
+            return NotImplemented
+
+    def __mod__(self, val):
+        """
+        Find the remainder when dividing this Duration by another Duration
+        :returns: :class:`Duration` The remaining time after the division
+        """
+        if isinstance(val, Duration):
+            return Duration.from_sec(self.to_sec() % val.to_sec())
+        else:
+            return NotImplemented
+
+    def __divmod__(self, val):
+        """
+        Implements the builtin divmod for a pair of Durations
+        :returns: ``int`` The floored result of the division
+        :returns: :class:`Duration` The remaining time after the division
+        """
+        if isinstance(val, Duration):
+            quotient, remainder = divmod(self.to_sec(), val.to_sec())
+            return int(quotient), Duration.from_sec(remainder)
         else:
             return NotImplemented
 
