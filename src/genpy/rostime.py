@@ -390,22 +390,24 @@ class Duration(TVal):
     def __floordiv__(self, val):
         """
         Floor divide this duration by an integer or float
-        :param val: division factor, ``int/float``
-        :returns: :class:`Duration` divided by val
+        :param val: division factor ``int/float``, or :class:`Duration` to divide by
+        :returns: :class:`Duration` divided by val - a :class:`Duration` if divided by a number, or a number if divided by a duration
         """
         t = type(val)
         if t in (int, long):
             return Duration(self.secs // val, self.nsecs // val)
         elif t == float:
             return Duration.from_sec(self.to_sec() // val)
+        elif isinstance(val, Duration):
+            return self.to_sec() // val.to_sec()
         else:
             return NotImplemented
 
     def __div__(self, val):
         """
         Divide this duration by an integer or float
-        :param val: division factor, ``int/float``
-        :returns: :class:`Duration` divided by val
+        :param val: division factor ``int/float``, or :class:`Duration` to divide by
+        :returns: :class:`Duration` divided by val - a :class:`Duration` if divided by a number, or a number if divided by a duration
         """
         # unlike __floordiv__, this uses true div for float arg.
         # PEP 238
@@ -414,17 +416,21 @@ class Duration(TVal):
             return Duration(self.secs // val, self.nsecs // val)
         elif t == float:
             return Duration.from_sec(self.to_sec() / val)
+        elif isinstance(val, Duration):
+            return self.to_sec() / val.to_sec()
         else:
             return NotImplemented
 
     def __truediv__(self, val):
         """
         Divide this duration by an integer or float
-        :param val: division factor, ``int/float``
-        :returns: :class:`Duration` multiplied by val
+        :param val: division factor ``int/float``, or :class:`Duration` to divide by
+        :returns: :class:`Duration` divided by val - a :class:`Duration` if divided by a number, or a number if divided by a duration
         """
         if type(val) in (int, long, float):
             return Duration.from_sec(self.to_sec() / val)
+        elif isinstance(val, Duration):
+            return self.to_sec() / val.to_sec()
         else:
             return NotImplemented
 
