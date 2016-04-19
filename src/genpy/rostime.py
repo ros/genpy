@@ -34,10 +34,9 @@
 ROS Time representation, including Duration
 """
 
+import numbers
 import sys
-
-if sys.version > '3': 
-    long = int
+import warnings
 
 def _canon(secs, nsecs):
     #canonical form: nsecs is always positive, nsecs < 1 second
@@ -66,7 +65,7 @@ class TVal(object):
           larger seconds will be of type long on 32-bit systems, ``int/long/float``
         :param nsecs: nanoseconds, ``int``
         """
-        if type(secs) != int and type(secs) != long:
+        if not isinstance(secs, numbers.Integral):
             # float secs constructor
             if nsecs != 0:
                 raise ValueError("if secs is a float, nsecs cannot be set")
@@ -123,7 +122,7 @@ class TVal(object):
         """
         :returns: time as nanoseconds, ``long``
         """
-        return self.secs * long(1e9) + self.nsecs
+        return self.secs * int(1e9) + self.nsecs
         
     def __hash__(self):
         """
@@ -351,10 +350,9 @@ class Duration(TVal):
         :param val: multiplication factor, ``int/float``
         :returns: :class:`Duration` multiplied by val
         """
-        t = type(val)
-        if t in (int, long):
+        if isinstance(val, numbers.Integral):
             return Duration(self.secs * val, self.nsecs * val)
-        elif t == float:
+        elif isinstance(val, numbers.Real):
             return Duration.from_sec(self.to_sec() * val)
         else:
             return NotImplemented
@@ -367,8 +365,7 @@ class Duration(TVal):
         :param val: division factor ``int/float``, or :class:`Duration` to divide by
         :returns: :class:`Duration` divided by val - a :class:`Duration` if divided by a number, or a number if divided by a duration
         """
-        t = type(val)
-        if t in (float, int, long):
+        if isinstance(val, numbers.Integral) or isinstance(val, numbers.Real):
             return Duration.from_sec(self.to_sec() // val)
         elif isinstance(val, Duration):
             return self.to_sec() // val.to_sec()
@@ -381,8 +378,7 @@ class Duration(TVal):
         :param val: division factor ``int/float``, or :class:`Duration` to divide by
         :returns: :class:`Duration` divided by val - a :class:`Duration` if divided by a number, or a number if divided by a duration
         """
-        t = type(val)
-        if t in (float, int, long):
+        if isinstance(val, numbers.Integral) or isinstance(val, numbers.Real):
             return Duration.from_sec(self.to_sec() / val)
         elif isinstance(val, Duration):
             return self.to_sec() / val.to_sec()
@@ -395,7 +391,7 @@ class Duration(TVal):
         :param val: division factor ``int/float``, or :class:`Duration` to divide by
         :returns: :class:`Duration` divided by val - a :class:`Duration` if divided by a number, or a number if divided by a duration
         """
-        if type(val) in (int, long, float):
+        if isinstance(val, numbers.Real):
             return Duration.from_sec(self.to_sec() / val)
         elif isinstance(val, Duration):
             return self.to_sec() / val.to_sec()
