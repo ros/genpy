@@ -55,8 +55,8 @@ class RostimeTruedivTest(unittest.TestCase):
         v = Duration(4, 2) - (Duration(8, 4) / 2.)
         self.assert_(abs(v.to_nsec()) < 100)            
         
-        self.assertEquals(Duration(4, 2), Duration(8, 4) // 2)
-        self.assertEquals(Duration(4, 2), Duration(9, 5) // 2)
+        self.assertEquals(Duration(4, 0), Duration(8, 4) // 2)
+        self.assertEquals(Duration(4, 0), Duration(9, 5) // 2)
         v = Duration(4, 2) - (Duration(9, 5) // 2.)
         self.assert_(abs(v.to_nsec()) < 100)                  
         
