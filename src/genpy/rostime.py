@@ -36,9 +36,7 @@ ROS Time representation, including Duration
 
 import sys
 import warnings
-
-if sys.version > '3': 
-    long = int
+import numbers
 
 def _canon(secs, nsecs):
     #canonical form: nsecs is always positive, nsecs < 1 second
@@ -67,7 +65,7 @@ class TVal(object):
           larger seconds will be of type long on 32-bit systems, ``int/long/float``
         :param nsecs: nanoseconds, ``int``
         """
-        if type(secs) != int and type(secs) != long:
+        if not isinstance(secs, numbers.Integral):
             # float secs constructor
             if nsecs != 0:
                 raise ValueError("if secs is a float, nsecs cannot be set")
@@ -111,7 +109,7 @@ class TVal(object):
         """
         :returns: time as nanoseconds, ``long``
         """
-        return self.secs * long(1e9) + self.nsecs
+        return self.secs * int(1e9) + self.nsecs
         
     def __hash__(self):
         """
@@ -380,10 +378,9 @@ class Duration(TVal):
         :param val: multiplication factor, ``int/float``
         :returns: :class:`Duration` multiplied by val
         """
-        t = type(val)
-        if t in (int, long):
+        if isinstance(val, numbers.Integral):
             return Duration(self.secs * val, self.nsecs * val)
-        elif t == float:
+        elif isinstance(val, numbers.Real):
             return Duration.from_sec(self.to_sec() * val)
         else:
             return NotImplemented
@@ -394,8 +391,7 @@ class Duration(TVal):
         :param val: division factor ``int/float``, or :class:`Duration` to divide by
         :returns: :class:`Duration` divided by val - a :class:`Duration` if divided by a number, or a number if divided by a duration
         """
-        t = type(val)
-        if t in (int, long):
+        if isinstance(val, numbers.Integral):
             warnings.warn(
                 'The Duration.__floordiv__(integer) function is ill-defined. '
                 'The floor operation is applied independently on the seconds as well as the nanoseconds. '
@@ -403,7 +399,7 @@ class Duration(TVal):
                 'For true division use the operator `/` (which requires `from __future__ import division` in Python 2) or `operator.truediv` instead.',
                 category=RuntimeWarning)
             return Duration(self.secs // val, self.nsecs // val)
-        elif t == float:
+        elif isinstance(val, numbers.Real):
             return Duration.from_sec(self.to_sec() // val)
         elif isinstance(val, Duration):
             return self.to_sec() // val.to_sec()
@@ -418,15 +414,14 @@ class Duration(TVal):
         """
         # unlike __floordiv__, this uses true div for float arg.
         # PEP 238
-        t = type(val)
-        if t in (int, long):
+        if isinstance(val, numbers.Integral):
             warnings.warn(
                 'The Duration.__div__(integer) function is ill-defined. '
                 'The floor operation is applied independently on the seconds as well as the nanoseconds. '
                 'For true division use a float divisor or `from __future__ import division` in Python 2 or `operator.truediv` instead.',
                 category=RuntimeWarning)
             return Duration(self.secs // val, self.nsecs // val)
-        elif t == float:
+        elif isinstance(val, numbers.Real):
             return Duration.from_sec(self.to_sec() / val)
         elif isinstance(val, Duration):
             return self.to_sec() / val.to_sec()
@@ -439,7 +434,7 @@ class Duration(TVal):
         :param val: division factor ``int/float``, or :class:`Duration` to divide by
         :returns: :class:`Duration` divided by val - a :class:`Duration` if divided by a number, or a number if divided by a duration
         """
-        if type(val) in (int, long, float):
+        if isinstance(val, numbers.Real):
             return Duration.from_sec(self.to_sec() / val)
         elif isinstance(val, Duration):
             return self.to_sec() / val.to_sec()
