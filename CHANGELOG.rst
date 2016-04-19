@@ -2,6 +2,12 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* warn about using floor division of durations (`#58 <https://github.com/ros/genpy/issues/58>`_)
+* allow durations to be divided by other durations (`#48 <https://github.com/ros/genpy/issues/48>`_)
+* avoid adding newline in msg_generator (`#47 <https://github.com/ros/genpy/issues/47>`_, `#51 <https://github.com/ros/genpy/issues/51>`_)
+
 0.5.8 (2016-03-09)
 ------------------
 
