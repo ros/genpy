@@ -2,6 +2,10 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* change semantic of integer division for duration (`#59 <https://github.com/ros/genpy/issues/59>`_)
+
 0.5.9 (2016-04-19)
 ------------------
 * warn about using floor division of durations (`#58 <https://github.com/ros/genpy/issues/58>`_)
