@@ -77,6 +77,19 @@ class TVal(object):
 
         self.secs, self.nsecs = _canon(secs, nsecs)
 
+    @classmethod
+    def from_sec(cls, float_secs):
+        """
+        Create new TVal instance using time.time() value (float
+        seconds)
+
+        :param float_secs: time value in time.time() format, ``float``
+        :returns: :class:`TVal` instance for specified time
+        """
+        secs = int(float_secs)
+        nsecs = int((float_secs - secs) * 1000000000)
+        return cls(secs, nsecs)
+
     def is_zero(self):
         """
         :returns: ``True`` if time is zero (secs and nsecs are zero), ``bool``
@@ -216,20 +229,6 @@ class Time(TVal):
         """
         self.secs, self.nsecs = state
 
-    def from_sec(float_secs):
-        """
-        Create new Time instance using time.time() value (float
-        seconds)
-        
-        :param float_secs: time value in time.time() format, ``float``
-        :returns: :class:`Time` instance for specified time
-        """
-        secs = int(float_secs)
-        nsecs = int((float_secs - secs) * 1000000000)
-        return Time(secs, nsecs)
-    
-    from_sec = staticmethod(from_sec)    
-
     def to_time(self):
         """
         Get Time in time.time() format. alias of L{to_sec()}
@@ -323,19 +322,6 @@ class Duration(TVal):
 
     def __repr__(self):
         return "genpy.Duration[%d]"%self.to_nsec()
-
-    def from_sec(float_seconds):
-        """
-        Create new Duration instance from float seconds format.
-        
-        :param float_seconds: time value in specified as float seconds, ``float``
-        :returns: :class:`Duration` instance for specified float_seconds
-        """
-        secs = int(float_seconds)
-        nsecs = int((float_seconds - secs) * 1000000000)
-        return Duration(secs, nsecs)
-    
-    from_sec = staticmethod(from_sec)    
 
     def __neg__(self):
         """
