@@ -125,17 +125,12 @@ class TVal(object):
     def __repr__(self):
         return "genpy.TVal[%d]"%self.to_nsec()
 
-    def __bool__(self):
+    def __nonzero__(self):
         """
         Return if time value is not zero
         """
         return self.secs != 0 or self.nsecs != 0
-
-    def __nonzero__(self):
-        """
-        Check if time value is not zero
-        """
-        return self.secs or self.nsecs
+    __bool__ = __nonzero__
 
     def __lt__(self, other):
         """
@@ -174,12 +169,8 @@ class TVal(object):
     def __cmp__(self, other):
         if not isinstance(other, TVal):
             raise TypeError("Cannot compare to non-TVal")
-        nanos = self.to_nsec() - other.to_nsec()
-        if nanos > 0:
-            return 1
-        if nanos == 0:
-            return 0
-        return -1
+        return cmp(self.to_nsec(), other.to_nsec())
+
     def __eq__(self, other):
         if not isinstance(other, TVal):
             return False
@@ -271,12 +262,7 @@ class Time(TVal):
         """
         if not isinstance(other, Time):
             raise TypeError("cannot compare to non-Time")
-        nanos = self.to_nsec() - other.to_nsec()
-        if nanos > 0:
-            return 1
-        if nanos == 0:
-            return 0
-        return -1
+        return cmp(self.to_nsec(), other.to_nsec())
 
     def __eq__(self, other):
         """
@@ -288,9 +274,6 @@ class Time(TVal):
         if not isinstance(other, Time):
             return False
         return self.secs == other.secs and self.nsecs == other.nsecs
-
-    def __hash__(self):
-        return super(Time, self).__hash__()
 
 class Duration(TVal):
     """
@@ -449,17 +432,9 @@ class Duration(TVal):
     def __cmp__(self, other):
         if not isinstance(other, Duration):
             raise TypeError("Cannot compare to non-Duration")
-        nanos = self.to_nsec() - other.to_nsec()
-        if nanos > 0:
-            return 1
-        if nanos == 0:
-            return 0
-        return -1
+        return cmp(self.to_nsec(), other.to_nsec())
 
     def __eq__(self, other):
         if not isinstance(other, Duration):
             return False
         return self.secs == other.secs and self.nsecs == other.nsecs
-
-    def __hash__(self):
-        return super(Duration, self).__hash__()
