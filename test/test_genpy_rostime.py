@@ -405,12 +405,14 @@ class RostimeTest(unittest.TestCase):
         # Test mul 
         self.assertEquals(Duration(4), Duration(2) * 2)
         self.assertEquals(Duration(4), Duration(2) * 2.)
+        self.assertEquals(Duration(4), 2 * Duration(2))
+        self.assertEquals(Duration(4), 2. * Duration(2))
         self.assertEquals(Duration(10), Duration(4) * 2.5)
         self.assertEquals(Duration(4, 8), Duration(2, 4) * 2)
         v = Duration(4, 8) - (Duration(2, 4) * 2.)
         self.assert_(abs(v.to_nsec()) < 100)
         v = Duration(5, 10) - (Duration(2, 4) * 2.5)
-        self.assert_(abs(v.to_nsec()) < 100)      
+        self.assert_(abs(v.to_nsec()) < 100)
         
         # Test div
         self.assertEquals(Duration(4), Duration(8) / 2)
