@@ -4,4 +4,4 @@ end += 4
 pattern = '<%sh'%length
 start = end
 end += struct.calcsize(pattern)
-data = numpy.frombuffer(str[start:end], dtype=numpy.int16, count=length)
+data = numpy.frombuffer(str, dtype=numpy.int16, count=length, offset=start)

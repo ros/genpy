@@ -56,11 +56,11 @@ NUMPY_DTYPE = {
     'byte' : 'numpy.int8',
     }
 # TODO: this doesn't explicitly specify little-endian byte order on the numpy data instance
-def unpack_numpy(var, count, dtype, buff):
+def unpack_numpy(var, offset, count, dtype, buff):
     """
     create numpy deserialization code
     """
-    return var + " = numpy.frombuffer(%s, dtype=%s, count=%s)"%(buff, dtype, count)
+    return var + " = numpy.frombuffer(%s, dtype=%s, count=%s, offset=%s)"%(buff, dtype, count, offset)
 
 def pack_numpy(var):
     """
