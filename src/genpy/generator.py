@@ -143,7 +143,6 @@ def default_value(msg_context, field_type, default_package):
     elif field_type in ['float32', 'float64']:
         return '0.'
     elif field_type == 'string':
-        # strings, char[], and uint8s are all optimized to be strings
         return "''"
     elif field_type == 'bool':
         return 'False'
@@ -152,9 +151,9 @@ def default_value(msg_context, field_type, default_package):
         if base_type in ['char', 'uint8']:
             # strings, char[], and uint8s are all optimized to be strings
             if array_len is not None:
-                return "chr(0)*%s"%array_len
+                return r"b'\0'*%s"%array_len
             else:
-                return "''"
+                return "b''"
         elif array_len is None: #var-length
             return '[]'
         else: # fixed-length, fill values
@@ -429,10 +428,7 @@ def string_serializer_generator(package, type_, name, serialize):
             yield INDENT+"%s = %s.encode('utf-8')"%(var,var) #For unicode-strings in Python2, encode using utf-8
             yield INDENT+"length = len(%s)"%(var) # Update the length after utf-8 conversion
 
-            yield "if python3:"
-            yield INDENT+pack2("'<I%sB'%length", "length, *%s"%var)
-            yield "else:"
-            yield INDENT+pack2("'<I%ss'%length", "length, %s"%var)
+            yield pack2("'<I%ss'%length", "length, %s"%var)
     else:
         yield "start = end"
         if array_len is not None:
