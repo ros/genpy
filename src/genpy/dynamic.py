@@ -47,6 +47,7 @@ import re
 import shutil
 import sys
 import tempfile
+import re
 
 import genmsg
 import genmsg.msg_loader
