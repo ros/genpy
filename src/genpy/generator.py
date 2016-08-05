@@ -881,7 +881,12 @@ def msg_generator(msg_context, spec, search_path):
         if p == 'I':
             continue
         var_name = '_struct_%s'%(p.replace('<',''))
-        yield '%s = struct.Struct("<%s")'%(var_name, p)
+        yield '_%s = None' % var_name
+        yield 'def %s():' % var_name
+        yield '    global _%s' % var_name
+        yield '    if _%s is None:' % var_name
+        yield '        _%s = struct.Struct("<%s")' % (var_name, p)
+        yield '    return _%s' % var_name
     clear_patterns()
 
 def srv_generator(msg_context, spec, search_path):

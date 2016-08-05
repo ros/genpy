@@ -1,1 +1,1 @@
-buff.write(_struct_10h.pack(*data))
+buff.write(_struct_10h().pack(*data))

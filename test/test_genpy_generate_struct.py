@@ -17,7 +17,7 @@ def test_reduce_pattern():
 
 def test_pack():
     from genpy.generate_struct import pack
-    assert "buff.write(_struct_3lL3bB.pack(foo, bar))" == pack('lllLbbbB', 'foo, bar')
+    assert "buff.write(_struct_3lL3bB().pack(foo, bar))" == pack('lllLbbbB', 'foo, bar')
 
 def test_pack2():
     from genpy.generate_struct import pack2
@@ -25,7 +25,7 @@ def test_pack2():
 
 def test_unpack():
     from genpy.generate_struct import unpack
-    assert "var_x = _struct_I3if2I.unpack(bname)" == unpack('var_x', 'IiiifII', 'bname')
+    assert "var_x = _struct_I3if2I().unpack(bname)" == unpack('var_x', 'IiiifII', 'bname')
 
 def test_unpack2():
     from genpy.generate_struct import unpack2
