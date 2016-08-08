@@ -120,7 +120,7 @@ def pack(pattern, vars):
     # - store pattern in context
     pattern = reduce_pattern(pattern)
     add_pattern(pattern)
-    return serialize("_struct_%s.pack(%s)"%(pattern, vars))
+    return serialize("_struct_%s().pack(%s)"%(pattern, vars))
 def pack2(pattern, vars):
     """
     create struct.pack call for when pattern is the name of a variable
@@ -139,7 +139,7 @@ def unpack(var, pattern, buff):
     # - store pattern in context
     pattern = reduce_pattern(pattern)
     add_pattern(pattern)
-    return var + " = _struct_%s.unpack(%s)"%(pattern, buff)
+    return var + " = _struct_%s().unpack(%s)"%(pattern, buff)
 
 def unpack2(var, pattern, buff):
     """
