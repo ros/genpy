@@ -160,17 +160,17 @@ def test_default_value():
 
     # fixed-length arrays should be zero-filled... except for byte and uint8 which are strings
     for t in ['float32', 'float64']:
-        assert '[0.,0.,0.]' == default_value(msg_context, t+'[3]', 'std_msgs')
-        assert '[0.]' == default_value(msg_context, t+'[1]', 'std_msgs')
+        assert '[0.] * 3' == default_value(msg_context, t+'[3]', 'std_msgs')
+        assert '[0.] * 1' == default_value(msg_context, t+'[1]', 'std_msgs')
     for t in ['int8', 'uint16', 'int16', 'uint32', 'int32', 'uint64', 'int64']:
-        assert '[0,0,0,0]' == default_value(msg_context, t+'[4]', 'std_msgs')
-        assert '[0]' == default_value(msg_context, t+'[1]', 'roslib')
+        assert '[0] * 4' == default_value(msg_context, t+'[4]', 'std_msgs')
+        assert '[0] * 1' == default_value(msg_context, t+'[1]', 'roslib')
 
     assert b'\0' == eval(default_value(msg_context, 'uint8[1]', 'roslib'))
     assert b'\0\0\0\0' == eval(default_value(msg_context, 'uint8[4]', 'roslib'))
 
     assert '[]' == default_value(msg_context, 'fake_msgs/String[]', 'std_msgs')
-    assert '[fake_msgs.msg.String(),fake_msgs.msg.String()]' == default_value(msg_context, 'fake_msgs/String[2]', 'std_msgs')
+    assert '[fake_msgs.msg.String()] * 2' == default_value(msg_context, 'fake_msgs/String[2]', 'std_msgs')
 
 def test_make_python_safe():
     from genpy.generator import make_python_safe

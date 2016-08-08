@@ -158,7 +158,7 @@ def default_value(msg_context, field_type, default_package):
             return '[]'
         else: # fixed-length, fill values
             def_val = default_value(msg_context, base_type, default_package)
-            return '[' + ','.join(itertools.repeat(def_val, array_len)) + ']'
+            return '[' + def_val + '] * ' + str(array_len)
     else:
         return compute_constructor(msg_context, default_package, field_type)
 
