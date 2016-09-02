@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.1 (2016-09-02)
+------------------
 * lazy init struct (`#65 <https://github.com/ros/genpy/issues/65>`_)
 * fix default value of lists to not expand to N items in the generated code (`#64 <https://github.com/ros/genpy/issues/64>`_)
 * simpler and more canonical hash (`#55 <https://github.com/ros/genpy/pull/55>`_)
