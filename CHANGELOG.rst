@@ -2,6 +2,13 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* lazy init struct (`#65 <https://github.com/ros/genpy/issues/65>`_)
+* fix default value of lists to not expand to N items in the generated code (`#64 <https://github.com/ros/genpy/issues/64>`_)
+* simpler and more canonical hash (`#55 <https://github.com/ros/genpy/pull/55>`_)
+* various improvements to the time and duration classes (`#63 <https://github.com/ros/genpy/issues/63>`_)
+
 0.6.0 (2016-04-21)
 ------------------
 * change semantic of integer division for duration (`#59 <https://github.com/ros/genpy/issues/59>`_)
