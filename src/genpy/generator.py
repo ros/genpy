@@ -875,18 +875,21 @@ def msg_generator(msg_context, spec, search_path):
     # #1807 : this will be much cleaner when msggenerator library is
     # rewritten to not use globals
     yield '_struct_I = genpy.struct_I'
+    yield 'def _get_struct_I():'
+    yield '    global _struct_I'
+    yield '    return _struct_I'
     patterns = get_patterns()
     for p in set(patterns):
         # I patterns are already optimized
         if p == 'I':
             continue
         var_name = '_struct_%s'%(p.replace('<',''))
-        yield '_%s = None' % var_name
-        yield 'def %s():' % var_name
-        yield '    global _%s' % var_name
-        yield '    if _%s is None:' % var_name
-        yield '        _%s = struct.Struct("<%s")' % (var_name, p)
-        yield '    return _%s' % var_name
+        yield '%s = None' % var_name
+        yield 'def _get%s():' % var_name
+        yield '    global %s' % var_name
+        yield '    if %s is None:' % var_name
+        yield '        %s = struct.Struct("<%s")' % (var_name, p)
+        yield '    return %s' % var_name
     clear_patterns()
 
 def srv_generator(msg_context, spec, search_path):

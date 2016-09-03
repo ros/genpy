@@ -1,2 +1,2 @@
 for val0 in data:
-  buff.write(_struct_i().pack(val0.data))
+  buff.write(_get_struct_i().pack(val0.data))

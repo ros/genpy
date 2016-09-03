@@ -6,5 +6,5 @@ for i in range(0, length):
   val0 = foo.msg.Object()
   start = end
   end += 4
-  (val0.data,) = _struct_i().unpack(str[start:end])
+  (val0.data,) = _get_struct_i().unpack(str[start:end])
   data.append(val0)
