@@ -523,7 +523,7 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
             factory = string_serializer_generator(package, base_type, loop_var, serialize)
         else:
             push_context('%s.'%loop_var)
-            factory = serializer_generator(msg_context, get_registered_ex(msg_context, base_type), serialize, is_numpy)
+            factory = serializer_generator(msg_context, make_python_safe(get_registered_ex(msg_context, base_type)), serialize, is_numpy)
 
         if serialize:
             yield 'for %s in %s:'%(loop_var, var)
@@ -578,7 +578,7 @@ def complex_serializer_generator(msg_context, package, type_, name, serialize, i
             push_context(ctx_var+'.')
             # unoptimized code
             #push_context(_serial_context+name+'.')
-            for y in serializer_generator(msg_context, get_registered_ex(msg_context, type_), serialize, is_numpy):
+            for y in serializer_generator(msg_context, make_python_safe(get_registered_ex(msg_context, type_)), serialize, is_numpy):
                 yield y #recurs on subtype
             pop_context()
         else:
