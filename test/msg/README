@@ -1,3 +1,6 @@
-Record of messages used to generate genpy.test messages.  We 
+Record of messages used to generate genpy.test messages.  We
 don't actually generate the messages during testing due to
 build ordering and nosetest issues
+
+Use the gen_test_messages.sh in the test/scripts/ directory to
+manually generate all test messages.

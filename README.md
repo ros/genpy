@@ -5,12 +5,13 @@ The Python ROS message and service generator.
 ## Regenerate test messages
 
 ```console
-./scripts/genmsg_py.py -p genpy -Igenpy:`pwd`/test/msg -o src/genpy/msg `pwd`/test/msg/TestFillEmbedTime.msg
-./scripts/genmsg_py.py -p genpy -Igenpy:`pwd`/test/msg -o src/genpy/msg `pwd`/test/msg/TestFillSimple.msg
-./scripts/genmsg_py.py -p genpy -Igenpy:`pwd`/test/msg -o src/genpy/msg `pwd`/test/msg/TestManyFields.msg
-./scripts/genmsg_py.py -p genpy -Igenpy:`pwd`/test/msg -o src/genpy/msg `pwd`/test/msg/TestMsgArray.msg
-./scripts/genmsg_py.py -p genpy -Igenpy:`pwd`/test/msg -o src/genpy/msg `pwd`/test/msg/TestPrimitiveArray.msg
-./scripts/genmsg_py.py -p genpy -Igenpy:`pwd`/test/msg -o src/genpy/msg `pwd`/test/msg/TestString.msg
+./test/scripts/gen_test_messages.sh
+```
+
+## Run genpy tests
+
+```console
+./test/scripts/run_tests.sh
 ```
 
 ## Examples for generating messages with dependencies
