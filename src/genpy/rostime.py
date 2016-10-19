@@ -180,7 +180,9 @@ class TVal(object):
     def __cmp__(self, other):
         if not isinstance(other, TVal):
             raise TypeError("Cannot compare to non-TVal")
-        return cmp(self.to_nsec(), other.to_nsec())
+        a = self.to_nsec()
+        b = other.to_nsec()
+        return (a > b) - (a < b)
 
     def __eq__(self, other):
         if not isinstance(other, TVal):
@@ -226,6 +228,9 @@ class Time(TVal):
         """
         return self.to_sec()
 
+    def __hash__(self):
+        return super(Time, self).__hash__()
+
     def __repr__(self):
         return "genpy.Time[%d]"%self.to_nsec()
 
@@ -261,7 +266,9 @@ class Time(TVal):
         """
         if not isinstance(other, Time):
             raise TypeError("cannot compare to non-Time")
-        return cmp(self.to_nsec(), other.to_nsec())
+        a = self.to_nsec()
+        b = other.to_nsec()
+        return (a > b) - (a < b)
 
     def __eq__(self, other):
         """
@@ -302,6 +309,9 @@ class Duration(TVal):
         support for Python pickling
         """
         self.secs, self.nsecs = state
+
+    def __hash__(self):
+        return super(Duration, self).__hash__()
 
     def __repr__(self):
         return "genpy.Duration[%d]"%self.to_nsec()
@@ -423,7 +433,9 @@ class Duration(TVal):
     def __cmp__(self, other):
         if not isinstance(other, Duration):
             raise TypeError("Cannot compare to non-Duration")
-        return cmp(self.to_nsec(), other.to_nsec())
+        a = self.to_nsec()
+        b = other.to_nsec()
+        return (a > b) - (a < b)
 
     def __eq__(self, other):
         if not isinstance(other, Duration):
