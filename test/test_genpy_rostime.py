@@ -419,10 +419,10 @@ class RostimeTest(unittest.TestCase):
         self.assertEquals(Duration(4), Duration(8) / 2.)      
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter('always')
-            self.assertEquals(Duration(4), Duration(8) // 2)
-            self.assertEquals(Duration(4), Duration(8) // 2.)
-            self.assertEquals(Duration(4), Duration(9) // 2)
-            self.assertEquals(Duration(4), Duration(9) // 2.)
+            self.assertEqual(Duration(4), Duration(8) // 2)
+            self.assertEqual(Duration(4), Duration(8) // 2.)
+            self.assertEqual(Duration(4), Duration(9) // 2)
+            self.assertEqual(Duration(4), Duration(9) // 2.)
             self.assertEqual(len(w), 0)
         self.assertEquals(Duration(4, 2), Duration(8, 4) / 2)
         v = Duration(4, 2) - (Duration(8, 4) / 2.)
@@ -430,8 +430,8 @@ class RostimeTest(unittest.TestCase):
         
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter('always')
-            self.assertEquals(Duration(4, 0), Duration(8, 4) // 2)
-            self.assertEquals(Duration(4, 0), Duration(9, 5) // 2)
+            self.assertEqual(Duration(4, 0), Duration(8, 4) // 2)
+            self.assertEqual(Duration(4, 0), Duration(9, 5) // 2)
             v = Duration(4, 2) - (Duration(9, 5) // 2.)
-            self.assert_(abs(v.to_nsec()) < 100)
+            self.assertTrue(abs(v.to_nsec()) < 100)
             self.assertEqual(len(w), 0)
