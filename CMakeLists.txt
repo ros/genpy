@@ -16,5 +16,14 @@ install(FILES ${CATKIN_DEVEL_PREFIX}/${GENMSG_LANGS_DESTINATION}/genpy
 catkin_python_setup()
 
 if(CATKIN_ENABLE_TESTING)
-  catkin_add_nosetests(test)
+  assert(CATKIN_ENV)
+  add_custom_target(generate_test_messages
+    COMMAND
+    "${CATKIN_ENV}" "${PYTHON_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/test/msg/generate_test_messages.py")
+  if(TARGET tests)
+    add_dependencies(tests generate_test_messages)
+  endif()
+
+  catkin_add_nosetests(test DEPENDENCIES generate_test_messages)
 endif()
