@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.3 (2016-10-24)
+------------------
 * fix Python 3 regressions (`#71 <https://github.com/ros/genpy/issues/71>`_)
 * use Python safe subfields for nested types (`#69 <https://github.com/ros/genpy/issues/69>`_)
 
