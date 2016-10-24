@@ -2,6 +2,11 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix Python 3 regressions (`#71 <https://github.com/ros/genpy/issues/71>`_)
+* use Python safe subfields for nested types (`#69 <https://github.com/ros/genpy/issues/69>`_)
+
 0.6.2 (2016-09-03)
 ------------------
 * fix regression regarding lazy init introduced in 0.6.1 (`#67 <https://github.com/ros/genpy/issues/67>`_)
