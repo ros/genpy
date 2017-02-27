@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.4 (2017-02-27)
+------------------
 * fix default value for non-primitive fixed-size arrays, regression of 0.6.1 (`#74 <https://github.com/ros/genpy/issues/74>`)
 
 0.6.3 (2016-10-24)
