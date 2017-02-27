@@ -170,7 +170,7 @@ def test_default_value():
     assert b'\0\0\0\0' == eval(default_value(msg_context, 'uint8[4]', 'roslib'))
 
     assert '[]' == default_value(msg_context, 'fake_msgs/String[]', 'std_msgs')
-    assert '[fake_msgs.msg.String()] * 2' == default_value(msg_context, 'fake_msgs/String[2]', 'std_msgs')
+    assert '[fake_msgs.msg.String() for _ in range(2)]' == default_value(msg_context, 'fake_msgs/String[2]', 'std_msgs')
 
 def test_make_python_safe():
     from genpy.generator import make_python_safe

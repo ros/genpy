@@ -156,9 +156,17 @@ def default_value(msg_context, field_type, default_package):
                 return "b''"
         elif array_len is None: #var-length
             return '[]'
-        else: # fixed-length, fill values
+        else:
+            # fixed-length
             def_val = default_value(msg_context, base_type, default_package)
-            return '[' + def_val + '] * ' + str(array_len)
+            if base_type in [
+                'byte', 'int8', 'int16', 'int32', 'int64', 'uint16', 'uint32',
+                'uint64', 'float32', 'float64', 'string', 'bool'
+            ]:  # fill primitive values
+                return '[' + def_val + '] * ' + str(array_len)
+            else:  # fill values with distinct instances
+                def_val = default_value(msg_context, base_type, default_package)
+                return '[' + def_val + ' for _ in range(' + str(array_len) + ')]'
     else:
         return compute_constructor(msg_context, default_package, field_type)
 
