@@ -190,6 +190,7 @@ def generate_dynamic(core_type, msg_cat):
             messages[t] = getattr(mod, _gen_dyn_name(pkg, s_type))
         except AttributeError:
             raise MsgGenerationException("cannot retrieve message class for %s/%s: %s"%(pkg, s_type, _gen_dyn_name(pkg, s_type)))
+        messages[t]._spec = specs[t]
 
     return messages
 
