@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.5 (2017-03-06)
+------------------
 * expose spec for dynamically generated messages (`#75 <https://github.com/ros/genpy/issues/75>`_)
 
 0.6.4 (2017-02-27)
