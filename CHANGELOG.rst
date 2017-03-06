@@ -2,6 +2,10 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* expose spec for dynamically generated messages (`#75 <https://github.com/ros/genpy/issues/75>`_)
+
 0.6.4 (2017-02-27)
 ------------------
 * fix default value for non-primitive fixed-size arrays, regression of 0.6.1 (`#74 <https://github.com/ros/genpy/issues/74>`)
