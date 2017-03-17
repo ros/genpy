@@ -33,20 +33,19 @@
 """
 ROS Time representation, including Duration
 """
-
+from __future__ import division
 import numbers
 import sys
 import warnings
 
+
 def _canon(secs, nsecs):
-    #canonical form: nsecs is always positive, nsecs < 1 second
-    while nsecs >= 1000000000:
-        secs += 1
-        nsecs -= 1000000000
-    while nsecs < 0:
-        secs -= 1
-        nsecs += 1000000000
-    return secs,nsecs
+    # canonical form: nsecs is always positive, nsecs < 1 second
+    secs_over = nsecs // 1000000000
+    secs += secs_over
+    nsecs -= secs_over * 1000000000
+    return secs, nsecs
+
 
 class TVal(object):
     """
