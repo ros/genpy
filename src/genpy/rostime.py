@@ -44,11 +44,7 @@ def _canon(secs, nsecs):
     secs_over = nsecs // 1000000000
     secs += secs_over
     nsecs -= secs_over * 1000000000
-
-    if nsecs < 0:
-        secs -= 1
-        nsecs += 1000000000
-    return secs,nsecs
+    return secs, nsecs
 
 
 class TVal(object):
