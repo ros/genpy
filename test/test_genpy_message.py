@@ -455,7 +455,6 @@ class MessageTest(unittest.TestCase):
                 self.fail("check_types for %s should have failed"%m)
             except SerializationError: pass
         
-        
         valid = [
             ((), {}, M1),
             ((), {}, M2),
