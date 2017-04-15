@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
-from catkin_pkg.python_setup import generate_distutils_setup
+from setuptools import setup
 
-d = generate_distutils_setup(
+setup(
+    name='ros_genpy',
+    version='0.5.10',
+    description='Python ROS message and service generators.',
+    url='http://github.com/ros/genpy',
+    author='Ken Conley, Troy Straszheim, Morten Kjaergaard',
+    maintainer_email='dthomas@osrfoundation.org',
+    license='BSD',
     packages=['genpy'],
     package_dir={'': 'src'},
-    requires=['genmsg']
+    install_requires=['ros_genmsg', 'pyyaml']
 )
 
-setup(**d)
