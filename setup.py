@@ -12,6 +12,7 @@ setup(
     license='BSD',
     packages=['genpy'],
     package_dir={'': 'src'},
-    install_requires=['ros_genmsg', 'pyyaml']
+    install_requires=['ros_genmsg', 'pyyaml'],
+    dependency_links=['git+https://github.com/asmodehn/genmsg.git@setuptools#egg=ros_genmsg']
 )
 
