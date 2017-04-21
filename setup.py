@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from setuptools import setup
-
 import os
 
 import xml.etree.ElementTree as ET
@@ -46,10 +45,6 @@ class PackageXml(XmlNodes):
 
 
 ros_package = PackageXml(os.path.join(os.path.dirname(__file__), 'package.xml'))
-
-ros_package.url.filter('type', 'repository')  # 'genpy'
-
-
 
 setup(
     name='ros_' + ros_package.name(),
