@@ -81,7 +81,7 @@ class SerializationError(MessageException):
 
 # we expose the generic message-strify routine for fn-oriented code like rostopic
 
-def strify_message(val, indent='', time_offset=None, current_time=None, field_filter=None, fixed_numeric_width=None):
+def strify_message(val, indent='', time_offset=None, current_time=None, field_filter=None, fixed_numeric_width=None, escape_strings=False):
     """
     Convert value to string representation
     :param val: to convert to string representation. Most likely a Message.  ``Value``
@@ -106,9 +106,10 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
     elif type_ in (int, long, float, bool):
         return str(val)
     elif isstring(val):
-        #TODO: need to escape strings correctly
         if not val:
             return "''"
+        if escape_strings:
+            return '>-\n%s  %s' % (indent, val)
         return val
     elif isinstance(val, TVal):
         
@@ -128,15 +129,18 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
             return "[]"
         val0 = val[0]
         if type(val0) in (int, float) and fixed_numeric_width is not None:
-            list_str = '[' + ''.join(strify_message(v, indent, time_offset, current_time, field_filter, fixed_numeric_width) + ', ' for v in val).rstrip(', ') + ']'
+            list_str = '[' + ''.join(strify_message(v, indent, time_offset, current_time, field_filter, fixed_numeric_width, escape_strings) + ', ' for v in val).rstrip(', ') + ']'
+            return list_str
+        elif type(val0) in (str,) and escape_strings:
+            line_prefix = '\n%s- ' % indent
+            list_str = line_prefix + line_prefix.join(strify_message(v, indent, time_offset, current_time, field_filter, fixed_numeric_width, escape_strings) for v in val)
             return list_str
         elif type(val0) in (int, float, str, bool):
-            # TODO: escape strings properly
             return str(list(val))
         else:
             pref = indent + '- '
             indent = indent + '  '
-            return '\n'+'\n'.join([pref+strify_message(v, indent, time_offset, current_time, field_filter, fixed_numeric_width) for v in val])
+            return '\n'+'\n'.join([pref+strify_message(v, indent, time_offset, current_time, field_filter, fixed_numeric_width, escape_strings) for v in val])
     elif isinstance(val, Message):
         # allow caller to select which fields of message are strified
         if field_filter is not None:
@@ -148,10 +152,10 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
         ni = '  '+indent
         if sys.hexversion > 0x03000000: #Python3
             vals = '\n'.join([p%(f,
-                                 strify_message(_convert_getattr(val, f, t), ni, time_offset, current_time, field_filter, fixed_numeric_width)) for f,t in zip(val.__slots__, val._slot_types) if f in fields])			
+                                 strify_message(_convert_getattr(val, f, t), ni, time_offset, current_time, field_filter, fixed_numeric_width, escape_strings)) for f,t in zip(val.__slots__, val._slot_types) if f in fields])
         else: #Python2
             vals = '\n'.join([p%(f,
-                                 strify_message(_convert_getattr(val, f, t), ni, time_offset, current_time, field_filter, fixed_numeric_width)) for f,t in itertools.izip(val.__slots__, val._slot_types) if f in fields])
+                                 strify_message(_convert_getattr(val, f, t), ni, time_offset, current_time, field_filter, fixed_numeric_width, escape_strings)) for f,t in itertools.izip(val.__slots__, val._slot_types) if f in fields])
         if indent:
             return '\n'+vals
         else:
