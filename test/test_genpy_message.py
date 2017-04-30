@@ -577,8 +577,8 @@ d:
             self.assertEquals("set([1])", strify_message(set([1])))
 
     def test_strify_yaml(self):
-        def roundtrip(m):
-            yaml_text = strify_message(m)
+        def roundtrip(m, escape_strings=False):
+            yaml_text = strify_message(m, escape_strings=escape_strings)
             print(yaml_text)
             loaded = yaml.load(yaml_text) 
             print("loaded", loaded)
@@ -613,6 +613,9 @@ d:
         # test with empty string and empty list
         val = M2('', -1, 0., False, [])
         self.assertEquals(val, roundtrip(val))
+        # test with escaping
+        val = M2('illegal: plain #style', -1, 0., False, [])
+        self.assertEquals(val, roundtrip(val, escape_strings=True))
         
         class M3(Message):
             __slots__ = ['m2']
