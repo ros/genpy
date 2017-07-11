@@ -508,7 +508,7 @@ class MessageTest(unittest.TestCase):
                 self.bool = bool_
                 self.list = list_
                 
-        self.assertEquals("""str: string
+        self.assertEquals("""str: "string"
 int: 123456789101112
 float: 5678.0
 bool: True
@@ -526,7 +526,7 @@ list: []""", strify_message(M2('', -1, 0., False, [])))
             def __init__(self, m2):
                 self.m2 = m2
         self.assertEquals("""m2: 
-  str: string
+  str: "string"
   int: -1
   float: 0.0
   bool: False
@@ -541,13 +541,13 @@ list: []""", strify_message(M2('', -1, 0., False, [])))
                 
         self.assertEquals("""m2s: 
   - 
-    str: string
+    str: "string"
     int: 1234
     float: 5678.0
     bool: True
     list: [1, 2, 3]
   - 
-    str: string
+    str: "string"
     int: -1
     float: 0.0
     bool: False
@@ -578,17 +578,17 @@ d:
 
     def test_strify_yaml(self):
         def roundtrip(m):
-            print('\n\n\nroundtrip')
+            #print('\n\n\nroundtrip')
             yaml_text = strify_message(m)
-            print('\nyaml: %s' % yaml_text)
+            #print('\nyaml: %s' % yaml_text)
             loaded = yaml.load(yaml_text) 
-            print('\nloaded: %s' % loaded)
+            #print('\nloaded: %s' % loaded)
             new_inst = m.__class__()
             if loaded is not None:
                 fill_message_args(new_inst, [loaded])
             else:
                 fill_message_args(new_inst, [])                
-            print('\nnew_inst: %s' % new_inst)
+            #print('\nnew_inst: %s' % new_inst)
             return new_inst
 
         # test YAML roundtrip. strify_message doesn't promise this
