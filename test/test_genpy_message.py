@@ -578,15 +578,17 @@ d:
 
     def test_strify_yaml(self):
         def roundtrip(m):
+            print('\n\n\nroundtrip')
             yaml_text = strify_message(m)
-            print(yaml_text)
+            print('\nyaml: %s' % yaml_text)
             loaded = yaml.load(yaml_text) 
-            print("loaded", loaded)
+            print('\nloaded: %s' % loaded)
             new_inst = m.__class__()
             if loaded is not None:
                 fill_message_args(new_inst, [loaded])
             else:
                 fill_message_args(new_inst, [])                
+            print('\nnew_inst: %s' % new_inst)
             return new_inst
 
         # test YAML roundtrip. strify_message doesn't promise this
@@ -610,11 +612,17 @@ d:
                 self.str_list = str_list_
 
         # test with empty string and empty list
-        val = M2('', -1, 0., False, [], ['', ''])
+        val = M2('foo\nbar', -1, 0., False, [], ['', ''])
         self.assertEquals(val, roundtrip(val))
 
+        multiline_str = """
+foo bar
+foo # bar
+foo ' bar
+foo " bar
+        """
         # test with strings and list of strings that need escaping
-        val = M2('"foo \' bar" # foobar', 123456789101112, 5678., True, [1,2,3], ['foo # bar', '"foo \' bar"', '"foo" \" # \' \" bar'])
+        val = M2(multiline_str, 123456789101112, 5678., True, [1,2,3], [multiline_str, 'foo \n # bar\n', '"foo \' bar"', '"foo" \" # \' \" bar'])
         self.assertEquals(val, roundtrip(val))
 
         class M3(Message):

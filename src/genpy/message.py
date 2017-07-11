@@ -109,8 +109,8 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
     elif isstring(val):
         if not val:
             return "''"
-        # escape strings for use in yaml file using yaml dump
-        return yaml.dump(val).split('\n')[0]
+        # escape strings for use in yaml file using yaml dump with default style to avoid trailing "...\n"
+        return yaml.dump(val, default_style='"').rstrip('\n')
     elif isinstance(val, TVal):
         
         if time_offset is not None and isinstance(val, Time):
@@ -133,7 +133,7 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
             return list_str
         elif isstring(val0):
             # escape list of strings for use in yaml file using yaml dump
-            return yaml.dump(val).split('\n')[0]
+            return yaml.dump(val).rstrip('\n')
         elif type(val0) in (int, float, bool):
             return str(list(val))
         else:
