@@ -508,7 +508,7 @@ class MessageTest(unittest.TestCase):
                 self.bool = bool_
                 self.list = list_
                 
-        self.assertEquals("""str: string
+        self.assertEquals("""str: "string"
 int: 123456789101112
 float: 5678.0
 bool: True
@@ -526,7 +526,7 @@ list: []""", strify_message(M2('', -1, 0., False, [])))
             def __init__(self, m2):
                 self.m2 = m2
         self.assertEquals("""m2: 
-  str: string
+  str: "string"
   int: -1
   float: 0.0
   bool: False
@@ -541,13 +541,13 @@ list: []""", strify_message(M2('', -1, 0., False, [])))
                 
         self.assertEquals("""m2s: 
   - 
-    str: string
+    str: "string"
     int: 1234
     float: 5678.0
     bool: True
     list: [1, 2, 3]
   - 
-    str: string
+    str: "string"
     int: -1
     float: 0.0
     bool: False
@@ -580,7 +580,7 @@ d:
         def roundtrip(m):
             yaml_text = strify_message(m)
             print(yaml_text)
-            loaded = yaml.load(yaml_text) 
+            loaded = yaml.load(yaml_text)
             print("loaded", loaded)
             new_inst = m.__class__()
             if loaded is not None:
@@ -599,28 +599,38 @@ d:
         self.assertEquals(M1(), roundtrip(M1()))
         
         class M2(Message):
-            __slots__ = ['str', 'int', 'float', 'bool', 'list']
-            _slot_types = ['string', 'int32', 'float32', 'bool', 'int32[]'] 
-            def __init__(self, str_=None, int_=None, float_=None, bool_=None, list_=None):
+            __slots__ = ['str', 'int', 'float', 'bool', 'list', 'str_list']
+            _slot_types = ['string', 'int32', 'float32', 'bool', 'int32[]', 'string[]']
+            def __init__(self, str_=None, int_=None, float_=None, bool_=None, list_=None, str_list_=None):
                 self.str = str_
                 self.int = int_       
                 self.float = float_
                 self.bool = bool_
                 self.list = list_
-                
-        val = M2('string', 123456789101112, 5678., True, [1,2,3])
-        self.assertEquals(val, roundtrip(val))
+                self.str_list = str_list_
+
         # test with empty string and empty list
-        val = M2('', -1, 0., False, [])
+        val = M2('foo\nbar', -1, 0., False, [], ['', ''])
         self.assertEquals(val, roundtrip(val))
-        
+
+        multiline_str = """
+foo bar
+foo # bar
+foo ' bar
+foo " bar
+        """
+        # test with strings and list of strings that need escaping
+        val = M2(multiline_str, 123456789101112, 5678., True, [1,2,3], [multiline_str, 'foo \n # bar\n', '"foo \' bar"', '"foo" \" # \' \" bar'])
+        self.assertEquals(val, roundtrip(val))
+
         class M3(Message):
             __slots__ = ['m2']
             _slot_types=['test_roslib/M2']
             def __init__(self, m2=None):
                 self.m2 = m2 or M2()
-                
-        val = M3(M2('string', -1, 0., False, []))
+
+        # test with nested complex message
+        val = M3(val)
         self.assertEquals(val, roundtrip(val))
 
     def test_check_type(self):
