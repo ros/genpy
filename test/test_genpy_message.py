@@ -578,17 +578,15 @@ d:
 
     def test_strify_yaml(self):
         def roundtrip(m):
-            #print('\n\n\nroundtrip')
             yaml_text = strify_message(m)
-            #print('\nyaml: %s' % yaml_text)
-            loaded = yaml.load(yaml_text) 
-            #print('\nloaded: %s' % loaded)
+            print(yaml_text)
+            loaded = yaml.load(yaml_text)
+            print("loaded", loaded)
             new_inst = m.__class__()
             if loaded is not None:
                 fill_message_args(new_inst, [loaded])
             else:
                 fill_message_args(new_inst, [])                
-            #print('\nnew_inst: %s' % new_inst)
             return new_inst
 
         # test YAML roundtrip. strify_message doesn't promise this
