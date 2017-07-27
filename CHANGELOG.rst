@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.6 (2017-07-27)
+------------------
 * add escaping for strings which is valid in YAML (`#79 <https://github.com/ros/genpy/issues/79>`_)
 * fix inefficient canon method in rostime (`#77 <https://github.com/ros/genpy/issues/77>`_)
 
