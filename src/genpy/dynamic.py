@@ -112,7 +112,7 @@ def generate_dynamic(core_type, msg_cat):
     Dymamically generate message classes from msg_cat .msg text
     gendeps dump. This method modifies sys.path to include a temp file
     directory.
-    :param core_type str: top-level ROS message type of concatenanted .msg text
+    :param core_type str: top-level ROS message type of concatenated .msg text
     :param msg_cat str: concatenation of full message text (output of gendeps --cat)
     :raises: MsgGenerationException If dep_msg is improperly formatted
     """
