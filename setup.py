@@ -3,7 +3,7 @@
 from setuptools import setup
 import os
 
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree
 
 
 class XmlNodes(object):
@@ -37,7 +37,7 @@ class XmlNodes(object):
 class PackageXml(XmlNodes):
     """Extracts data from a package.xml file"""
     def __init__(self, package_xml_path='package.xml'):
-        tree = ET.parse(package_xml_path)
+        tree = xml.etree.ElementTree.parse(package_xml_path)
         root = tree.getroot()
         assert root.tag == 'package'
         # TODO : check package format version
@@ -47,6 +47,7 @@ class PackageXml(XmlNodes):
 ros_package = PackageXml(os.path.join(os.path.dirname(__file__), 'package.xml'))
 
 setup(
+    # based on package.xml
     name='ros_' + ros_package.name(),
     version=ros_package.version(),
     description=ros_package.description(),
@@ -54,9 +55,9 @@ setup(
     author=ros_package.author(),
     maintainer_email=ros_package.maintainer('email'),
     license=ros_package.license(),
-
+    # based on directory hierarchy
     packages=['genpy'],
     package_dir={'': 'src'},
-    install_requires=['pyyaml'],
+    test_requires=['pyyaml'],
 )
 
