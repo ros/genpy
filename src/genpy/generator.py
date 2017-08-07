@@ -431,8 +431,7 @@ def string_serializer_generator(package, type_, name, serialize):
                 yield "else:"
                 yield INDENT+pack('%ss'%array_len, var)
         else:
-            # FIXME: for py3k, this needs to be w/ encode(), but this interferes with actual byte data
-            yield "if python3 or type(%s) == unicode:"%(var)
+            yield "if isinstance(%s, str if python3 else unicode):"%(var)
             yield INDENT+"%s = %s.encode('utf-8')"%(var,var) #For unicode-strings in Python2, encode using utf-8
             yield INDENT+"length = len(%s)"%(var) # Update the length after utf-8 conversion
 
