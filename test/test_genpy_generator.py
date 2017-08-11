@@ -293,7 +293,7 @@ def test_string_serializer_generator():
     g = genpy.generator.string_serializer_generator('foo', 'string', 'var_name', True)
     val = '\n'.join(g)
     assert """length = len(var_name)
-if python3 or type(var_name) == unicode:
+if isinstance(var_name, str if python3 else unicode):
   var_name = var_name.encode('utf-8')
   length = len(var_name)
 buff.write(struct.pack('<I%ss'%length, length, var_name))""" == val, val
