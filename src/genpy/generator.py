@@ -688,18 +688,11 @@ def serialize_fn_generator(msg_context, spec, is_numpy=False):
     # done w/ method-var context #
 
 def serialize_dict_complex_type(msg_context, spec, obj_ref, list_iter_idx):
-    if spec is None:
-        raise MsgGenerationException("spec is none")
-    names, types = spec.names, spec.types
-    if serialize and not len(names): #Empty
-        yield "pass"
-        return
-
     is_array = lambda t: t[-1:] == ']'
     is_simple_or_string = lambda t: is_simple(t) or t == 'string'
     is_simple_or_simple_array = lambda t: is_simple_or_string(t) or \
                                 (is_simple_or_string(t[:t.find('[')]) and is_array(t))
-
+    names, types = spec.names, spec.types
     yield '{'
     for (i, full_type) in enumerate(types):
         if is_simple_or_simple_array(full_type):
@@ -722,6 +715,13 @@ def serialize_dict_complex_type(msg_context, spec, obj_ref, list_iter_idx):
     yield '}'
 
 def serialize_dict(msg_context, spec):
+    if spec is None:
+        raise MsgGenerationException("spec is none")
+    names, types = spec.names, spec.types
+    if serialize and not len(names): #Empty
+        yield "return {}"
+        return
+
     yield "ret = \\"
     for y in serialize_dict_complex_type(msg_context, spec, 'self', 0):
         yield y
@@ -931,11 +931,11 @@ def msg_generator(msg_context, spec, search_path):
 
     yield """
   def to_json(self):
-      \"\"\"
-      Returns the ROS message as a json string
-      \"\"\"
+    \"\"\"
+    Returns the ROS message as a json string
+    \"\"\"
 
-      return json.dumps(self.to_dict())"""
+    return json.dumps(self.to_dict())"""
     yield ""
 
     # #1807 : this will be much cleaner when msggenerator library is
