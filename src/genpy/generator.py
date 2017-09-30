@@ -47,6 +47,7 @@ The structure of the serialization descends several levels of serializers:
 
 from __future__ import print_function
 
+import errno
 import os
 import keyword
 import itertools
@@ -957,7 +958,7 @@ class Generator(object):
             # you can't just check first... race condition
             os.makedirs(outdir)
         except OSError as e:
-            if e.errno != 17: # file exists
+            if e.errno != errno.EEXIST:
                 raise
         # generate message files for request/response
         spec = self.spec_loader_fn(msg_context, f, full_type)
