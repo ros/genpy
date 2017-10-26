@@ -2,6 +2,11 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* use errno to detect existing dir (`#89 <https://github.com/ros/genpy/issues/89>`_)
+* fix typo (`#84 <https://github.com/ros/genpy/issues/84>`_)
+
 0.6.6 (2017-07-27)
 ------------------
 * add escaping for strings which is valid in YAML (`#79 <https://github.com/ros/genpy/issues/79>`_)
