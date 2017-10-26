@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.7 (2017-10-26)
+------------------
 * use errno to detect existing dir (`#89 <https://github.com/ros/genpy/issues/89>`_)
 * fix typo (`#84 <https://github.com/ros/genpy/issues/84>`_)
 
