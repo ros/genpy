@@ -171,6 +171,8 @@ def _convert_getattr(val, f, t):
     attr = getattr(val, f)
     if isstring(attr) and 'uint8[' in t:
         return [ord(x) for x in attr]
+    elif type(attr) == bytes and 'uint8[' in t:
+        return list(attr)
     else:
         return attr
 
