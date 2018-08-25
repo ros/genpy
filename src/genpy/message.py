@@ -49,7 +49,7 @@ from .base import is_simple
 from .rostime import Time, Duration, TVal
 
 try:
-    reload         # Python 2
+    reload  # Python 2
 except NameError:  # Python 3
     from importlib import reload
 
