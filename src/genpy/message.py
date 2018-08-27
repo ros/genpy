@@ -48,6 +48,11 @@ import genmsg
 from .base import is_simple
 from .rostime import Time, Duration, TVal
 
+try:
+    reload  # Python 2
+except NameError:  # Python 3
+    from importlib import reload
+
 # common struct pattern singletons for msgs to use. Although this
 # would better placed in a generator-specific module, we don't want to
 # add another import to messages (which incurs higher import cost)
@@ -228,7 +233,7 @@ def check_type(field_name, field_type, field_val):
             elif not type(field_val) == bytes:
                 raise SerializationError('field %s must be of type bytes or an ascii string'%field_name)
         else:		
-            if type(field_val) == unicode:
+            if type(field_val) == unicode:  # noqa: F821
                 raise SerializationError('field %s is a unicode string instead of an ascii string'%field_name)
             elif not isstring(field_val):
                 raise SerializationError('field %s must be of type str'%field_name)
