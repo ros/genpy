@@ -60,6 +60,7 @@ def _generate_dynamic_specs(msg_context, specs, dep_msg):
     :returns: type name, message spec, ``str, MsgSpec``
     :raises: MsgGenerationException If dep_msg is improperly formatted
     """
+    dep_msg = dep_msg.strip()
     line1 = dep_msg.find('\n')
     msg_line = dep_msg[:line1]
     if not msg_line.startswith("MSG: "):
