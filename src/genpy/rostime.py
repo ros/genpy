@@ -241,7 +241,7 @@ class Time(TVal):
         """
         if not isinstance(other, Duration):
             return NotImplemented
-        return Time(self.secs + other.secs, self.nsecs + other.nsecs)
+        return self.__class__(self.secs + other.secs, self.nsecs + other.nsecs)
 
     __radd__ = __add__
 
@@ -254,7 +254,7 @@ class Time(TVal):
         if isinstance(other, Time):
             return Duration(self.secs - other.secs, self.nsecs - other.nsecs)
         elif isinstance(other, Duration):
-            return Time(self.secs - other.secs, self.nsecs - other.nsecs)
+            return self.__class__(self.secs - other.secs, self.nsecs - other.nsecs)
         else:
             return NotImplemented
 
@@ -319,7 +319,7 @@ class Duration(TVal):
         """
         :returns: Negative value of this :class:`Duration`
         """
-        return Duration(-self.secs, -self.nsecs)
+        return self.__class__(-self.secs, -self.nsecs)
     def __abs__(self):
         """
         Absolute value of this duration
@@ -337,7 +337,7 @@ class Duration(TVal):
           instance, :class:`Time` if other is a :class:`Time`
         """
         if isinstance(other, Duration):
-            return Duration(self.secs+other.secs, self.nsecs+other.nsecs)
+            return self.__class__(self.secs+other.secs, self.nsecs+other.nsecs)
         else:
             return NotImplemented
 
@@ -351,7 +351,7 @@ class Duration(TVal):
         """
         if not isinstance(other, Duration):
             return NotImplemented
-        return Duration(self.secs-other.secs, self.nsecs-other.nsecs)        
+        return self.__class__(self.secs-other.secs, self.nsecs-other.nsecs)        
 
     def __mul__(self, val):
         """
@@ -360,9 +360,9 @@ class Duration(TVal):
         :returns: :class:`Duration` multiplied by val
         """
         if isinstance(val, numbers.Integral):
-            return Duration(self.secs * val, self.nsecs * val)
+            return self.__class__(self.secs * val, self.nsecs * val)
         elif isinstance(val, numbers.Real):
-            return Duration.from_sec(self.to_sec() * val)
+            return self.__class__.from_sec(self.to_sec() * val)
         else:
             return NotImplemented
 
@@ -375,7 +375,7 @@ class Duration(TVal):
         :returns: :class:`Duration` divided by val - a :class:`Duration` if divided by a number, or a number if divided by a duration
         """
         if isinstance(val, numbers.Integral) or isinstance(val, numbers.Real):
-            return Duration.from_sec(self.to_sec() // val)
+            return self.__class__.from_sec(self.to_sec() // val)
         elif isinstance(val, Duration):
             return int(self.to_sec() // val.to_sec())
         else:
@@ -388,7 +388,7 @@ class Duration(TVal):
         :returns: :class:`Duration` divided by val - a :class:`Duration` if divided by a number, or a number if divided by a duration
         """
         if isinstance(val, numbers.Integral) or isinstance(val, numbers.Real):
-            return Duration.from_sec(self.to_sec() / val)
+            return self.__class__.from_sec(self.to_sec() / val)
         elif isinstance(val, Duration):
             return self.to_sec() / val.to_sec()
         else:
@@ -401,7 +401,7 @@ class Duration(TVal):
         :returns: :class:`Duration` divided by val - a :class:`Duration` if divided by a number, or a number if divided by a duration
         """
         if isinstance(val, numbers.Real):
-            return Duration.from_sec(self.to_sec() / val)
+            return self.__class__.from_sec(self.to_sec() / val)
         elif isinstance(val, Duration):
             return self.to_sec() / val.to_sec()
         else:
@@ -413,7 +413,7 @@ class Duration(TVal):
         :returns: :class:`Duration` The remaining time after the division
         """
         if isinstance(val, Duration):
-            return Duration.from_sec(self.to_sec() % val.to_sec())
+            return self.__class__.from_sec(self.to_sec() % val.to_sec())
         else:
             return NotImplemented
 
@@ -425,7 +425,7 @@ class Duration(TVal):
         """
         if isinstance(val, Duration):
             quotient, remainder = divmod(self.to_sec(), val.to_sec())
-            return int(quotient), Duration.from_sec(remainder)
+            return int(quotient), self.__class__.from_sec(remainder)
         else:
             return NotImplemented
 
