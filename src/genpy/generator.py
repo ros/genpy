@@ -535,6 +535,9 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
             factory = serializer_generator(msg_context, make_python_safe(get_registered_ex(msg_context, base_type)), serialize, is_numpy)
 
         if serialize:
+            if array_len is not None:
+                yield 'if len(%s) != %s:'%(var, array_len)
+                yield INDENT + "self._check_types(ValueError(\"Expecting %%s items but found %%s when writing '%%s'\" %% (%s, len(%s), '%s')))"%(array_len, var, var)
             yield 'for %s in %s:'%(loop_var, var)
         else:
             yield '%s = []'%var

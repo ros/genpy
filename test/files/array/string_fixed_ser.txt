@@ -1,3 +1,5 @@
+if len(data) != 2:
+  self._check_types(ValueError("Expecting %s items but found %s when writing '%s'" % (2, len(data), 'data')))
 for val0 in data:
   length = len(val0)
   if python3 or type(val0) == unicode:
