@@ -164,7 +164,7 @@ def generate_dynamic(core_type, msg_cat):
     atexit.register(shutil.rmtree, tmp_dir)
     
     # write the entire text to a file and import it (it will get deleted when tmp_dir goes - above)
-    tmp_file = tempfile.NamedTemporaryFile(suffix=".py",dir=tmp_dir,delete=False)
+    tmp_file = tempfile.NamedTemporaryFile(mode="w", suffix=".py", dir=tmp_dir, delete=False)
     tmp_file.file.write(full_text)
     tmp_file.file.close()
 
