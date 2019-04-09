@@ -51,6 +51,11 @@ def test_generate_dynamic():
     assert m_instance == m_instance2
 
     try:
+        msgs = generate_dynamic("gd_msgs/MyAcceleration", "float32 acceleration # in m/s\xc2\xb2\n")
+    except UnicodeDecodeError:
+        assert False, "Can't handle UTF-8 in comments"
+
+    try:
         char = unichr
     except NameError:
         char = chr
