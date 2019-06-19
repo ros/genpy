@@ -212,7 +212,7 @@ def check_type(field_name, field_type, field_val):
             if type(field_val) not in [long, int]:
                 raise SerializationError('field %s must be an integer type'%field_name)
             maxval = int(math.pow(2, _widths[field_type]-1))
-            if field_val >= maxval or field_val <= -maxval:
+            if field_val >= maxval or field_val < -maxval:
                 raise SerializationError('field %s exceeds specified width [%s]'%(field_name, field_type))
         elif field_type in ['char', 'uint8', 'uint16', 'uint32', 'uint64']:
             if type(field_val) not in [long, int] or field_val < 0:
