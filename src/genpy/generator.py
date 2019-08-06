@@ -517,7 +517,7 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
         if not serialize and base_type == 'bool':
             # convert uint8 to bool
             if base_type == 'bool':
-                yield "%s = map(bool, %s)"%(var, var)
+                yield "%s = list(map(bool, %s))"%(var, var)
 
     else:
         #generic recursive serializer

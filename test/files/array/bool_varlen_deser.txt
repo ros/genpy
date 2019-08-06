@@ -5,4 +5,4 @@ pattern = '<%sB'%length
 start = end
 end += struct.calcsize(pattern)
 data = struct.unpack(pattern, str[start:end])
-data = map(bool, data)
+data = list(map(bool, data))
