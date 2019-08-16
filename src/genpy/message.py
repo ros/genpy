@@ -388,16 +388,11 @@ def get_printable_message_args(msg, buff=None, prefix=''):
     """
     try:
         from cStringIO import StringIO # Python 2.x
-        python3 = 0
     except ImportError:
-        from io import BytesIO # Python 3.x
-        python3 = 1
+        from io import StringIO # Python 3.x
 
     if buff is None:
-        if python3 == 1:
-            buff = BytesIO()
-        else: 
-            buff = StringIO()
+        buff = StringIO()
     for f in msg.__slots__:
         if isinstance(getattr(msg, f), Message):
             get_printable_message_args(getattr(msg, f), buff=buff, prefix=(prefix+f+'.'))
