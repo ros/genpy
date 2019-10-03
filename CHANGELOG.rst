@@ -2,6 +2,15 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix Python 3 buffer handling (`#106 <https://github.com/ros/genpy/issues/106>`_)
+* Python 3 compatibility (`#104 <https://github.com/ros/genpy/issues/104>`_)
+* fix usage of undefined variables in exception (`#105 <https://github.com/ros/genpy/issues/105>`_)
+* convert map iterator to list (`#103 <https://github.com/ros/genpy/issues/103>`_)
+* fix negative limit check for signed ints (`#102 <https://github.com/ros/genpy/issues/102>`_)
+* failing test case for UTF-8 encoded characters in comments (`#95 <https://github.com/ros/genpy/issues/95>`_)
+
 0.6.8 (2019-03-04)
 ------------------
 * check size of fixed sized arrays when serializing (`#92 <https://github.com/ros/genpy/issues/92>`_)
