@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.9 (2019-10-03)
+------------------
 * fix Python 3 buffer handling (`#106 <https://github.com/ros/genpy/issues/106>`_)
 * Python 3 compatibility (`#104 <https://github.com/ros/genpy/issues/104>`_)
 * fix usage of undefined variables in exception (`#105 <https://github.com/ros/genpy/issues/105>`_)
