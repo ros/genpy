@@ -876,7 +876,7 @@ def msg_generator(msg_context, spec, search_path):
     # rewritten to not use globals
     yield '_struct_I = genpy.struct_I'
     patterns = get_patterns()
-    for p in set(patterns):
+    for p in sorted(set(patterns)):
         # I patterns are already optimized
         if p == 'I':
             continue
