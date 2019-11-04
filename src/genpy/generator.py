@@ -891,7 +891,7 @@ def msg_generator(msg_context, spec, search_path):
     yield '    global _struct_I'
     yield '    return _struct_I'
     patterns = get_patterns()
-    for p in set(patterns):
+    for p in sorted(set(patterns)):
         # I patterns are already optimized
         if p == 'I':
             continue
