@@ -762,7 +762,7 @@ def msg_generator(msg_context, spec, search_path):
     import_strs = []
     for t in spec.types:
         import_strs.extend(compute_import(msg_context, spec.package, t))
-    import_strs = set(import_strs)
+    import_strs = sorted(set(import_strs))
     for i in import_strs:
         if i:
             yield i
