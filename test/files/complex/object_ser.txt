@@ -1,2 +1,3 @@
 _v1 = data
-buff.write(_get_struct_i().pack(_v1.data))
+_x = _v1.data
+buff.write(_get_struct_i().pack(_x))

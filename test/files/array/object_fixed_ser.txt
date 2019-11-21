@@ -1,4 +1,5 @@
 if len(data) != 3:
   self._check_types(ValueError("Expecting %s items but found %s when writing '%s'" % (3, len(data), 'data')))
 for val0 in data:
-  buff.write(_get_struct_i().pack(val0.data))
+  _x = val0.data
+  buff.write(_get_struct_i().pack(_x))
