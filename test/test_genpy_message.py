@@ -673,3 +673,30 @@ foo " bar
                 self.fail("check_type[%s, %s] should have failed"%(t, v))
             except SerializationError: pass
     
+    def test_serialize_exception_msg(self):
+        from genpy.message import fill_message_args
+        from genpy.msg import  TestStringFloat
+        try:
+            from cStringIO import StringIO
+        except ImportError:
+            from io import BytesIO as StringIO
+
+        buff = StringIO()
+
+        m = TestStringFloat()
+        fill_message_args(m, ['foo', 1.0])
+        self.assertEquals(m.data, 'foo')
+        self.assertEquals(m.float, 1.0)
+
+        # should serialize fine with float
+        m.serialize(buff)
+
+        # setting a string instead should fail with correct message
+        m.float = '1.0'
+        try:
+            m.serialize(buff)
+            assert False, 'This should have raised a genpy.SerializationError'
+        except genpy.SerializationError as e:
+            self.assertEquals(str(e), "<class 'struct.error'>: 'required argument is not a float' when writing '1.0'")
+        except Exception:
+            assert False, 'This should have raised a genpy.SerializationError instead'
