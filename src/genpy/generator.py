@@ -609,6 +609,9 @@ def simple_serializer_generator(msg_context, spec, start, end, serialize): #prim
     if end - start > 1 and _serial_context.endswith('.'):
         yield '_x = '+_serial_context[:-1]
         vars_ = '_x.' + (', _x.').join(spec.names[start:end])
+    elif serialize and end - start == 1 and _serial_context.endswith('.'):
+        yield "_x = %s%s"%(_serial_context, spec.names[start])
+        vars_ = '_x'
     else:
         vars_ = _serial_context + (', '+_serial_context).join(spec.names[start:end])
 
