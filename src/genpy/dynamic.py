@@ -95,7 +95,9 @@ def _gen_dyn_modify_references(py_text, current_type, types):
         # - remove any import statements
         py_text = py_text.replace("import %s.msg"%pkg, '')
         # - rewrite any references to class
-        py_text = re.sub("(?<!\w)%s\.msg\.%s(?!\w)"%(pkg, base_type), gen_name, py_text)
+        if '%s.msg.%s'%(pkg, base_type) in py_text:
+            # only call expensive re.sub if the class name is in the string
+            py_text = re.sub("(?<!\w)%s\.msg\.%s(?!\w)"%(pkg, base_type), gen_name, py_text)
 
     pkg, base_type = genmsg.package_resource_name(current_type)
     gen_name = _gen_dyn_name(pkg, base_type)
