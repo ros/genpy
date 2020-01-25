@@ -138,7 +138,13 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
             return list_str
         elif isstring(val0):
             # escape list of strings for use in yaml file using yaml dump
-            return yaml.dump(val).rstrip('\n')
+            yaml_str = yaml.dump(val).rstrip('\n')
+            # earlier versions of PyYAML return: ['', '']\n
+            # newer versions of PyYaml return: - ''\n- ''\n
+            assert yaml_str[0] in ('[', '-')
+            if yaml_str[0] == '[':
+                return yaml_str
+            return '\n' + '\n'.join(indent + line for line in yaml_str.splitlines())
         elif type(val0) in (int, float, bool):
             return str(list(val))
         else:
