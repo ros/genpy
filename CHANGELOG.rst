@@ -2,6 +2,17 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* various code cleanup (`#117 <https://github.com/ros/genpy/issues/117>`_)
+* update logic for newer PyYAML output for dump() (`#116 <https://github.com/ros/genpy/issues/116>`_)
+* small optimization in dynamic.py (`#109 <https://github.com/ros/genpy/issues/109>`_)
+* use setuptools instead of distutils (`#115 <https://github.com/ros/genpy/issues/115>`_)
+* bump CMake version to avoid CMP0048 warning (`#114 <https://github.com/ros/genpy/issues/114>`_)
+* serialization: always set _x var for correct exception msg (`#113 <https://github.com/ros/genpy/issues/113>`_)
+* sort generated imports to make them reproducible (`#111 <https://github.com/ros/genpy/issues/111>`_)
+* make the generated "struct" constructs reproducible (`#110 <https://github.com/ros/genpy/issues/110>`_)
+
 0.6.9 (2019-10-03)
 ------------------
 * fix Python 3 buffer handling (`#106 <https://github.com/ros/genpy/issues/106>`_)
