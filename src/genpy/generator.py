@@ -68,6 +68,7 @@ from . generate_numpy import unpack_numpy, pack_numpy, NUMPY_DTYPE
 from . generate_struct import reduce_pattern, serialize, \
      int32_pack, int32_unpack, pack, pack2, unpack, unpack2, compute_struct_pattern, \
      clear_patterns, add_pattern, get_patterns
+from . generate_struct import serialize as serializeit
 
 # indent width
 INDENT = '  '
@@ -422,15 +423,24 @@ def string_serializer_generator(package, type_, name, serialize):
         if base_type in ['uint8', 'char']:
             yield "# - if encoded as a list instead, serialize as bytes instead of string"
             if array_len is None:
-                yield "if type(%s) in [list, tuple]:"%var
-                yield INDENT+pack2("'<I%sB'%length", "length, *%s"%var)
-                yield "else:"
-                yield INDENT+pack2("'<I%ss'%length", "length, %s"%var)
+                yield "try:"
+                yield INDENT+"tmp = memoryview(%s) if python3 else buffer(%s)"%(var,var)
+                yield INDENT+pack2("'<I'", "tmp.nbytes if python3 else len(tmp)")
+                yield INDENT+serializeit("tmp")
+                yield "except Exception:"
+                yield INDENT+"if type(%s) in [list, tuple]:"%var
+                yield INDENT+INDENT+pack2("'<I%sB'%length", "length, *%s"%var)
+                yield INDENT+"else:"
+                yield INDENT+INDENT+pack2("'<I%ss'%length", "length, %s"%var)
             else:
-                yield "if type(%s) in [list, tuple]:"%var
-                yield INDENT+pack('%sB'%array_len, "*%s"%var)
-                yield "else:"
-                yield INDENT+pack('%ss'%array_len, var)
+                yield "try:"
+                yield INDENT+"tmp = memoryview(%s)[:%s] if python3 else buffer(%s, 0, %s)"%(var,array_len,var,array_len)
+                yield INDENT+serializeit("tmp")
+                yield "except Exception:"
+                yield INDENT+"if type(%s) in [list, tuple]:"%var
+                yield INDENT+INDENT+pack('%sB'%array_len, "*%s"%var)
+                yield INDENT+"else:"
+                yield INDENT+INDENT+pack('%ss'%array_len, var)
         else:
             # FIXME: for py3k, this needs to be w/ encode(), but this interferes with actual byte data
             yield "if python3 or type(%s) == unicode:"%(var)
