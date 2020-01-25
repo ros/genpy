@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.10 (2020-01-24)
+-------------------
 * various code cleanup (`#117 <https://github.com/ros/genpy/issues/117>`_)
 * update logic for newer PyYAML output for dump() (`#116 <https://github.com/ros/genpy/issues/116>`_)
 * small optimization in dynamic.py (`#109 <https://github.com/ros/genpy/issues/109>`_)
