@@ -37,5 +37,6 @@ def generate_test_messages(msg_files):
             if e.code:
                 raise
 
+
 if __name__ == '__main__':
     generate_test_messages(sys.argv[1:])

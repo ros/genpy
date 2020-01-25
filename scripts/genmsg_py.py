@@ -34,16 +34,14 @@
 # Revision $Id: genmsg_py.py 9002 2010-04-09 01:08:47Z kwc $
 
 """
-ROS message source code generation for Python
+ROS message source code generation for Python.
 
 Converts ROS .msg files in a package into Python source code implementations.
 """
-import os
 import sys
 
 import genpy.generator
 import genpy.genpy_main
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     genpy.genpy_main.genmain(sys.argv, 'genmsg_py.py', genpy.generator.MsgGenerator())
-    

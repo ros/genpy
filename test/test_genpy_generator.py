@@ -33,17 +33,20 @@
 import os
 
 import genmsg.msgs
-from genmsg.msgs import MsgSpec
 from genmsg.msg_loader import MsgContext
+from genmsg.msgs import MsgSpec
+
 
 def get_test_dir():
     return os.path.abspath(os.path.join(os.path.dirname(__file__), 'files'))
+
 
 def test_is_special():
     import genpy.generator
     for t in ['time', 'duration', 'Header']:
         assert genpy.generator.is_special(t)
-        
+
+
 def test_Simple():
     import genpy.generator
     val = genpy.generator.get_special('time').import_str
@@ -58,19 +61,20 @@ def test_Simple():
     assert 'self.foo.canon()' == genpy.generator.get_special('time').get_post_deserialize('self.foo')
     assert 'bar.canon()' == genpy.generator.get_special('time').get_post_deserialize('bar')
     assert 'self.foo.canon()' == genpy.generator.get_special('duration').get_post_deserialize('self.foo')
-    assert None == genpy.generator.get_special('Header').get_post_deserialize('self.foo')
+    assert genpy.generator.get_special('Header').get_post_deserialize('self.foo') is None
+
 
 def test_compute_post_deserialize():
     import genpy.generator
     assert 'self.bar.canon()' == genpy.generator.compute_post_deserialize('time', 'self.bar')
     assert 'self.bar.canon()' == genpy.generator.compute_post_deserialize('duration', 'self.bar')
-    assert None == genpy.generator.compute_post_deserialize('Header', 'self.bar')
+    assert genpy.generator.compute_post_deserialize('Header', 'self.bar') is None
 
-    assert None == genpy.generator.compute_post_deserialize('int8', 'self.bar')
-    assert None == genpy.generator.compute_post_deserialize('string', 'self.bar')
+    assert genpy.generator.compute_post_deserialize('int8', 'self.bar') is None
+    assert genpy.generator.compute_post_deserialize('string', 'self.bar') is None
+
 
 def test_flatten():
-    import genpy.generator
     from genpy.generator import flatten
     msg_context = MsgContext.create_default()
 
@@ -91,9 +95,11 @@ def test_flatten():
 
     assert MsgSpec(['int8'], ['data.data'], [], 'X', 'f_msgs/Base2') == flatten(msg_context, b2)
     assert MsgSpec(['int8', 'int8'], ['data3.data.data', 'data4.data.data'], [], 'X', 'f_msgs/Base3') == flatten(msg_context, b3)
-    assert MsgSpec(['int8', 'int8', 'int8', 'int8'],
-                              ['dataA.data3.data.data', 'dataA.data4.data.data', 'dataB.data3.data.data', 'dataB.data4.data.data'],
-                              [], 'X', 'f_msgs/Base4') == flatten(msg_context, b4)
+    assert MsgSpec(
+        ['int8', 'int8', 'int8', 'int8'],
+        ['dataA.data3.data.data', 'dataA.data4.data.data', 'dataB.data3.data.data', 'dataB.data4.data.data'],
+        [], 'X', 'f_msgs/Base4') == flatten(msg_context, b4)
+
 
 def test_flatten_array_objects():
     # make sure array of types don't flatten
@@ -106,7 +112,8 @@ def test_flatten_array_objects():
     msg_context.register('f_msgs/Base', b1)
     msg_context.register('f_msgs/Base5', b5)
     assert b5 == flatten(msg_context, b5)
-    
+
+
 def test_default_value():
     from genpy.generator import default_value
     msg_context = MsgContext.create_default()
@@ -138,9 +145,9 @@ def test_default_value():
 
     # generic instances
     # - unregistered type
-    assert None == default_value(msg_context, "unknown_msgs/Foo", "unknown_msgs")
+    assert default_value(msg_context, 'unknown_msgs/Foo', 'unknown_msgs') is None
     # - wrong context
-    assert None == default_value(msg_context, 'ThreeNums', 'std_msgs')
+    assert default_value(msg_context, 'ThreeNums', 'std_msgs') is None
 
     # - registered types
     assert 'fake_msgs.msg.String()' == default_value(msg_context, 'fake_msgs/String', 'std_msgs')
@@ -153,7 +160,7 @@ def test_default_value():
     # var-length arrays always default to empty arrays... except for byte and uint8 which are strings
     for t in ['int8', 'uint16', 'int16', 'uint32', 'int32', 'uint64', 'int64', 'float32', 'float64']:
         val = default_value(msg_context, t+'[]', 'std_msgs')
-        assert '[]' == val, "[%s]: %s"%(t, val)
+        assert '[]' == val, '[%s]: %s' % (t, val)
         assert '[]' == default_value(msg_context, t+'[]', 'roslib')
 
     assert b'' == eval(default_value(msg_context, 'uint8[]', 'roslib'))
@@ -172,6 +179,7 @@ def test_default_value():
     assert '[]' == default_value(msg_context, 'fake_msgs/String[]', 'std_msgs')
     assert '[fake_msgs.msg.String() for _ in range(2)]' == default_value(msg_context, 'fake_msgs/String[2]', 'std_msgs')
 
+
 def test_make_python_safe():
     from genpy.generator import make_python_safe
     from genmsg.msgs import Constant
@@ -184,16 +192,19 @@ def test_make_python_safe():
     assert s2.types == s.types
     assert [Constant('int32', 'if_', '1', '1') == Constant('int32', 'okgo', '1', '1')], s2.constants
     assert s2.text == s.text
-    
+
+
 def test_compute_pkg_type():
     from genpy.generator import compute_pkg_type, MsgGenerationException
     try:
         compute_pkg_type('std_msgs', 'really/bad/std_msgs/String')
-    except MsgGenerationException: pass
+    except MsgGenerationException:
+        pass
     assert ('std_msgs', 'String') == compute_pkg_type('std_msgs', 'std_msgs/String')
-    assert ('std_msgs', 'String') == compute_pkg_type('foo', 'std_msgs/String')    
+    assert ('std_msgs', 'String') == compute_pkg_type('foo', 'std_msgs/String')
     assert ('std_msgs', 'String') == compute_pkg_type('std_msgs', 'String')
-        
+
+
 def test_compute_import():
     import genpy.generator
     msg_context = MsgContext.create_default()
@@ -205,9 +216,10 @@ def test_compute_import():
     msg_context.register('ci2_msgs/Base2', MsgSpec(['ci_msgs/Base'], ['data2'], [], 'ci_msgs/Base data2\n', 'ci2_msgs/Base2'))
     msg_context.register('ci3_msgs/Base3', MsgSpec(['ci2_msgs/Base2'], ['data3'], [], 'ci2_msgs/Base2 data3\n', 'ci3_msgs/Base3'))
     msg_context.register('ci4_msgs/Base', MsgSpec(['int8'], ['data'], [], 'int8 data\n', 'ci4_msgs/Base'))
-    msg_context.register('ci4_msgs/Base4', MsgSpec(['ci2_msgs/Base2', 'ci3_msgs/Base3'],
-                                       ['data4a', 'data4b'],
-                                       [], 'ci2_msgs/Base2 data4a\nci3_msgs/Base3 data4b\n', 'ci4_msgs/Base4'))
+    msg_context.register('ci4_msgs/Base4', MsgSpec(
+        ['ci2_msgs/Base2', 'ci3_msgs/Base3'],
+        ['data4a', 'data4b'],
+        [], 'ci2_msgs/Base2 data4a\nci3_msgs/Base3 data4b\n', 'ci4_msgs/Base4'))
 
     msg_context.register('ci5_msgs/Base', MsgSpec(['time'], ['data'], [], 'time data\n', 'ci5_msgs/Base'))
 
@@ -217,15 +229,16 @@ def test_compute_import():
     assert ['import ci2_msgs.msg', 'import ci_msgs.msg'] == genpy.generator.compute_import(msg_context, 'foo', 'ci2_msgs/Base2')
     assert ['import ci3_msgs.msg', 'import ci2_msgs.msg', 'import ci_msgs.msg'] == genpy.generator.compute_import(msg_context, 'ci3_msgs', 'ci3_msgs/Base3')
 
-    assert set(['import ci4_msgs.msg', 'import ci3_msgs.msg', 'import ci2_msgs.msg', 'import ci_msgs.msg']) == set(genpy.generator.compute_import(msg_context, 'foo', 'ci4_msgs/Base4'))
-    assert set(['import ci4_msgs.msg', 'import ci3_msgs.msg', 'import ci2_msgs.msg', 'import ci_msgs.msg']) == set(genpy.generator.compute_import(msg_context, 'ci4_msgs', 'ci4_msgs/Base4'))
+    assert {'import ci4_msgs.msg', 'import ci3_msgs.msg', 'import ci2_msgs.msg', 'import ci_msgs.msg'} == set(genpy.generator.compute_import(msg_context, 'foo', 'ci4_msgs/Base4'))
+    assert {'import ci4_msgs.msg', 'import ci3_msgs.msg', 'import ci2_msgs.msg', 'import ci_msgs.msg'} == set(genpy.generator.compute_import(msg_context, 'ci4_msgs', 'ci4_msgs/Base4'))
 
-    assert ['import ci4_msgs.msg'] == genpy.generator.compute_import(msg_context, 'foo', 'ci4_msgs/Base')    
+    assert ['import ci4_msgs.msg'] == genpy.generator.compute_import(msg_context, 'foo', 'ci4_msgs/Base')
     assert ['import ci4_msgs.msg'] == genpy.generator.compute_import(msg_context, 'ci4_msgs', 'ci4_msgs/Base')
     assert ['import ci4_msgs.msg'] == genpy.generator.compute_import(msg_context, 'ci4_msgs', 'Base')
 
     assert ['import ci5_msgs.msg', 'import genpy'] == genpy.generator.compute_import(msg_context, 'foo', 'ci5_msgs/Base')
-        
+
+
 def test_get_registered_ex():
     import genpy.generator
     msg_context = MsgContext.create_default()
@@ -234,8 +247,10 @@ def test_get_registered_ex():
     assert s == genpy.generator.get_registered_ex(msg_context, 'tgr_msgs/String')
     try:
         genpy.generator.get_registered_ex(msg_context, 'bad_msgs/String')
-    except genpy.generator.MsgGenerationException: pass
-            
+    except genpy.generator.MsgGenerationException:
+        pass
+
+
 def test_compute_constructor():
     from genpy.generator import compute_constructor
     msg_context = MsgContext.create_default()
@@ -252,10 +267,10 @@ def test_compute_constructor():
 
     # generic instances
     # - unregistered type
-    assert None == compute_constructor(msg_context, "unknown_msgs", "unknown_msgs/Foo")
-    assert None == compute_constructor(msg_context, "unknown_msgs", "Foo")
+    assert compute_constructor(msg_context, 'unknown_msgs', 'unknown_msgs/Foo') is None
+    assert compute_constructor(msg_context, 'unknown_msgs', 'Foo') is None
     # - wrong context
-    assert None == compute_constructor(msg_context, 'std_msgs', 'ThreeNums')
+    assert compute_constructor(msg_context, 'std_msgs', 'ThreeNums') is None
 
     # - registered types
     assert 'fake_msgs.msg.String()' == compute_constructor(msg_context, 'std_msgs', 'fake_msgs/String')
@@ -265,6 +280,7 @@ def test_compute_constructor():
     assert 'fake_msgs.msg.ThreeNums()' == compute_constructor(msg_context, 'fake_msgs', 'fake_msgs/ThreeNums')
     assert 'fake_msgs.msg.ThreeNums()' == compute_constructor(msg_context, 'fake_msgs', 'ThreeNums')
 
+
 def test_len_serializer_generator():
     import genpy.generator
     # generator tests are mainly tripwires/coverage tests
@@ -273,8 +289,8 @@ def test_len_serializer_generator():
     g = genpy.generator.len_serializer_generator('foo', True, True)
     assert 'length = len(foo)' == '\n'.join(g)
     # array len serializer writes var
-    g = genpy.generator.len_serializer_generator('foo', False, True)        
-    assert "length = len(foo)\nbuff.write(_struct_I.pack(length))" == '\n'.join(g)
+    g = genpy.generator.len_serializer_generator('foo', False, True)
+    assert 'length = len(foo)\nbuff.write(_struct_I.pack(length))' == '\n'.join(g)
 
     # Test Deserializers
     val = """start = end
@@ -283,8 +299,9 @@ end += 4
     # string serializer and array serializer are identical
     g = genpy.generator.len_serializer_generator('foo', True, False)
     assert val == '\n'.join(g)
-    g = genpy.generator.len_serializer_generator('foo', False, False)        
+    g = genpy.generator.len_serializer_generator('foo', False, False)
     assert val == '\n'.join(g)
+
 
 def test_string_serializer_generator():
     import genpy.generator
@@ -328,7 +345,7 @@ def test_array_serializer_generator_numpy():
     d = os.path.join(get_test_dir(), 'array')
     # generator tests are mainly tripwires/coverage tests
 
-    #array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
+    # array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
     msg_context = MsgContext.create_default()
 
     # permutations: var length, unint8
@@ -341,7 +358,7 @@ def test_array_serializer_generator_numpy():
     compare_file(d, 'uint8_fixed_ser_np.txt', result)
     result = array_serializer_generator(msg_context, '', 'int16[10]', 'data', serialize, is_numpy)
     compare_file(d, 'int16_fixed_ser_np.txt', result)
-    
+
     serialize = False
     result = array_serializer_generator(msg_context, '', 'uint8[]', 'data', serialize, is_numpy)
     compare_file(d, 'uint8_varlen_deser_np.txt', result)
@@ -352,13 +369,16 @@ def test_array_serializer_generator_numpy():
     result = array_serializer_generator(msg_context, '', 'int16[10]', 'data', serialize, is_numpy)
     compare_file(d, 'int16_fixed_deser_np.txt', result)
 
+
 def compare_file(d, filename, result):
-    result = '\n'.join([l for l in result])
+    result = '\n'.join(result)
     expected = open(os.path.join(d, filename)).read().strip()
-    assert result == expected, "\n[%s]\n[%s]"%(result, expected)
-    
+    assert result == expected, '\n[%s]\n[%s]' % (result, expected)
+
+
 def exhaust(gen):
-    [g for g in gen]
+    list(gen)
+
 
 def test_array_serializer_generator():
     from genmsg.msg_loader import load_msg_by_type
@@ -366,7 +386,7 @@ def test_array_serializer_generator():
     d = os.path.join(get_test_dir(), 'array')
     # generator tests are mainly tripwires/coverage tests
 
-    #array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
+    # array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
     msg_context = MsgContext.create_default()
     # load in some objects
     search_path = {'foo': [d]}
@@ -397,7 +417,7 @@ def test_array_serializer_generator():
     reset_var()
     result = array_serializer_generator(msg_context, '', 'string[2]', 'data', serialize, is_numpy)
     compare_file(d, 'string_fixed_ser.txt', result)
-    
+
     reset_var()
     result = array_serializer_generator(msg_context, 'foo', 'foo/Object[]', 'data', serialize, is_numpy)
     compare_file(d, 'object_varlen_ser.txt', result)
@@ -423,7 +443,7 @@ def test_array_serializer_generator():
     reset_var()
     result = array_serializer_generator(msg_context, '', 'string[]', 'data', serialize, is_numpy)
     compare_file(d, 'string_varlen_deser.txt', result)
-    reset_var()    
+    reset_var()
     result = array_serializer_generator(msg_context, '', 'string[2]', 'data', serialize, is_numpy)
     compare_file(d, 'string_fixed_deser.txt', result)
 
@@ -438,9 +458,10 @@ def test_array_serializer_generator():
     try:
         result = array_serializer_generator(msg_context, '', 'uint8', 'data', True, False)
         exhaust(result)
-        assert False, "should have raised"
+        assert False, 'should have raised'
     except MsgGenerationException:
         pass
+
 
 def test_complex_serializer_generator():
     from genmsg.msg_loader import load_msg_by_type
@@ -449,13 +470,12 @@ def test_complex_serializer_generator():
     complex_d = os.path.join(get_test_dir(), 'complex')
     # generator tests are mainly tripwires/coverage tests
 
-    #array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
+    # array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
     msg_context = MsgContext.create_default()
     # load in some objects
     search_path = {'foo': [array_d]}
     load_msg_by_type(msg_context, 'foo/Object', search_path)
     load_msg_by_type(msg_context, 'foo/ObjectArray', search_path)
-
 
     serialize = True
     is_numpy = False
@@ -470,7 +490,7 @@ def test_complex_serializer_generator():
     compare_file(array_d, 'object_fixed_ser.txt', result)
 
     serialize = False
-    
+
     reset_var()
     result = complex_serializer_generator(msg_context, 'foo', 'foo/Object[]', 'data', serialize, is_numpy)
     compare_file(array_d, 'object_varlen_deser.txt', result)
@@ -481,20 +501,19 @@ def test_complex_serializer_generator():
     try:
         result = complex_serializer_generator(msg_context, 'foo', 'bad/Object', 'data', serialize, is_numpy)
         exhaust(result)
-        assert False, "should have raised"
+        assert False, 'should have raised'
     except MsgGenerationException:
         pass
 
 
 def test_serialize_fn_generator():
-    
     from genmsg.msg_loader import load_msg_by_type
     from genpy.generator import serialize_fn_generator, reset_var
     array_d = os.path.join(get_test_dir(), 'array')
     complex_d = os.path.join(get_test_dir(), 'complex')
     # generator tests are mainly tripwires/coverage tests
 
-    #array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
+    # array_serializer_generator(msg_context, package, type_, name, serialize, is_numpy):
     msg_context = MsgContext.create_default()
     # load in some objects
     search_path = {'foo': [array_d]}
@@ -509,4 +528,3 @@ def test_serialize_fn_generator():
     result = serialize_fn_generator(msg_context, object_array_spec, is_numpy)
     compare_file(array_d, 'object_varlen_ser_full.txt', result)
     reset_var()
-

@@ -30,9 +30,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+
 def test_numpy_dtype():
     from genpy.generate_numpy import NUMPY_DTYPE
     from genpy.generator import SIMPLE_TYPES
     for t in SIMPLE_TYPES:
         assert t in NUMPY_DTYPE
-
