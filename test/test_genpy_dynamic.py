@@ -37,10 +37,11 @@ except ImportError:
 import sys
 import time
 
+
 def test_generate_dynamic():
     import genpy
     from genpy.dynamic import generate_dynamic
-    msgs = generate_dynamic("gd_msgs/EasyString", "string data\n")
+    msgs = generate_dynamic('gd_msgs/EasyString', 'string data\n')
     assert ['gd_msgs/EasyString'] == list(msgs.keys())
     m_cls = msgs['gd_msgs/EasyString']
     m_instance = m_cls()
@@ -51,7 +52,7 @@ def test_generate_dynamic():
     assert m_instance == m_instance2
 
     try:
-        msgs = generate_dynamic("gd_msgs/MyAcceleration", "float32 acceleration # in m/s\xc2\xb2\n")
+        msgs = generate_dynamic('gd_msgs/MyAcceleration', 'float32 acceleration  # in m/s\xc2\xb2\n')
     except UnicodeDecodeError:
         assert False, "Can't handle UTF-8 in comments"
 
@@ -69,7 +70,7 @@ def test_generate_dynamic():
     assert m_instance == m_instance2
 
     # 'probot_msgs' is a test for #1183, failure if the package no longer exists
-    msgs = generate_dynamic("gd_msgs/MoveArmState", """Header header
+    msgs = generate_dynamic('gd_msgs/MoveArmState', """Header header
 probot_msgs/ControllerStatus status
 
 #Current arm configuration
@@ -80,7 +81,7 @@ probot_msgs/JointState[] goal
 ================================================================================
 MSG: std_msgs/Header
 #Standard metadata for higher-level flow data types
-#sequence ID: consecutively increasing ID 
+#sequence ID: consecutively increasing ID
 uint32 seq
 #Two-integer timestamp that is expressed as:
 # * stamp.secs: seconds (stamp_secs) since epoch
@@ -117,14 +118,14 @@ float64 commanded_effort
 byte is_calibrated
 
 """)
-    assert set(['gd_msgs/MoveArmState', 'probot_msgs/JointState', 'probot_msgs/ControllerStatus', 'std_msgs/Header']) ==  set(msgs.keys())
-    m_instance1 = msgs['std_msgs/Header']() # make sure default constructor works
-    m_instance2 = msgs['std_msgs/Header'](stamp=genpy.Time.from_sec(time.time()), frame_id='foo-%s'%time.time(), seq=12390)
+    assert {'gd_msgs/MoveArmState', 'probot_msgs/JointState', 'probot_msgs/ControllerStatus', 'std_msgs/Header'} == set(msgs.keys())
+    m_instance1 = msgs['std_msgs/Header']()  # make sure default constructor works
+    m_instance2 = msgs['std_msgs/Header'](stamp=genpy.Time.from_sec(time.time()), frame_id='foo-%s' % time.time(), seq=12390)
     _test_ser_deser(m_instance2, m_instance1)
 
     m_instance1 = msgs['probot_msgs/ControllerStatus']()
     m_instance2 = msgs['probot_msgs/ControllerStatus'](value=4, comment=str(time.time()))
-    d = {'UNDEFINED':0,'SUCCESS':1,'ABORTED':2,'PREEMPTED':3,'ACTIVE':4}
+    d = {'UNDEFINED': 0, 'SUCCESS': 1, 'ABORTED': 2, 'PREEMPTED': 3, 'ACTIVE': 4}
     for k, v in d.items():
         assert v == getattr(m_instance1, k)
     _test_ser_deser(m_instance2, m_instance1)
@@ -146,6 +147,7 @@ byte is_calibrated
                                                configuration=config, goal=goal)
     _test_ser_deser(m_instance2, m_instance1)
 
+
 def _test_ser_deser(m_instance1, m_instance2):
     buff = StringIO()
     m_instance1.serialize(buff)
@@ -156,7 +158,7 @@ def _test_ser_deser(m_instance1, m_instance2):
 def test_serialize_exception():
     import genpy
     from genpy.dynamic import generate_dynamic
-    msgs = generate_dynamic("gd_msgs/EasyInt32", "int32 data\n")
+    msgs = generate_dynamic('gd_msgs/EasyInt32', 'int32 data\n')
     assert ['gd_msgs/EasyInt32'] == list(msgs.keys())
     m_cls = msgs['gd_msgs/EasyInt32']
     m_instance = m_cls()

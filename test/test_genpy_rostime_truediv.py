@@ -34,29 +34,29 @@ from __future__ import division
 
 import unittest
 
+
 class RostimeTruedivTest(unittest.TestCase):
 
     def test_Duration(self):
         from genpy.rostime import Duration
-  
+
         # See #3667 as well as PEP 238
         d = Duration(13, 500000000)
         to_sec = d.to_sec()
-        self.assertEquals(Duration(to_sec / 2.), d/2)
-  
+        self.assertEqual(Duration(to_sec / 2.), d/2)
+
         # Test div
-        self.assertEquals(Duration(4), Duration(8) / 2)
-        self.assertEquals(Duration(4), Duration(8) / 2.)      
-        self.assertEquals(Duration(4), Duration(8) // 2)      
-        self.assertEquals(Duration(4), Duration(8) // 2.)      
-        self.assertEquals(Duration(4), Duration(9) // 2)      
-        self.assertEquals(Duration(4), Duration(9) // 2.)      
-        self.assertEquals(Duration(4, 2), Duration(8, 4) / 2)
+        self.assertEqual(Duration(4), Duration(8) / 2)
+        self.assertEqual(Duration(4), Duration(8) / 2.)
+        self.assertEqual(Duration(4), Duration(8) // 2)
+        self.assertEqual(Duration(4), Duration(8) // 2.)
+        self.assertEqual(Duration(4), Duration(9) // 2)
+        self.assertEqual(Duration(4), Duration(9) // 2.)
+        self.assertEqual(Duration(4, 2), Duration(8, 4) / 2)
         v = Duration(4, 2) - (Duration(8, 4) / 2.)
-        self.assert_(abs(v.to_nsec()) < 100)            
-        
-        self.assertEquals(Duration(4, 0), Duration(8, 4) // 2)
-        self.assertEquals(Duration(4, 0), Duration(9, 5) // 2)
+        self.assertTrue(abs(v.to_nsec()) < 100)
+
+        self.assertEqual(Duration(4, 0), Duration(8, 4) // 2)
+        self.assertEqual(Duration(4, 0), Duration(9, 5) // 2)
         v = Duration(4, 2) - (Duration(9, 5) // 2.)
-        self.assert_(abs(v.to_nsec()) < 100)                  
-        
+        self.assertTrue(abs(v.to_nsec()) < 100)
