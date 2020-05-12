@@ -2,6 +2,10 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* support non-int integral time parameters (`#121 <https://github.com/ros/genpy/issues/121>`_)
+
 0.6.10 (2020-01-24)
 -------------------
 * various code cleanup (`#117 <https://github.com/ros/genpy/issues/117>`_)
