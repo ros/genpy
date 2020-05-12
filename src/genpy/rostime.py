@@ -69,6 +69,9 @@ class TVal(object):
             float_secs = secs
             secs = int(float_secs)
             nsecs = int((float_secs - secs) * 1000000000)
+        else:
+            secs = int(secs)
+            nsecs = int(nsecs)
 
         self.secs, self.nsecs = _canon(secs, nsecs)
 
