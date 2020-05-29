@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.12 (2020-05-28)
+-------------------
 * fix check_type for uint8[] to accept bytes (`#123 <https://github.com/ros/genpy/issues/123>`_)
 
 0.6.11 (2020-05-12)
