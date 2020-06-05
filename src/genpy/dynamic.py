@@ -111,13 +111,15 @@ def _gen_dyn_modify_references(py_text, current_type, types):
     return py_text
 
 
-def generate_dynamic(core_type, msg_cat):
+def generate_dynamic(core_type, msg_cat, tmp_dir_path=None, tmp_file_name=None):
     """
     Dymamically generate message classes from msg_cat .msg text gendeps dump.
 
     This method modifies sys.path to include a temp file directory.
     :param core_type str: top-level ROS message type of concatenated .msg text
     :param msg_cat str: concatenation of full message text (output of gendeps --cat)
+    :param tmp_dir str
+    :param tmp_file str:
     :raises: MsgGenerationException If dep_msg is improperly formatted
     """
     msg_context = MsgContext.create_default()
@@ -161,16 +163,26 @@ def generate_dynamic(core_type, msg_cat):
             buff.write(line + '\n')
     full_text = buff.getvalue()
 
-    # Create a temporary directory
-    tmp_dir = tempfile.mkdtemp(prefix='genpy_')
+    if tmp_dir_path:
+        # Create a temporary directory with specified path
+        tmp_dir = os.mkdir(tmp_dir_path)
+    else:
+        # Create a temporary directory
+        tmp_dir = tempfile.mkdtemp(prefix='genpy_')
 
-    # Afterwards, we are going to remove the directory so that the .pyc file gets cleaned up if it's still around
-    atexit.register(shutil.rmtree, tmp_dir)
+        # Afterwards, we are going to remove the directory so that the .pyc file gets cleaned up if it's still around
+        atexit.register(shutil.rmtree, tmp_dir)
 
-    # write the entire text to a file and import it (it will get deleted when tmp_dir goes - above)
-    tmp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.py', dir=tmp_dir, delete=False)
-    tmp_file.file.write(full_text)
-    tmp_file.file.close()
+    if tmp_file_name:
+        # create file with specified temp file name, overwrite file if already exist
+        tmp_file = open(tmp_file_name, 'w')
+    else:
+        # write the entire text to a file and import it (it will get deleted when tmp_dir goes - above)
+        tmp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.py', dir=tmp_dir, delete=False)
+    
+    #write the entire text to a file and import it
+    tmp_file.write(full_text)
+    tmp_file.close()
 
     # import our temporary file as a python module, which requires modifying sys.path
     sys.path.append(os.path.dirname(tmp_file.name))
