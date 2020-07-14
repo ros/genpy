@@ -497,7 +497,7 @@ def string_serializer_generator(package, type_, name, serialize):  # noqa: D401
                 yield '%s = str[start:end]' % (var)
             else:
                 yield 'if python3:'
-                yield INDENT+"%s = str[start:end].decode('utf-8', 'replace')" % (var)  # If messages are python3-decode back to unicode
+                yield INDENT+"%s = str[start:end].decode('utf-8', 'rosmsg')" % (var)  # If messages are python3-decode back to unicode
                 yield 'else:'
                 yield INDENT+'%s = str[start:end]' % (var)
 

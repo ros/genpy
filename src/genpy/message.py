@@ -37,6 +37,7 @@ This defines the Message base class used by genpy as well as support
 libraries for type checking and retrieving message classes by type name.
 """
 
+import codecs
 import itertools
 import math
 import struct
@@ -56,14 +57,23 @@ try:
 except NameError:  # Python 3
     from importlib import reload
 
-# common struct pattern singletons for msgs to use. Although this
-# would better placed in a generator-specific module, we don't want to
-# add another import to messages (which incurs higher import cost)
-
 if sys.version > '3':
     long = int
 
+# common struct pattern singletons for msgs to use. Although this
+# would better placed in a generator-specific module, we don't want to
+# add another import to messages (which incurs higher import cost)
 struct_I = struct.Struct('<I')
+
+# Notify the user while not crashing in the face of errors attempting
+# to decode non-unicode data within a ROS message.
+def rosmsg_unicode_errors(err):
+    # Lazy import to avoid this cost in the non-error case.
+    import logging
+    logger = logging.getLogger('rosout')
+    logger.exception(err)
+    return codecs.backslashreplace_errors(err)
+codecs.register_error('rosmsg', rosmsg_unicode_errors)
 
 
 def isstring(s):
