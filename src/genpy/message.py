@@ -67,12 +67,18 @@ struct_I = struct.Struct('<I')
 
 # Notify the user while not crashing in the face of errors attempting
 # to decode non-unicode data within a ROS message.
-def rosmsg_unicode_errors(err):
-    # Lazy import to avoid this cost in the non-error case.
-    import logging
-    logging.getLogger('rosout').error("Undecodable characters replaced in message: %s", err)
-    return codecs.backslashreplace_errors(err)
-codecs.register_error('rosmsg', rosmsg_unicode_errors)
+class RosMsgUnicodeErrors:
+    def __init__(self):
+        self.data_class = None
+
+    def __call__(self, err):
+        # Lazy import to avoid this cost in the non-error case.
+        import logging
+        logger = logging.getLogger('rosout')
+        extra = "message %s" % self.data_class.__name__ if self.data_class else "unknown message"
+        logger.error("Characters replaced when decoding %s: %s", extra, err)
+        return codecs.backslashreplace_errors(err)
+codecs.register_error('rosmsg', RosMsgUnicodeErrors())
 
 
 def isstring(s):

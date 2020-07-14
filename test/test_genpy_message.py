@@ -741,16 +741,20 @@ foo " bar
 
     @unittest.skipIf(sys.hexversion < 0x03000000, "Python 3 only test")
     def test_deserialize_unicode_error(self):
-        from genpy.msg import TestString
-        m = TestString()
+        from genpy.msg import TestString, TestMsgArray
 
-        # String containing one valid unicode character, should succeed.
+        m = TestString()
         buff = b'\x00\x00\x00\x04\xF0\x9F\x92\xA9'
         self.assertEqual(m.deserialize(buff).data, b'\xF0\x9F\x92\xA9'.decode())
 
-        # Non-valid unicode sandwiched between valid characters, should emit warning and be replaced.
+        m = TestString()
         buff = b'\x00\x00\x00\x04\x41\xff\xfe\x42'
         with self.assertLogs('rosout', level='ERROR') as cm:
             self.assertEqual(m.deserialize(buff).data, r'A\xff\xfeB')
-            self.assertIn("can't decode byte 0xff", cm.output[0])
-            self.assertIn("can't decode byte 0xfe", cm.output[1])
+            self.assertIn("Characters replaced when decoding message TestString", cm.output[0])
+
+        m = TestMsgArray()
+        buff = b'\x00\x00\x00\x00\x00\x00\x00\x04\x41\xff\xfe\x42'
+        with self.assertLogs('rosout', level='ERROR') as cm:
+            self.assertEqual(m.deserialize(buff).fixed_strings[0].data, r'A\xff\xfeB')
+            self.assertIn("Characters replaced when decoding message TestMsgArray", cm.output[0])
