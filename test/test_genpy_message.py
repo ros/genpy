@@ -742,7 +742,6 @@ foo " bar
     @unittest.skipIf(sys.hexversion < 0x03000000, "Python 3 only test")
     def test_deserialize_unicode_error(self):
         from genpy.msg import TestString
-        #from io import BytesIO
         m = TestString()
 
         # String containing one valid unicode character, should succeed.
