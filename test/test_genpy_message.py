@@ -738,3 +738,20 @@ foo " bar
             self.assertEqual(str(e), "<class 'struct.error'>: 'required argument is not a float' when writing '1.0'")
         except Exception:
             assert False, 'This should have raised a genpy.SerializationError instead'
+
+    @unittest.skipIf(sys.hexversion < 0x03000000, "Python 3 only test")
+    def test_deserialize_unicode_error(self):
+        from genpy.msg import TestString
+        #from io import BytesIO
+        m = TestString()
+
+        # String containing one valid unicode character, should succeed.
+        buff = b'\x00\x00\x00\x04\xF0\x9F\x92\xA9'
+        self.assertEqual(m.deserialize(buff).data, b'\xF0\x9F\x92\xA9'.decode())
+
+        # Non-valid unicode sandwiched between valid characters, should emit warning and be replaced.
+        buff = b'\x00\x00\x00\x04\x41\xff\xfe\x42'
+        with self.assertLogs('rosout', level='ERROR') as cm:
+            self.assertEqual(m.deserialize(buff).data, r'A\xff\xfeB')
+            self.assertIn("can't decode byte 0xff", cm.output[0])
+            self.assertIn("can't decode byte 0xfe", cm.output[1])
