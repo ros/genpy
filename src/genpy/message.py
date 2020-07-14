@@ -70,8 +70,7 @@ struct_I = struct.Struct('<I')
 def rosmsg_unicode_errors(err):
     # Lazy import to avoid this cost in the non-error case.
     import logging
-    logger = logging.getLogger('rosout')
-    logger.exception(err)
+    logging.getLogger('rosout').error("Undecodable characters replaced in message: %s", err)
     return codecs.backslashreplace_errors(err)
 codecs.register_error('rosmsg', rosmsg_unicode_errors)
 
