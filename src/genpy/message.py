@@ -57,12 +57,13 @@ try:
 except NameError:  # Python 3
     from importlib import reload
 
-if sys.version > '3':
-    long = int
-
 # common struct pattern singletons for msgs to use. Although this
 # would better placed in a generator-specific module, we don't want to
 # add another import to messages (which incurs higher import cost)
+
+if sys.version > '3':
+    long = int
+
 struct_I = struct.Struct('<I')
 
 # Notify the user while not crashing in the face of errors attempting
