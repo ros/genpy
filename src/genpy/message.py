@@ -78,7 +78,7 @@ class RosMsgUnicodeErrors:
         logger = logging.getLogger('rosout')
         extra = "message %s" % self.data_class.__name__ if self.data_class else "unknown message"
         logger.error("Characters replaced when decoding %s: %s", extra, err)
-        return codecs.backslashreplace_errors(err)
+        return codecs.replace_errors(err)
 codecs.register_error('rosmsg', RosMsgUnicodeErrors())
 
 

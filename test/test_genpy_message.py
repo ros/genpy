@@ -750,11 +750,11 @@ foo " bar
         m = TestString()
         buff = b'\x00\x00\x00\x04\x41\xff\xfe\x42'
         with self.assertLogs('rosout', level='ERROR') as cm:
-            self.assertEqual(m.deserialize(buff).data, r'A\xff\xfeB')
+            self.assertEqual(m.deserialize(buff).data, 'A\ufffd\ufffdB')
             self.assertIn("Characters replaced when decoding message TestString", cm.output[0])
 
         m = TestMsgArray()
         buff = b'\x00\x00\x00\x00\x00\x00\x00\x04\x41\xff\xfe\x42'
         with self.assertLogs('rosout', level='ERROR') as cm:
-            self.assertEqual(m.deserialize(buff).fixed_strings[0].data, r'A\xff\xfeB')
+            self.assertEqual(m.deserialize(buff).fixed_strings[0].data, 'A\ufffd\ufffdB')
             self.assertIn("Characters replaced when decoding message TestMsgArray", cm.output[0])
