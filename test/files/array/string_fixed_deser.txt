@@ -6,7 +6,7 @@ for i in range(0, 2):
   start = end
   end += length
   if python3:
-    val0 = str[start:end].decode('utf-8')
+    val0 = str[start:end].decode('utf-8', 'rosmsg')
   else:
     val0 = str[start:end]
   data.append(val0)

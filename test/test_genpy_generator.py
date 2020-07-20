@@ -331,7 +331,7 @@ end += 4
 start = end
 end += length
 if python3:
-  var_name = str[start:end].decode('utf-8')
+  var_name = str[start:end].decode('utf-8', 'rosmsg')
 else:
   var_name = str[start:end]"""
     # string serializer and array serializer are identical

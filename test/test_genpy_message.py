@@ -738,3 +738,27 @@ foo " bar
             self.assertEqual(str(e), "<class 'struct.error'>: 'required argument is not a float' when writing '1.0'")
         except Exception:
             assert False, 'This should have raised a genpy.SerializationError instead'
+
+    @unittest.skipIf(sys.hexversion < 0x03000000, "Python 3 only test")
+    def test_deserialize_unicode_error(self):
+        from genpy.msg import TestString, TestMsgArray
+
+        m = TestString()
+        buff = b'\x00\x00\x00\x04\xF0\x9F\x92\xA9'
+        self.assertEqual(m.deserialize(buff).data, b'\xF0\x9F\x92\xA9'.decode())
+
+        m = TestString()
+        buff = b'\x00\x00\x00\x04\x41\xff\xfe\x42'
+        with self.assertLogs('rosout', level='ERROR') as cm:
+            self.assertEqual(m.deserialize(buff).data, 'A\ufffd\ufffdB')
+            self.assertEqual(m.deserialize(buff).data, 'A\ufffd\ufffdB')
+            self.assertEqual(len(cm.output), 1)
+            self.assertIn("Characters replaced when decoding message genpy/TestString (will print only once)", cm.output[0])
+
+        m = TestMsgArray()
+        buff = b'\x00\x00\x00\x00\x00\x00\x00\x04\x41\xff\xfe\x42'
+        with self.assertLogs('rosout', level='ERROR') as cm:
+            self.assertEqual(m.deserialize(buff).fixed_strings[0].data, 'A\ufffd\ufffdB')
+            self.assertEqual(m.deserialize(buff).fixed_strings[0].data, 'A\ufffd\ufffdB')
+            self.assertEqual(len(cm.output), 1)
+            self.assertIn("Characters replaced when decoding message genpy/TestMsgArray (will print only once)", cm.output[0])
