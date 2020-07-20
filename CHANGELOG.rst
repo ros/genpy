@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.13 (2020-07-20)
+-------------------
 * don't raise exceptions on unicode decode error (`#127 <https://github.com/ros/genpy/issues/127>`_)
 
 0.6.12 (2020-05-28)

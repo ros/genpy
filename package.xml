@@ -4,7 +4,7 @@
   schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>genpy</name>
-  <version>0.6.12</version>
+  <version>0.6.13</version>
   <description>Python ROS message and service generators.</description>
   <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
   <license>BSD</license>
