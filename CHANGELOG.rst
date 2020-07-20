@@ -2,6 +2,10 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* don't raise exceptions on unicode decode error (`#127 <https://github.com/ros/genpy/issues/127>`_)
+
 0.6.12 (2020-05-28)
 -------------------
 * fix check_type for uint8[] to accept bytes (`#123 <https://github.com/ros/genpy/issues/123>`_)
