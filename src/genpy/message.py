@@ -70,13 +70,13 @@ struct_I = struct.Struct('<I')
 # to decode non-unicode data within a ROS message.
 class RosMsgUnicodeErrors:
     def __init__(self):
-        self.data_class = None
+        self.msg_type = None
 
     def __call__(self, err):
         # Lazy import to avoid this cost in the non-error case.
         import logging
         logger = logging.getLogger('rosout')
-        extra = "message %s" % self.data_class.__name__ if self.data_class else "unknown message"
+        extra = "message %s" % self.msg_type if self.msg_type else "unknown message"
         logger.error("Characters replaced when decoding %s: %s", extra, err)
         return codecs.replace_errors(err)
 codecs.register_error('rosmsg', RosMsgUnicodeErrors())
