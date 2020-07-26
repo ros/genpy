@@ -162,7 +162,7 @@ def generate_dynamic(core_type, msg_cat, output_file=None):
             buff.write(line + '\n')
     full_text = buff.getvalue()
 
-    if output_file and os.path.isfile(output_file):
+    if output_file:
         # create file with specified temp file name, overwrite file if already exist
         tmp_file = open(output_file, 'w')
     else:
