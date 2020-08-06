@@ -148,7 +148,7 @@ def pack2(pattern, vars_):
     :param pattern: name of variable storing string pattern, ``struct``
     :param vars_: name of variables to pack, ``str``
     """
-    return serialize('struct.pack(%s, %s)' % (pattern, vars_))
+    return serialize('struct.Struct(%s).pack(%s)' % (pattern, vars_))
 
 
 def unpack(var, pattern, buff):
@@ -174,3 +174,15 @@ def unpack2(var, pattern, buff):
     :param buff: buffer that the unpack reads from, ``StringIO``
     """
     return '%s = struct.unpack(%s, %s)' % (var, pattern, buff)
+
+
+def unpack3(var, struct_var, buff):
+    """
+    Create an unpack call on the ``struct.Struct`` object with the name
+    ``struct_var``.
+
+    :param var: variable the stores the result of unpack call, ``str``
+    :param str struct_var: name of the struct variable used to unpack ``buff``
+    :param buff: buffer that the unpack reads from, ``StringIO``
+    """
+    return '%s = %s.unpack(%s)' % (var, struct_var, buff)

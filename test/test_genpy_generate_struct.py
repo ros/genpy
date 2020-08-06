@@ -23,7 +23,7 @@ def test_pack():
 
 def test_pack2():
     from genpy.generate_struct import pack2
-    assert 'buff.write(struct.pack(patt_name, foo, bar))' == pack2('patt_name', 'foo, bar')
+    assert 'buff.write(struct.Struct(patt_name).pack(foo, bar))' == pack2('patt_name', 'foo, bar')
 
 
 def test_unpack():
@@ -34,6 +34,11 @@ def test_unpack():
 def test_unpack2():
     from genpy.generate_struct import unpack2
     assert 'x = struct.unpack(patt, b)' == unpack2('x', 'patt', 'b')
+
+
+def test_unpack3():
+    from genpy.generate_struct import unpack3
+    assert 'x = s.unpack(b)' == unpack3('x', 's', 'b')
 
 
 def test_compute_struct_pattern():
