@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.14 (2020-08-10)
+-------------------
 * create Struct objects to save memory (`#129 <https://github.com/ros/genpy/issues/129>`_)
 
 0.6.13 (2020-07-20)
