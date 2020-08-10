@@ -79,6 +79,7 @@ from . generate_struct import pack2
 from . generate_struct import reduce_pattern
 from . generate_struct import unpack
 from . generate_struct import unpack2
+from . generate_struct import unpack3
 
 # indent width
 INDENT = '  '
@@ -541,12 +542,13 @@ def array_serializer_generator(msg_context, package, type_, name, serialize, is_
                     yield pack2('pattern', '*'+var)
             else:
                 yield 'start = end'
-                yield 'end += struct.calcsize(pattern)'
+                yield 's = struct.Struct(pattern)'
+                yield 'end += s.size'
                 if is_numpy:
                     dtype = NUMPY_DTYPE[base_type]
                     yield unpack_numpy(var, 'length', dtype, 'str[start:end]')
                 else:
-                    yield unpack2(var, 'pattern', 'str[start:end]')
+                    yield unpack3(var, 's', 'str[start:end]')
         else:
             pattern = '%s%s' % (length, compute_struct_pattern([base_type]))
             if serialize:

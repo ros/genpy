@@ -313,16 +313,16 @@ def test_string_serializer_generator():
 if python3 or type(var_name) == unicode:
   var_name = var_name.encode('utf-8')
   length = len(var_name)
-buff.write(struct.pack('<I%ss'%length, length, var_name))""" == val, val
+buff.write(struct.Struct('<I%ss'%length).pack(length, var_name))""" == val, val
 
     for t in ['uint8[]', 'byte[]', 'uint8[10]', 'byte[20]']:
         g = genpy.generator.string_serializer_generator('foo', 'uint8[]', 'b_name', True)
         assert """length = len(b_name)
 # - if encoded as a list instead, serialize as bytes instead of string
 if type(b_name) in [list, tuple]:
-  buff.write(struct.pack('<I%sB'%length, length, *b_name))
+  buff.write(struct.Struct('<I%sB'%length).pack(length, *b_name))
 else:
-  buff.write(struct.pack('<I%ss'%length, length, b_name))""" == '\n'.join(g)
+  buff.write(struct.Struct('<I%ss'%length).pack(length, b_name))""" == '\n'.join(g)
 
     # Test Deserializers
     val = """start = end
