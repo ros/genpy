@@ -43,6 +43,8 @@ import math
 import struct
 import sys
 
+import numpy as np
+
 import genmsg
 
 import yaml
@@ -262,7 +264,7 @@ def check_type(field_name, field_type, field_val):
             if field_val >= maxval:
                 raise SerializationError('field %s exceeds specified width [%s]' % (field_name, field_type))
         elif field_type in ['float32', 'float64']:
-            if type(field_val) not in [float, int, long]:
+            if type(field_val) not in [float, int, long, np.float32, np.float64, np.int8, np.int16, np.int32, np.int64, np.uint8, np.uint16, np.uint32, np.uint64]:
                 raise SerializationError('field %s must be float type' % field_name)
         elif field_type == 'bool':
             if field_val not in [True, False, 0, 1]:
