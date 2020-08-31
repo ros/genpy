@@ -27,6 +27,9 @@
   <exec_depend condition="$ROS_PYTHON_VERSION == 2">python-yaml</exec_depend>
   <exec_depend condition="$ROS_PYTHON_VERSION == 3">python3-yaml</exec_depend>
 
+  <test_depend condition="$ROS_PYTHON_VERSION == 2">python-numpy</test_depend>
+  <test_depend condition="$ROS_PYTHON_VERSION == 3">python3-numpy</test_depend>
+
   <export>
     <message_generator>py</message_generator>
     <rosdoc config="rosdoc.yaml"/>

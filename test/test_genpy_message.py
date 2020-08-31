@@ -364,6 +364,7 @@ class MessageTest(unittest.TestCase):
 
         check_type will throw an exception when it fails
         """
+        import numpy as np
         genpy.message.check_type('test', 'uint8[]', 'byteDataIsAStringInPy')
         genpy.message.check_type('test', 'char[]', 'byteDataIsAStringInPy')
         genpy.message.check_type('test', 'uint8[]', [3, 4, 5])
@@ -385,6 +386,21 @@ class MessageTest(unittest.TestCase):
         genpy.message.check_type('test', 'string', 'IAmAString')
         genpy.message.check_type('test', 'time', Time())
         genpy.message.check_type('test', 'duration', Duration(5))
+        genpy.message.check_type('test', 'float32', 5)
+        genpy.message.check_type('test', 'float32', 5.0)
+        genpy.message.check_type('test', 'float32', np.int16(5))
+        genpy.message.check_type('test', 'float32', np.float32(5.0))
+        genpy.message.check_type('test', 'float32', float('inf'))
+        genpy.message.check_type('test', 'float32', -float('inf'))
+        genpy.message.check_type('test', 'float32', float('nan'))
+        genpy.message.check_type('test', 'float32', -float('nan'))
+        genpy.message.check_type('test', 'float32', 2147483647)   # resulting float: 2147483648.0
+        genpy.message.check_type('test', 'float64', 5.0)
+        genpy.message.check_type('test', 'float64', 1 + np.finfo(np.float64).eps)
+        genpy.message.check_type('test', 'float64', np.float64(5.0))
+        genpy.message.check_type('test', 'float64', np.int32(2147483647))
+        # smallest representable float larger than 1.0 in builtin float type (64 bits). conversion to float32 loses precision.
+        genpy.message.check_type('test', 'float32', float(1 + 2**-52))
 
     def test_check_types_invalid(self):
         from genpy import SerializationError
@@ -404,6 +420,8 @@ class MessageTest(unittest.TestCase):
                           'test', 'bool', -2)
         self.assertRaises(SerializationError, genpy.message.check_type,
                           'test', 'bool', 2)
+        self.assertRaises(SerializationError, genpy.message.check_type,
+                          'test', 'float64', 'someString')
         try:
             u = unichr(1234)
         except NameError:
@@ -735,7 +753,7 @@ foo " bar
             m.serialize(buff)
             assert False, 'This should have raised a genpy.SerializationError'
         except genpy.SerializationError as e:
-            self.assertEqual(str(e), "<class 'struct.error'>: 'required argument is not a float' when writing '1.0'")
+            self.assertEqual(str(e), "field float must be float type")
         except Exception:
             assert False, 'This should have raised a genpy.SerializationError instead'
 
