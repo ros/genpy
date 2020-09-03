@@ -758,7 +758,8 @@ def deserialize_fn_generator(msg_context, spec, is_numpy=False):  # noqa: D401
     :param is_numpy: if True, generate serializer code for numpy
       datatypes instead of Python lists, ``bool``
     """
-    yield 'codecs.lookup_error("rosmsg").msg_type = self._type'
+    yield 'if python3:'
+    yield INDENT+'codecs.lookup_error("rosmsg").msg_type = self._type'
     yield 'try:'
     package = spec.package
     # Instantiate embedded type classes
