@@ -6,7 +6,8 @@
   <name>genpy</name>
   <version>0.6.14</version>
   <description>Python ROS message and service generators.</description>
-  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
+  <maintainer email="mabel@openrobotics.org">Mabel Zhang</maintainer>
+  <maintainer email="sloretz@openrobotics.org">Shane Loretz</maintainer>
   <license>BSD</license>
 
   <url type="website">http://wiki.ros.org/genpy</url>
