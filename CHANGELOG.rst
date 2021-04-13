@@ -2,6 +2,13 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.6.15 (2021-04-12)
+-------------------
+* Update maintainers (`#135 <https://github.com/ros/genpy/issues/135>`_)
+* Check for Python 3 before looking up codec (`#134 <https://github.com/ros/genpy/issues/134>`_)
+* Add check for float32 and float64 to check_type (`#131 <https://github.com/ros/genpy/issues/131>`_)
+* Contributors: Dirk Thomas, Martin Günther, Shane Loretz
+
 0.6.14 (2020-08-10)
 -------------------
 * create Struct objects to save memory (`#129 <https://github.com/ros/genpy/issues/129>`_)
