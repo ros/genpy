@@ -74,24 +74,23 @@ struct_I = struct.Struct('<I')
 
 _warned_decoding_error = set()
 
-if sys.hexversion >= 0x03000000:
-    # Notify the user while not crashing in the face of errors attempting
-    # to decode non-unicode data within a ROS message.
-    class RosMsgUnicodeErrors:
-        def __init__(self):
-            self.msg_type = None
+# Notify the user while not crashing in the face of errors attempting
+# to decode non-unicode data within a ROS message.
+class RosMsgUnicodeErrors:
+    def __init__(self):
+        self.msg_type = None
 
-        def __call__(self, err):
-            global _warned_decoding_error
-            if self.msg_type not in _warned_decoding_error:
-                _warned_decoding_error.add(self.msg_type)
-                # Lazy import to avoid this cost in the non-error case.
-                import logging
-                logger = logging.getLogger('rosout')
-                extra = "message %s" % self.msg_type if self.msg_type else "unknown message"
-                logger.error("Characters replaced when decoding %s (will print only once): %s", extra, err)
-            return codecs.replace_errors(err)
-    codecs.register_error('rosmsg', RosMsgUnicodeErrors())
+    def __call__(self, err):
+        global _warned_decoding_error
+        if self.msg_type not in _warned_decoding_error:
+            _warned_decoding_error.add(self.msg_type)
+            # Lazy import to avoid this cost in the non-error case.
+            import logging
+            logger = logging.getLogger('rosout')
+            extra = "message %s" % self.msg_type if self.msg_type else "unknown message"
+            logger.error("Characters replaced when decoding %s (will print only once): %s", extra, err)
+        return codecs.replace_errors(err)
+codecs.register_error('rosmsg', RosMsgUnicodeErrors())
 
 
 def isstring(s):
