@@ -2,6 +2,11 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.6.16 (2021-05-01)
+-------------------
+* Fix runtime incompatibility with messages generated with 0.6.14 (`#139 <https://github.com/ros/genpy/issues/139>`_)
+* Contributors: Shane Loretz
+
 0.6.15 (2021-04-12)
 -------------------
 * Update maintainers (`#135 <https://github.com/ros/genpy/issues/135>`_)
