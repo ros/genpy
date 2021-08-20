@@ -213,7 +213,7 @@ def strify_message(val, indent='', time_offset=None, current_time=None, field_fi
 
 def _convert_getattr(val, f, t):
     """
-    Convert atttribute types on the fly, if necessary.
+    Convert attribute types on the fly, if necessary.
 
     This is mainly to convert uint8[] fields back to an array type.
     """
