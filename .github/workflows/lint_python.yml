@@ -10,12 +10,12 @@ jobs:
       - run: pip install bandit codespell flake8 mypy pytest pyupgrade safety
       - run: bandit --recursive --skip B101,B108,B110,B307,B506 .
       - run: codespell --ignore-words-list="te" || true  # See PR #142
-      - run: flake8 --ignore=E111,E12,,E222,E226,E231,E241,E26,E30,E70,E722,E741,F401,F841
+      - run: flake8 --count --ignore=E231,E261,E265,E701,E722,F401
                     --max-complexity=34 --max-line-length=184
-                    --show-source --statistics --count
+                    --show-source --statistics
       - name: Run pip install --editable .
         run: |
-          pip install catkin_pkg pyros-genmsg
+          pip install catkin_pkg nose pyros-genmsg
           pip install --editable .
           mkdir --parents --verbose .mypy_cache
       - run: mypy --ignore-missing-imports --install-types --non-interactive . || true
