@@ -99,7 +99,8 @@ class RostimeTest(unittest.TestCase):
         self.assertNotEquals(v, TVal(0, 0))
         self.assertNotEquals(v.__hash__(), TVal(0, 0).__hash__())
         self.assertEquals(NotImplemented, v.__ge__(0))
-        class Foo(object): pass
+        class Foo(object):
+            pass
         self.assertEquals(NotImplemented, v.__gt__(Foo()))
         self.assertEquals(NotImplemented, v.__ge__(Foo()))
         self.assertEquals(NotImplemented, v.__le__(Foo()))
@@ -183,14 +184,16 @@ class RostimeTest(unittest.TestCase):
         # #1600 Duration > Time should fail
         failed = False
         try:
-          v = Duration.from_sec(0.1) > Time.from_sec(0.5)
-          failed = True
-        except: pass
+            v = Duration.from_sec(0.1) > Time.from_sec(0.5)
+            failed = True
+        except:
+            pass
         self.failIf(failed, "should have failed to compare")
         try:
-          v = Time.from_sec(0.4) > Duration.from_sec(0.1)
-          failed = True
-        except: pass
+            v = Time.from_sec(0.4) > Duration.from_sec(0.1)
+            failed = True
+        except:
+            pass
         self.failIf(failed, "should have failed to compare")
 
         # TODO: sub
@@ -199,12 +202,14 @@ class RostimeTest(unittest.TestCase):
         try:
             Time(-1)
             failed = True
-        except: pass
+        except:
+            pass
         self.failIf(failed, "negative time not allowed")
         try:
             Time(1, -1000000001)
             failed = True
-        except: pass
+        except:
+            pass
         self.failIf(failed, "negative time not allowed")
 
         # test Time.now() is within 10 seconds of actual time (really generous)
@@ -225,7 +230,8 @@ class RostimeTest(unittest.TestCase):
         try:
             v = Time(1,0) + Time(1, 0)
             failed = True
-        except: pass
+        except:
+            pass
         self.failIf(failed, "Time + Time must fail")
 
         # - time + duration
@@ -262,13 +268,16 @@ class RostimeTest(unittest.TestCase):
         try:
             v = Time(1,0) - 1
             failed = True
-        except: pass
+        except:
+            pass
         self.failIf(failed, "Time - non Duration must fail")
-        class Foob(object): pass
+        class Foob(object):
+            pass
         try:
             v = Time(1,0) - Foob()
             failed = True
-        except: pass
+        except:
+            pass
         self.failIf(failed, "Time - non TVal must fail")
 
         # - Time - Duration
@@ -304,7 +313,8 @@ class RostimeTest(unittest.TestCase):
         try:
             Time(0.5, 0.5)
             self.fail("should have thrown value error")
-        except ValueError: pass
+        except ValueError:
+            pass
 
     def test_Duration(self):
         from genpy.rostime import Time, Duration
@@ -336,7 +346,8 @@ class RostimeTest(unittest.TestCase):
         try:
             v = Duration(1,0) + 1
             failed = True
-        except: pass
+        except:
+            pass
         self.failIf(failed, "Duration + int must fail")
 
         v = Duration(1,0) + Duration(1, 0)
@@ -362,12 +373,14 @@ class RostimeTest(unittest.TestCase):
         try:
             v = Duration(1,0) - 1
             failed = True
-        except: pass
+        except:
+            pass
         self.failIf(failed, "Duration - non duration must fail")
         try:
             v = Duration(1, 0) - Time(1,0)
             failed = True
-        except: pass
+        except:
+            pass
         self.failIf(failed, "Duration - Time must fail")
 
         v = Duration(1,0) - Duration(1, 0)
@@ -401,7 +414,8 @@ class RostimeTest(unittest.TestCase):
         try:
             Duration(0.5, 0.5)
             self.fail("should have thrown value error")
-        except ValueError: pass
+        except ValueError:
+            pass
 
         # Test mul
         self.assertEquals(Duration(4), Duration(2) * 2)
