@@ -127,8 +127,8 @@ class Special:
 
 
 _SPECIAL_TYPES = {
-    genmsg.HEADER:   Special('std_msgs.msg._Header.Header()',     None, 'import std_msgs.msg'),
-    genmsg.TIME:     Special('genpy.Time()',     '%s.canon()', 'import genpy'),
+    genmsg.HEADER: Special('std_msgs.msg._Header.Header()', None, 'import std_msgs.msg'),
+    genmsg.TIME: Special('genpy.Time()', '%s.canon()', 'import genpy'),
     genmsg.DURATION: Special('genpy.Duration()', '%s.canon()', 'import genpy'),
     }
 
@@ -340,7 +340,7 @@ def compute_import(msg_context, package, type_):
         iter_types = get_registered_ex(msg_context, full_msg_type).types
         for t in iter_types:
             assert t != full_msg_type, 'msg [%s] has circular self-dependencies' % (full_msg_type)
-            full_sub_type = '%s/%s' % (package, t)
+            # full_sub_type = '%s/%s' % (package, t)  # unused variable
             log('compute_import', full_msg_type, package, t)
             sub = compute_import(msg_context, package, t)
             retval.extend([x for x in sub if x not in retval])
@@ -971,8 +971,8 @@ def msg_generator(msg_context, spec, search_path):
 
 def srv_generator(msg_context, spec, search_path):
     for mspec in (spec.request, spec.response):
-        for l in msg_generator(msg_context, mspec, search_path):
-            yield l
+        for line in msg_generator(msg_context, mspec, search_path):
+            yield line
 
     name = spec.short_name
     req, resp = ['%s%s' % (name, suff) for suff in ['Request', 'Response']]
@@ -1037,8 +1037,8 @@ class Generator(object):
         spec = self.spec_loader_fn(msg_context, f, full_type)
         outfile = compute_outfile_name(outdir, os.path.basename(f), self.ext)
         with open(outfile, 'w') as f:
-            for l in self.generator_fn(msg_context, spec, search_path):
-                f.write(l+'\n')
+            for line in self.generator_fn(msg_context, spec, search_path):
+                f.write(line + '\n')
         return outfile
 
     def generate_messages(self, package, package_files, outdir, search_path):  # noqa: D200, D400, D401
