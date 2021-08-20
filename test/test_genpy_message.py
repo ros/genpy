@@ -480,7 +480,8 @@ class MessageTest(unittest.TestCase):
             __slots__ = ['a', 'b']
             _slot_types = ['int32', 'int32']
 
-            def _get_types(self): return ['int32', 'int32']
+            def _get_types(self):
+                return ['int32', 'int32']
 
             def __init__(self, *args, **kwds):
                 super(M2, self).__init__(*args, **kwds)
