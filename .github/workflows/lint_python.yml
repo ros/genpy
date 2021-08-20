@@ -15,8 +15,8 @@ jobs:
                     --show-source --statistics --count
       - name: Run pip install --editable .
         run: |
-          pip install catkin_pkg
-          pip install --editable . || true
+          pip install catkin_pkg pyros-genmsg
+          pip install --editable .
           mkdir --parents --verbose .mypy_cache
       - run: mypy --ignore-missing-imports --install-types --non-interactive . || true
       - run: pytest || pytest --doctest-modules || true
