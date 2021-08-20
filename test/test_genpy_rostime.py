@@ -99,8 +99,10 @@ class RostimeTest(unittest.TestCase):
         self.assertNotEquals(v, TVal(0, 0))
         self.assertNotEquals(v.__hash__(), TVal(0, 0).__hash__())
         self.assertEquals(NotImplemented, v.__ge__(0))
+
         class Foo(object):
             pass
+
         self.assertEquals(NotImplemented, v.__gt__(Foo()))
         self.assertEquals(NotImplemented, v.__ge__(Foo()))
         self.assertEquals(NotImplemented, v.__le__(Foo()))
@@ -168,7 +170,6 @@ class RostimeTest(unittest.TestCase):
             self.assertEquals(0, v.nsecs)
             self.assertEquals(-1, v.to_sec())
             self.assertEquals(-1000000000, v.to_nsec())
-
 
         # test some more hashes
         self.assertEquals(TVal(1).__hash__(), TVal(1).__hash__())
@@ -261,7 +262,7 @@ class RostimeTest(unittest.TestCase):
 
         v = Time(100, 100) + Duration(300, -101)
         self.assertEquals(Time(399, 999999999), v)
-        v =  Duration(300, -101) + Time(100, 100)
+        v = Duration(300, -101) + Time(100, 100)
         self.assertEquals(Time(399, 999999999), v)
 
         # test subtraction
@@ -271,6 +272,7 @@ class RostimeTest(unittest.TestCase):
         except:
             pass
         self.failIf(failed, "Time - non Duration must fail")
+
         class Foob(object):
             pass
         try:
@@ -278,6 +280,7 @@ class RostimeTest(unittest.TestCase):
             failed = True
         except:
             pass
+
         self.failIf(failed, "Time - non TVal must fail")
 
         # - Time - Duration
