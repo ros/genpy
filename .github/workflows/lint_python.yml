@@ -15,7 +15,7 @@ jobs:
                     --show-source --statistics
       - name: Run pip install --editable .
         run: |
-          pip install catkin_pkg nose pyros-genmsg
+          pip install catkin_pkg nose numpy pyros-genmsg
           pip install --editable .
           mkdir --parents --verbose .mypy_cache
       - run: mypy --ignore-missing-imports --install-types --non-interactive . || true
