@@ -6,7 +6,7 @@
 Welcome to genpy's documentation!
 =================================
 
-Contents:
+Python ROS message and service generators.
 
 .. toctree::
    :maxdepth: 2
@@ -17,4 +17,8 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+.. automodule:: genpy
+   :members:
+   :undoc-members:
 
