@@ -95,7 +95,7 @@ string frame_id
 
 ================================================================================
 MSG: probot_msgs/ControllerStatus
-# This message defines the expected format for Controller Statuss messages
+# This message defines the expected format for Controller Status messages
 # Embed this in the feedback state message of highlevel controllers
 byte UNDEFINED=0
 byte SUCCESS=1

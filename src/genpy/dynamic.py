@@ -113,7 +113,7 @@ def _gen_dyn_modify_references(py_text, current_type, types):
 
 def generate_dynamic(core_type, msg_cat):
     """
-    Dymamically generate message classes from msg_cat .msg text gendeps dump.
+    Dynamically generate message classes from msg_cat .msg text gendeps dump.
 
     This method modifies sys.path to include a temp file directory.
     :param core_type str: top-level ROS message type of concatenated .msg text
