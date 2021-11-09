@@ -17,6 +17,8 @@
   <author>Troy Straszheim</author>
   <author>Morten Kjaergaard</author>
   <author>Dirk Thomas</author>
+  <author email="mabel@openrobotics.org">Mabel Zhang</author>
+  <author email="sloretz@openrobotics.org">Shane Loretz</author>
 
   <depend>genmsg</depend>
 
