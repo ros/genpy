@@ -1,5 +1,18 @@
-# - if encoded as a list instead, serialize as bytes instead of string
-if type(data) in [list, tuple]:
-  buff.write(_get_struct_8B().pack(*data))
+# check for buffer protocol support
+try:
+  # we want to process str and bytes by the except clause
+  if isinstance(data, bytes) or isinstance(data, str):
+    raise TypeError()
+  tmp = memoryview(data)
+except TypeError:
+  # - if encoded as a list instead, serialize as bytes instead of string
+  if type(data) in [list, tuple]:
+    buff.write(_get_struct_8B().pack(*data))
+  else:
+    buff.write(_get_struct_8s().pack(data))
 else:
-  buff.write(_get_struct_8s().pack(data))
+  from genpy.generate_struct import memoryview_len
+  tmp_len = memoryview_len(tmp)
+  if tmp_len != 8:
+    raise TypeError("expected 8 bytes, got %i" % (tmp_len,))
+  buff.write(tmp[:8])

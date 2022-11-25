@@ -186,3 +186,17 @@ def unpack3(var, struct_var, buff):
     :param buff: buffer that the unpack reads from, ``StringIO``
     """
     return '%s = %s.unpack(%s)' % (var, struct_var, buff)
+
+
+def memoryview_len(view):
+    """
+    Compute the size (in bytes) of a ``memoryview`` object.
+
+    This is the same as memoryview.nbytes, but compatible with Python 2.
+
+    :param view: The ``memoryview`` object.
+    """
+    length = view.itemsize
+    for s in view.shape:
+        length *= s
+    return length
