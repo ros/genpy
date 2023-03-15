@@ -367,10 +367,19 @@ class MessageTest(unittest.TestCase):
         import numpy as np
         genpy.message.check_type('test', 'uint8[]', 'byteDataIsAStringInPy')
         genpy.message.check_type('test', 'char[]', 'byteDataIsAStringInPy')
+        genpy.message.check_type('test', 'uint8[]', b'byteDataIsAStringInPy')
         genpy.message.check_type('test', 'uint8[]', [3, 4, 5])
         genpy.message.check_type('test', 'uint8[]', (3, 4, 5))
         genpy.message.check_type('test', 'char[]', [3, 4, 5])
         genpy.message.check_type('test', 'int32[]', [3, 4, 5])
+        genpy.message.check_type('test', 'uint8[]', bytearray(b'bytes'))
+        genpy.message.check_type('test', 'uint8[]', np.array([3, 4, 5]))
+        # serializing string as bytes does not check that correct number of bytes were given
+        genpy.message.check_type('test', 'uint8[3]', "asd".encode())
+        genpy.message.check_type('test', 'uint8[3]', "asda".encode())
+        genpy.message.check_type('test', 'uint8[3]', "as".encode())
+        # serializing buffer-protocol objects does check the number of bytes
+        genpy.message.check_type('test', 'uint8[3]', np.array([3, 4, 5], dtype=np.uint8))
         genpy.message.check_type('test', 'int32', -5)
         genpy.message.check_type('test', 'int64', -5)
         genpy.message.check_type('test', 'int16', -5)
@@ -404,10 +413,13 @@ class MessageTest(unittest.TestCase):
 
     def test_check_types_invalid(self):
         from genpy import SerializationError
+        import numpy as np
         self.assertRaises(SerializationError, genpy.message.check_type,
                           'test', 'int32[]', 'someString')
         self.assertRaises(SerializationError, genpy.message.check_type,
                           'test', 'uint32[]', [3, -2, 4])
+        self.assertRaises(SerializationError, genpy.message.check_type,
+                          'test', 'uint8[4]', np.array([3, -2, 4], dtype=np.uint8))
         self.assertRaises(SerializationError, genpy.message.check_type,
                           'test', 'uint8', -2)
         self.assertRaises(SerializationError, genpy.message.check_type,
@@ -694,9 +706,12 @@ foo " bar
         # test to validate this.
         from genpy.message import check_type, SerializationError
         from genpy import Time, Duration
+        import numpy as np
         valids = [
             ('byte', 1), ('byte', -1),
             ('string', ''), ('string', 'a string of text'),
+            ('uint8[]', "buffer"), ('uint8[]', b"buffer"), ('uint8[]', bytearray(b"buffer")),
+            ('uint8[]', np.array([1, 2, 3, 4])),
             ('int32[]', []),
             ('int32[]', [1, 2, 3, 4]),
             ('time', Time()), ('time', Time.from_sec(1.0)),
@@ -720,6 +735,8 @@ foo " bar
             ('uint8', -1), ('uint8', 112312),
             ('int32', '1'), ('int32', 1.),
             ('int32[]', 1), ('int32[]', [1., 2.]), ('int32[]', [1, 2.]),
+            ('uint16[]', "buffer"), ('uint16[]', b"buffer"), ('uint16[]', bytearray(b"buffer")),
+            ('uint16[]', np.array([1, 2, 3, 4])),
             ('duration', 1), ('time', 1),
             ]
         for t, v in invalids:
@@ -754,6 +771,124 @@ foo " bar
             assert False, 'This should have raised a genpy.SerializationError'
         except genpy.SerializationError as e:
             self.assertEqual(str(e), "field float must be float type")
+        except Exception:
+            assert False, 'This should have raised a genpy.SerializationError instead'
+
+    def test_serialize_binary_msg(self):
+        from genpy.msg import TestBinary
+        import numpy as np
+        try:
+            from cStringIO import StringIO
+        except ImportError:
+            from io import BytesIO as StringIO
+
+        m = TestBinary()
+
+        buff = StringIO()
+        m.data_var = [3, 4, 5]
+        m.data_fixed = [1, 2, 3, 4]
+        m.serialize(buff)
+        expected_val = buff.getvalue()
+
+        buff = StringIO()
+        m.data_var = (3, 4, 5)
+        m.data_fixed = (1, 2, 3, 4)
+        m.serialize(buff)
+        val = buff.getvalue()
+        self.assertEqual(val, expected_val)
+
+        buff = StringIO()
+        m.data_var = "\x03\x04\x05".encode()
+        m.data_fixed = "\x01\x02\x03\x04".encode()
+        m.serialize(buff)
+        val = buff.getvalue()
+        self.assertEqual(val, expected_val)
+
+        buff = StringIO()
+        m.data_var = b"\x03\x04\x05"
+        m.data_fixed = b"\x01\x02\x03\x04"
+        m.serialize(buff)
+        val = buff.getvalue()
+        self.assertEqual(val, expected_val)
+
+        buff = StringIO()
+        m.data_var = bytearray(b"\x03\x04\x05")
+        m.data_fixed = bytearray(b"\x01\x02\x03\x04")
+        m.serialize(buff)
+        val = buff.getvalue()
+        self.assertEqual(val, expected_val)
+
+        buff = StringIO()
+        m.data_var = np.array([3, 4, 5], dtype=np.uint8)
+        m.data_fixed = np.array([1, 2, 3, 4], dtype=np.uint8)
+        m.serialize(buff)
+        self.assertEqual(val, expected_val)
+
+        # structured numpy array with one 3- or 4-dimensional element (useful e.g. for pointclouds)
+        dtype_var = [('x', np.uint8), ('y', np.uint8), ('z', np.uint8)]
+        dtype_fixed = [('x', np.uint8), ('y', np.uint8), ('z', np.uint8), ('w', np.uint8)]
+
+        buff = StringIO()
+        m.data_var = np.zeros((1,), dtype=dtype_var)
+        m.data_var[0]['x'] = 3
+        m.data_var[0]['y'] = 4
+        m.data_var[0]['z'] = 5
+        m.data_fixed = np.zeros((1,), dtype=dtype_fixed)
+        m.data_fixed[0]['x'] = 1
+        m.data_fixed[0]['y'] = 2
+        m.data_fixed[0]['z'] = 3
+        m.data_fixed[0]['w'] = 4
+        m.serialize(buff)
+        self.assertEqual(val, expected_val)
+
+        # str and bytes iterables do not care about exact sizes for fixed fields
+
+        buff = StringIO()
+        m.data_var = "\x03\x04\x05".encode()
+        m.data_fixed = "\x01\x02\x03\x04\x05".encode()
+        m.serialize(buff)
+        expected_val = buff.getvalue()
+
+        buff = StringIO()
+        m.data_var = b"\x03\x04\x05"
+        m.data_fixed = b"\x01\x02\x03\x04\x05"
+        m.serialize(buff)
+        val = buff.getvalue()
+        self.assertEqual(val, expected_val)
+
+        # buffer-protocol values do care about exact size for fixed-size arrays
+
+        buff = StringIO()
+        m.data_var = bytearray(b"\x03\x04\x05")
+        m.data_fixed = bytearray(b"\x01\x02\x03\x04\x05")
+        try:
+            m.serialize(buff)
+            assert False, 'This should have raised a genpy.SerializationError'
+        except genpy.SerializationError as e:
+            self.assertEqual(str(e), "field data_fixed must receive 4 bytes, but 5 given")
+        except Exception:
+            assert False, 'This should have raised a genpy.SerializationError instead'
+
+        buff = StringIO()
+        m.data_var = np.array([3, 4, 5, 6], dtype=np.uint8)
+        m.data_fixed = np.array([1, 2, 3, 4, 5], dtype=np.uint8)
+        try:
+            m.serialize(buff)
+            assert False, 'This should have raised a genpy.SerializationError'
+        except genpy.SerializationError as e:
+            self.assertEqual(str(e), "field data_fixed must receive 4 bytes, but 5 given")
+        except Exception:
+            assert False, 'This should have raised a genpy.SerializationError instead'
+
+        # wrong dtype (default is np.float64) results in a different count of bytes
+        buff = StringIO()
+        m.data_var = np.array([3, 4, 5])
+        m.data_fixed = np.array([1, 2, 3, 4])
+        try:
+            m.serialize(buff)
+            assert False, 'This should have raised a genpy.SerializationError'
+        except genpy.SerializationError as e:
+            self.assertEqual(str(e), "field data_fixed must receive 4 bytes, but 32 given")
         except Exception:
             assert False, 'This should have raised a genpy.SerializationError instead'
 

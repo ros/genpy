@@ -48,6 +48,7 @@ import genmsg
 import yaml
 
 from .base import is_simple
+from .generate_struct import memoryview_len
 from .rostime import Duration
 from .rostime import TVal
 from .rostime import Time
@@ -299,14 +300,25 @@ def check_type(field_name, field_type, field_val):
         base_type = field_type[:field_type.index('[')]
 
         if type(field_val) in (bytes, str):
-            if base_type not in ['char', 'uint8']:
+            if base_type not in ('char', 'uint8'):
                 raise SerializationError('field %s must be a list or tuple type. Only uint8[] can be a string' % field_name)
             else:
                 # It's a string so its already in byte format and we
                 # don't need to check the individual bytes in the
                 # string.
                 return
-
+        if base_type in ('char', 'uint8'):
+            # check buffer protocol support
+            try:
+                length = memoryview_len(memoryview(field_val))
+                _, _, array_len = genmsg.msgs.parse_type(field_type)
+                if array_len is not None and length != array_len:
+                    raise SerializationError('field %s must receive %i bytes, but %i given' % (
+                        field_name, array_len, length))
+                # if the value supports buffer protocol, pass it directly
+                return
+            except TypeError:
+                pass  # does not support buffer protocol
         if not type(field_val) in [list, tuple]:
             raise SerializationError('field %s must be a list or tuple type' % field_name)
         for v in field_val:

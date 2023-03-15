@@ -318,11 +318,18 @@ buff.write(struct.Struct('<I%ss'%length).pack(length, var_name))""" == val, val
     for t in ['uint8[]', 'byte[]', 'uint8[10]', 'byte[20]']:
         g = genpy.generator.string_serializer_generator('foo', 'uint8[]', 'b_name', True)
         assert """length = len(b_name)
-# - if encoded as a list instead, serialize as bytes instead of string
-if type(b_name) in [list, tuple]:
-  buff.write(struct.Struct('<I%sB'%length).pack(length, *b_name))
-else:
-  buff.write(struct.Struct('<I%ss'%length).pack(length, b_name))""" == '\n'.join(g)
+# check for buffer protocol support
+try:
+  tmp = memoryview(b_name)
+  from genpy.generate_struct import memoryview_len
+  buff.write(struct.Struct('<I').pack(memoryview_len(tmp)))
+  buff.write(tmp)
+except TypeError:
+  # - if encoded as a list instead, serialize as bytes instead of string
+  if type(b_name) in [list, tuple]:
+    buff.write(struct.Struct('<I%sB'%length).pack(length, *b_name))
+  else:
+    buff.write(struct.Struct('<I%ss'%length).pack(length, b_name))""" == '\n'.join(g)
 
     # Test Deserializers
     val = """start = end

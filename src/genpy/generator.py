@@ -77,6 +77,7 @@ from . generate_struct import int32_unpack
 from . generate_struct import pack
 from . generate_struct import pack2
 from . generate_struct import reduce_pattern
+from . generate_struct import serialize as serializeit
 from . generate_struct import unpack
 from . generate_struct import unpack2
 from . generate_struct import unpack3
@@ -469,17 +470,37 @@ def string_serializer_generator(package, type_, name, serialize):  # noqa: D401
         # check to see if its a uint8/byte type, in which case we need to convert to string before serializing
         base_type, is_array, array_len = genmsg.msgs.parse_type(type_)
         if base_type in ['uint8', 'char']:
-            yield '# - if encoded as a list instead, serialize as bytes instead of string'
+            yield '# check for buffer protocol support'
             if array_len is None:
-                yield 'if type(%s) in [list, tuple]:' % var
-                yield INDENT+pack2("'<I%sB'%length", 'length, *%s' % var)
-                yield 'else:'
-                yield INDENT+pack2("'<I%ss'%length", 'length, %s' % var)
+                yield 'try:'
+                yield INDENT+'tmp = memoryview(%s)' % var
+                yield INDENT+'from genpy.generate_struct import memoryview_len'
+                yield INDENT+pack2("'<I'", "memoryview_len(tmp)")
+                yield INDENT+serializeit('tmp')
+                yield 'except TypeError:'
+                yield INDENT+'# - if encoded as a list instead, serialize as bytes instead of string'
+                yield INDENT+'if type(%s) in [list, tuple]:' % var
+                yield INDENT+INDENT+pack2("'<I%sB'%length", 'length, *%s' % var)
+                yield INDENT+'else:'
+                yield INDENT+INDENT+pack2("'<I%ss'%length", 'length, %s' % var)
             else:
-                yield 'if type(%s) in [list, tuple]:' % var
-                yield INDENT+pack('%sB' % array_len, '*%s' % var)
+                yield 'try:'
+                yield INDENT+'# we want to process str and bytes by the except clause'
+                yield INDENT+'if isinstance(%s, bytes) or isinstance(%s, str):' % (var, var)
+                yield INDENT+INDENT+'raise TypeError()'
+                yield INDENT+'tmp = memoryview(%s)' % var
+                yield 'except TypeError:'
+                yield INDENT+'# - if encoded as a list instead, serialize as bytes instead of string'
+                yield INDENT+'if type(%s) in [list, tuple]:' % var
+                yield INDENT+INDENT+pack('%sB' % array_len, '*%s' % var)
+                yield INDENT+'else:'
+                yield INDENT+INDENT+pack('%ss' % array_len, var)
                 yield 'else:'
-                yield INDENT+pack('%ss' % array_len, var)
+                yield INDENT+'from genpy.generate_struct import memoryview_len'
+                yield INDENT+'tmp_len = memoryview_len(tmp)'
+                yield INDENT+'if tmp_len != %i:' % array_len
+                yield INDENT+INDENT+'raise TypeError("expected %i bytes, got %%i" %% (tmp_len,))' % array_len
+                yield INDENT+serializeit('tmp[:%i]' % array_len)
         else:
             # FIXME: for py3k, this needs to be w/ encode(), but this interferes with actual byte data
             yield 'if python3 or type(%s) == unicode:' % (var)
