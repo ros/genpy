@@ -388,17 +388,17 @@ class MessageTest(unittest.TestCase):
         genpy.message.check_type('test', 'duration', Duration(5))
         genpy.message.check_type('test', 'float32', 5)
         genpy.message.check_type('test', 'float32', 5.0)
-        genpy.message.check_type('test', 'float32', np.int16(5))
-        genpy.message.check_type('test', 'float32', np.float32(5.0))
+        genpy.message.check_type('test', 'float32', np.intc(5))
+        genpy.message.check_type('test', 'float32', np.single(5.0))
         genpy.message.check_type('test', 'float32', float('inf'))
         genpy.message.check_type('test', 'float32', -float('inf'))
         genpy.message.check_type('test', 'float32', float('nan'))
         genpy.message.check_type('test', 'float32', -float('nan'))
         genpy.message.check_type('test', 'float32', 2147483647)   # resulting float: 2147483648.0
         genpy.message.check_type('test', 'float64', 5.0)
-        genpy.message.check_type('test', 'float64', 1 + np.finfo(np.float64).eps)
-        genpy.message.check_type('test', 'float64', np.float64(5.0))
-        genpy.message.check_type('test', 'float64', np.int32(2147483647))
+        genpy.message.check_type('test', 'float64', 1 + np.finfo(np.double).eps)
+        genpy.message.check_type('test', 'float64', np.double(5.0))
+        genpy.message.check_type('test', 'float64', np.int_(2147483647))
         # smallest representable float larger than 1.0 in builtin float type (64 bits). conversion to float32 loses precision.
         genpy.message.check_type('test', 'float32', float(1 + 2**-52))
 

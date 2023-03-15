@@ -62,8 +62,8 @@ if sys.version > '3':
 
 try:
     import numpy as np
-    _valid_float_types = [float, int, long, np.float32, np.float64, np.int8, np.int16, np.int32, np.int64, np.uint8,
-                          np.uint16, np.uint32, np.uint64]
+    _valid_float_types = [float, int, long, np.single, np.double, np.byte, np.intc, np.int_, np.longlong, np.ubyte,
+                          np.uintc, np.uint, np.ulonglong]
 except ImportError:
     _valid_float_types = [float, int, long]
 

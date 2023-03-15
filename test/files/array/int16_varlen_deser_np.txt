@@ -5,4 +5,4 @@ pattern = '<%sh'%length
 start = end
 s = struct.Struct(pattern)
 end += s.size
-data = numpy.frombuffer(str[start:end], dtype=numpy.int16, count=length)
+data = numpy.frombuffer(str[start:end], dtype=numpy.intc, count=length)
