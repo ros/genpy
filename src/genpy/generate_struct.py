@@ -77,7 +77,7 @@ def reduce_pattern(pattern):
     prev = pattern[0]
     count = 1
     new_pattern = ''
-    nums = [str(i) for i in range(0, 9)]
+    nums = [str(i) for i in range(10)]
     for c in pattern[1:]:
         if c == prev and c not in nums:
             count += 1
