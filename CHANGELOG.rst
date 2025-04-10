@@ -2,6 +2,14 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix bug in reduce_pattern (`#152 <https://github.com/ros/genpy/issues/152>`_)
+* Update maintainers (`#144 <https://github.com/ros/genpy/issues/144>`_)
+* Fix typos discovered by codespell (`#142 <https://github.com/ros/genpy/issues/142>`_)
+* (docs) Add automodule (`#143 <https://github.com/ros/genpy/issues/143>`_)
+* Contributors: Christian Clauss, Geoffrey Biggs, Matthijs van der Burgh, bigolol
+
 0.6.16 (2021-05-01)
 -------------------
 * Fix runtime incompatibility with messages generated with 0.6.14 (`#139 <https://github.com/ros/genpy/issues/139>`_)
