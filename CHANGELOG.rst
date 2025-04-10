@@ -2,8 +2,8 @@
 Changelog for package genpy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.17 (2025-04-10)
+-------------------
 * Fix bug in reduce_pattern (`#152 <https://github.com/ros/genpy/issues/152>`_)
 * Update maintainers (`#144 <https://github.com/ros/genpy/issues/144>`_)
 * Fix typos discovered by codespell (`#142 <https://github.com/ros/genpy/issues/142>`_)
