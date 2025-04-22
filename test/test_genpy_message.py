@@ -630,7 +630,7 @@ d: """ + """
         def roundtrip(m):
             yaml_text = strify_message(m)
             print(yaml_text)
-            loaded = yaml.load(yaml_text)
+            loaded = yaml.safe_load(yaml_text)
             print('loaded', loaded)
             new_inst = m.__class__()
             if loaded is not None:
